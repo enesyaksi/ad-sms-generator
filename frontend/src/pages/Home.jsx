@@ -43,21 +43,23 @@ export default function Home() {
         setLoading(true);
         setError(null);
         try {
-            const response = await generateSms(formData);
+            // Map frontend camelCase to backend snake_case
+            const apiRequest = {
+                website_url: formData.websiteUrl,
+                phone_number: formData.phoneNumber,
+                products: formData.products,
+                start_date: formData.startDate || null,
+                end_date: formData.endDate || null,
+                discount_rate: parseInt(formData.discountRate)
+            };
+
+            const response = await generateSms(apiRequest);
             setDrafts(response.drafts);
         } catch (err) {
             console.error(err);
-            // Fallback mock
-            setTimeout(() => {
-                setDrafts([
-                    { type: 'Short', content: 'Summer Sale! Get 25% OFF on Summer Dresses and Beach Towels. Limited time only. Shop at myshop.com/summer-sale' },
-                    { type: 'Urgent', content: '[Last Chance] 25% OFF Summer Sale ends soon! Grab your Summer Dress before stock runs out. Link: myshop.com/summer-sale' },
-                    { type: 'Friendly', content: 'Hey there! ☀️ Ready for summer? We have a special 25% discount just for you on all Summer Dresses. Check it out: myshop.com/summer-sale' }
-                ]);
-                setLoading(false);
-            }, 1000);
+            setError("Uyarı: SMS oluşturulamadı. Lütfen Backend'in çalıştığından emin olun.");
         } finally {
-            if (!import.meta.env.DEV) setLoading(false);
+            setLoading(false);
         }
     };
 
