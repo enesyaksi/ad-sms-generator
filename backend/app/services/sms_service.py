@@ -21,6 +21,11 @@ class SMSService:
         - Başlangıç Tarihi: {data.start_date or 'Belirtilmedi'}
         - Bitiş Tarihi: {data.end_date or 'Belirtilmedi'}
 
+        ZORUNLU KURALLAR:
+        1. Her bir taslak MUTLAKA "{data.website_url}" adresini içermelidir.
+        2. Her bir taslak MUTLAKA "{data.phone_number}" numarasını içermelidir.
+        3. Metinler akıcı olmalı, sadece link ve numara yığını olmamalıdır.
+
         İstenen Taslak Türleri (Hepsi TÜRKÇE olmalı):
         1. Kısa (Short): Öz, vurucu, yaklaşık 250 karakter.
         2. Acil (Urgent): FOMO (Fırsatı Kaçırma Korkusu) odaklı, sınırlı zaman/stok. Yaklaşık 250 karakter.
