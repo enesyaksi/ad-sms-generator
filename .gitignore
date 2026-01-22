@@ -11,3 +11,6 @@ backend/.env
 
 # Mac system files (common noise)
 .DS_Store
+
+# Generated output
+models.txt
