@@ -10,29 +10,29 @@ class SMSService:
     def _construct_prompt(self, data: SMSRequest) -> str:
         products_str = ", ".join(data.products)
         prompt = f"""
-        Act as a professional SMS marketing copywriter.
-        Create 3 distinct SMS ad drafts for a campaign.
+        Profesyonel bir SMS pazarlama metin yazarı olarak hareket et.
+        Bir kampanya için 3 farklı Türkçe SMS taslağı oluştur.
         
-        Campaign Details:
-        - Website: {data.website_url}
-        - Phone: {data.phone_number}
-        - Products: {products_str}
-        - Discount: {data.discount_rate}%
-        - Start Date: {data.start_date or 'N/A'}
-        - End Date: {data.end_date or 'N/A'}
+        Kampanya Detayları:
+        - Web Sitesi: {data.website_url}
+        - Telefon: {data.phone_number}
+        - Ürünler: {products_str}
+        - İndirim Oranı: %{data.discount_rate}
+        - Başlangıç Tarihi: {data.start_date or 'Belirtilmedi'}
+        - Bitiş Tarihi: {data.end_date or 'Belirtilmedi'}
 
-        Required Draft Types:
-        1. Short: Concise, punchy, around 250 characters.
-        2. Urgent: Focus on FOMO (Fear Of Missing Out), limited time/stock. Around 250 chars.
-        3. Friendly: Conversational, warm, emoji-rich. Around 250 chars.
+        İstenen Taslak Türleri (Hepsi TÜRKÇE olmalı):
+        1. Kısa (Short): Öz, vurucu, yaklaşık 250 karakter.
+        2. Acil (Urgent): FOMO (Fırsatı Kaçırma Korkusu) odaklı, sınırlı zaman/stok. Yaklaşık 250 karakter.
+        3. Samimi (Friendly): Konuşma dilinde, sıcak, bol emojili. Yaklaşık 250 karakter.
 
-        Format the output EXACTLY as follows (no markdown, just the content separated by delimiters):
+        Çıktıyı TAM OLARAK aşağıdaki formatta ver (markdown yok, sadece ayırıcılarla ayrılmış içerik):
         ---SHORT---
-        [Content for Short]
+        [Kısa Taslak İçeriği]
         ---URGENT---
-        [Content for Urgent]
+        [Acil Taslak İçeriği]
         ---FRIENDLY---
-        [Content for Friendly]
+        [Samimi Taslak İçeriği]
         """
         return prompt
 
