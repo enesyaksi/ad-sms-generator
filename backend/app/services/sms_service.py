@@ -22,9 +22,9 @@ class SMSService:
         - End Date: {data.end_date or 'N/A'}
 
         Required Draft Types:
-        1. Short: Concise, punchy, under 160 chars if possible.
-        2. Urgent: Focus on FOMO (Fear Of Missing Out), limited time/stock.
-        3. Friendly: Conversational, warm, emoji-rich.
+        1. Short: Concise, punchy, around 250 characters.
+        2. Urgent: Focus on FOMO (Fear Of Missing Out), limited time/stock. Around 250 chars.
+        3. Friendly: Conversational, warm, emoji-rich. Around 250 chars.
 
         Format the output EXACTLY as follows (no markdown, just the content separated by delimiters):
         ---SHORT---
