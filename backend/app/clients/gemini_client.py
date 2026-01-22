@@ -6,7 +6,7 @@ class GeminiClient:
         if not GEMINI_API_KEY:
             raise ValueError("GEMINI_API_KEY is not set")
         genai.configure(api_key=GEMINI_API_KEY)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel('gemini-flash-latest')
 
     async def generate_text(self, prompt: str) -> str:
         try:
