@@ -1,0 +1,13 @@
+
+# Backend virtual environment
+backend/venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+backend/.env
+
+# Mac system files (common noise)
+.DS_Store
