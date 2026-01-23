@@ -8,9 +8,16 @@ class GeminiClient:
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel('gemini-flash-latest')
 
+    async def generate_text(self, prompt: str) -> str:
+        try:
+            response = self.model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            print(f"Error calling Gemini: {e}")
+            raise e
+
     async def generate_json(self, prompt: str) -> dict:
         try:
-            # Re-configuring for JSON mode if supported, or just requesting strict JSON in prompt
             response = self.model.generate_content(
                 prompt,
                 generation_config={"response_mime_type": "application/json"}

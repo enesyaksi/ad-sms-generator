@@ -162,20 +162,38 @@ class SMSService:
         print(f"DEBUG: Scraped candidates: {scraped_data['candidates']}")
         
         # New AI-powered identification
-        best_phone = await self._identify_best_phone(
-            data.website_url, 
-            scraped_data["info_text"], 
-            scraped_data["candidates"]
-        )
+        best_phone = "Belirtilmedi"
+        try:
+            best_phone = await self._identify_best_phone(
+                data.website_url, 
+                scraped_data["info_text"], 
+                scraped_data["candidates"]
+            )
+        except Exception as e:
+            if "429" in str(e):
+                print("DEBUG: 429 during phone ID, using Belirtilmedi as fallback")
+            else:
+                raise e
+        
         print(f"DEBUG: AI identified best phone: {best_phone}")
         
         # Construct dynamic prompt
         prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone)
         
-        # Call Gemini
+        # Call Gemini with retry for 429
         print("DEBUG: Calling Gemini for drafts...")
-        generated_text = await self.client.generate_text(prompt)
-        print(f"DEBUG: Generated text length: {len(generated_text) if generated_text else 0}")
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                generated_text = await self.client.generate_text(prompt)
+                print(f"DEBUG: Generated text length: {len(generated_text) if generated_text else 0}")
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries - 1:
+                    print(f"DEBUG: 429 detected, retrying in 5s... (Attempt {attempt+1})")
+                    await asyncio.sleep(5)
+                else:
+                    raise e
         
         # Parse Response
         drafts = self._parse_generated_text(generated_text)
