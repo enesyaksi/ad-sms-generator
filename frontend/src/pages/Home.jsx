@@ -4,7 +4,7 @@ import { generateSms } from '../services/api';
 export default function Home() {
     const [formData, setFormData] = useState({
         websiteUrl: 'https://myshop.com/summer-sale',
-        phoneNumber: '+1 (555) 123-4567',
+
         products: ['Summer Dress', 'Beach Towel'],
         startDate: '',
         endDate: '',
@@ -46,7 +46,7 @@ export default function Home() {
             // Map frontend camelCase to backend snake_case
             const apiRequest = {
                 website_url: formData.websiteUrl,
-                phone_number: formData.phoneNumber,
+
                 products: formData.products,
                 start_date: formData.startDate || null,
                 end_date: formData.endDate || null,
@@ -96,21 +96,7 @@ export default function Home() {
                             <p className="text-xs text-slate-500">Ürün detaylarını almak için bu sayfayı tarayacağız.</p>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">İletişim Numarası</label>
-                            <div className="flex w-full items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden transition-all">
-                                <div className="pl-3 flex items-center justify-center text-slate-400">
-                                    <span className="material-symbols-outlined">call</span>
-                                </div>
-                                <input
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleChange}
-                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 h-11 text-sm outline-none px-2"
-                                    placeholder="+90 (555) 000-0000" type="tel"
-                                />
-                            </div>
-                        </div>
+
 
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Satıştaki Ürünler</label>
@@ -271,16 +257,7 @@ export default function Home() {
                 </div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto flex flex-col items-center justify-center gap-6 border-t border-slate-200 dark:border-slate-800 pt-8">
-                <button className="w-full md:w-auto flex items-center justify-center gap-3 px-12 py-4 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-lg shadow-lg hover:shadow-primary/30 transition-all transform hover:-translate-y-0.5">
-                    <span className="material-symbols-outlined text-[24px]">save_alt</span>
-                    Dışa Aktar
-                </button>
-                <div className="flex items-center gap-2 text-sm text-slate-400">
-                    <span className="material-symbols-outlined text-[16px]">info</span>
-                    <span>Kampanya taslaklarınıza kaydedilecek ve inceleme için dışa aktarılacaktır.</span>
-                </div>
-            </div>
+
         </div>
     );
 }
