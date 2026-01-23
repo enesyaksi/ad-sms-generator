@@ -1,241 +1,181 @@
-# AI Ad Creative Generator – Template Repository
+# AI SMS Ad Generator
 
-> ⚠️ **This repository contains no implementation code by design.**  
-> Interns must create the folder structure and code according to this document.
-
-A template project designed for intern evaluation. It defines the architecture, rules, and expectations for a full-stack AI-powered ad creative generator.
+A full-stack web application that leverages Google Gemini AI to generate high-quality, context-aware SMS ad drafts. The system scrapes target websites to understand product context and automatically identifies the best contact phone number for the campaign.
 
 ---
 
-## Table of Contents
+## � Table of Contents
 
-- [Project Overview](#project-overview)
-- [High-Level Architecture](#high-level-architecture)
-- [Backend Architecture](#backend-architecture)
-- [Frontend Architecture](#frontend-architecture)
-- [API Contract](#api-contract)
-- [Prompt Construction](#prompt-construction)
-- [Development Rules](#development-rules)
-- [Evaluation Criteria](#evaluation-criteria)
-- [Ownership](#ownership)
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [High-Level Architecture](#-high-level-architecture)
+- [API Documentation](#-api-documentation)
+- [Folder Structure](#-folder-structure)
+- [Known Limitations](#-known-limitations)
+- [License](#-license)
 
 ---
 
-## Project Overview
+## �🚀 Quick Start
 
-The goal of this project is to build a web-based application that generates advertising images using AI.
+### Prerequisites
+- **Node.js** (v18+)
+- **Python** (v3.10+)
+- **Google Gemini API Key** (Accessible via [Google AI Studio](https://aistudio.google.com/))
 
-**Users will be able to:**
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/Scripts/activate  # Windows
+   # or
+   source venv/bin/activate      # Mac/Linux
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Configure environment:
+   Create a `.env` file in the `backend` folder:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+5. Run the server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-- Enter an ad headline
-- Describe the desired visual
-- Select an ad size (e.g., `300x250`, `320x480`)
-- Choose an AI image generation model (ChatGPT or Gemini)
-- Generate and preview an AI-created image
-
-This project simulates a real-world full-stack development workflow.
-
----
-
-## High-Level Architecture
-
-```
-React Frontend → Python Backend (API) → AI Providers (OpenAI / Gemini)
-```
-
-| Layer | Responsibilities |
-|-------|------------------|
-| **Frontend** | UI rendering, user interaction, API communication |
-| **Backend** | Business logic, prompt construction, AI provider selection |
-| **AI Providers** | Image generation only |
-
-> ⚠️ **Important:** Frontend must never communicate directly with AI providers.
-
----
-
-## Backend Architecture
-
-The backend must follow a **layered architecture**.
-
-### Layers
-
-| Layer | Responsibility |
-|-------|----------------|
-| **Controller** | HTTP request / response handling |
-| **Service** | Business logic and orchestration |
-| **Client** | External AI provider communication |
-| **Util** | Shared helpers and prompt building |
-| **Model** | Request and response schemas |
-| **Config** | Environment and application configuration |
-
-### Required Folder Structure
-
-```
-backend/
-├── app/
-│   ├── main.py
-│   │
-│   ├── controllers/
-│   │   └── image_controller.py
-│   │
-│   ├── services/
-│   │   └── image_generation_service.py
-│   │
-│   ├── clients/
-│   │   ├── openai_client.py
-│   │   └── gemini_client.py
-│   │
-│   ├── utils/
-│   │   ├── prompt_builder.py
-│   │   └── image_utils.py
-│   │
-│   ├── models/
-│   │   ├── request_models.py
-│   │   └── response_models.py
-│   │
-│   ├── config/
-│   │   └── settings.py
-│   │
-│   └── exceptions/
-│       └── api_exceptions.py
-│
-├── requirements.txt
-└── .env.example
-```
-
-### Backend Rules
-
-- ✅ Controllers must **not** contain business logic
-- ✅ Services must **not** contain HTTP logic
-- ✅ Clients must **only** handle external API calls
-- ✅ Prompt construction must be isolated in `utils`
-- ✅ API keys must be loaded via environment variables
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## Frontend Architecture
+## 🛠 Features
 
-The frontend must be implemented using **React.js** with functional components.
-
-### Required Folder Structure
-
-```
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── Form/
-│   │   │   └── AdForm.jsx
-│   │   │
-│   │   ├── Preview/
-│   │   │   └── ImagePreview.jsx
-│   │   │
-│   │   └── common/
-│   │       └── Button.jsx
-│   │
-│   ├── services/
-│   │   └── api.js
-│   │
-│   ├── pages/
-│   │   └── Home.jsx
-│   │
-│   ├── App.jsx
-│   └── main.jsx
-│
-└── package.json
-```
-
-### Frontend Rules
-
-- ✅ No API keys in frontend
-- ✅ API calls must be isolated in `services`
-- ✅ Components must be small and reusable
-- ✅ UI must follow the **Google Stitch** design
+- **Context-Aware Generation**: Automatically scrapes the target website to understand product details and brand voice.
+- **AI-Powered Phone Extraction**: Identifies the primary customer service number from the website (footer, contact page).
+- **Dynamic Draft Count**: Generate between 1 and 10 distinct SMS drafts in a single request.
+- **Audience Targeting**: Customizes tone and language based on target audience tags (e.g., "Students", "Luxury Buyers").
+- **Turkish Support**: Native support for Turkish language and date formatting (including year enforcement).
+- **Rate-Limit Resilience**: Built-in retry logic to handle Gemini API per-minute quotas.
 
 ---
 
-## API Contract
+## 🏗 High-Level Architecture
 
-### Endpoint
+The application follows a modern decoupled architecture:
 
+1. **Frontend (React)**: Collects campaign parameters and user preferences via a dynamic UI.
+2. **Backend (FastAPI)**: 
+   - orchestrates the scraping process using `BeautifulSoup`.
+   - Analyzes raw text and candidate numbers using AI JSON mode.
+   - Builds custom prompts for SMS generation.
+3. **AI Provider (Gemini)**: Acts as the creative engine for text generation and structured data analysis.
+
+```mermaid
+graph LR
+    A[React Frontend] --> B[FastAPI Backend]
+    B --> C[BeautifulSoup Scraper]
+    B --> D[Google Gemini Pro/Flash]
+    C --> B
+    D --> B
 ```
-POST /generate-image
-```
 
-### Request Body
+### Tech Stack
+- **Frontend**: React, Vite, Vanilla CSS.
+- **Backend**: FastAPI (Python), httpx.
+- **AI**: Google Generative AI (Gemini SDK).
+- **Scraping**: BeautifulSoup4.
 
+---
+
+## 🔌 API Documentation
+
+### Generate SMS Drafts
+**Endpoint**: `POST /generate-sms`
+
+**Request Body**:
 ```json
 {
-  "headline": "Summer Sale",
-  "description": "Minimal product ad with bright background",
-  "size": "300x250",
-  "model": "chatgpt"
+  "website_url": "https://example.com",
+  "products": ["Product A", "Product B"],
+  "discount_rate": 20,
+  "message_count": 3,
+  "target_audience": "Gençler",
+  "start_date": "2026-02-01",
+  "end_date": "2026-02-15"
 }
 ```
 
-### Response Body
-
+**Response Body**:
 ```json
 {
-  "image": "base64_or_url",
-  "provider": "chatgpt",
-  "size": "300x250"
+  "drafts": [
+    {
+      "type": "Klasik",
+      "content": "Harika fırsat! Product A şimdi %20 indirimle..."
+    },
+    {
+       "type": "Acil",
+       "content": "SON ŞANS! Kampanya 15.02.2026 tarihinde bitiyor..."
+    }
+  ]
 }
 ```
 
 ---
 
-## Prompt Construction
-
-Prompt building must happen **only in the backend**.
-
-### Responsibilities
-
-- Merge headline and visual description
-- Apply ad size constraints
-- Optimize prompt for ad creatives
-- Handle provider-specific formatting
-
-### Implementation Location
+## 📝 Folder Structure
 
 ```
-backend/app/utils/prompt_builder.py
+.
+├── backend/
+│   ├── app/
+│   │   ├── controllers/   # API Routers
+│   │   ├── services/      # Business logic (Scraping + AI prompt building)
+│   │   ├── clients/       # Gemini API client
+│   │   ├── models/        # Pydantic request/response schemas
+│   │   └── config/        # Env settings
+│   └── requirements.txt
+└── frontend/
+    ├── src/
+    │   ├── pages/         # Home page logic
+    │   ├── services/      # Axios API service
+    │   └── components/    # UI elements
+    └── package.json
 ```
 
 ---
 
-## Development Rules
+## ⚠️ Known Limitations
 
-| Rule | Description |
-|------|-------------|
-| **Template Usage** | Interns must use "Use this template" to create their own repository |
-| **Development Location** | All development happens in the intern's repository |
-| **Issue Tracking** | One GitHub issue = one feature |
-| **Branching** | One feature = one branch |
-| **Main Protection** | No direct commits to `main` |
-| **Code Review** | All changes must go through Pull Requests |
+### Cloudflare Bot Protection
+Websites protected by advanced bot detection systems (like Cloudflare) may return a `403 Forbidden` error during the scraping process. 
+- **Impact**: The system will not be able to read product context or extract phone numbers for these specific sites.
+- **Handling**: In these cases, the AI will generate generic drafts based on your manual input and may omit the phone number (falling back to "Belirtilmedi").
 
----
-
-## Evaluation Criteria
-
-Interns will be evaluated based on:
-
-- 📐 Architecture compliance
-- 📝 Code quality and readability
-- 🧩 Proper layer separation
-- 🌿 Git discipline (branches, commits, PRs)
-- 📚 Documentation clarity
+### Gemini Rate Limits (RPM)
+Free-tier API keys have a strict limit of 15 Requests Per Minute (RPM) or lower.
+- **Impact**: Rapid successive generations might trigger "429 Too Many Requests".
+- **Handling**: The backend includes a 5-second automatic retry logic for transient 429 errors.
 
 ---
 
-## Ownership
-
-- Architecture and rules are defined in this repository
-- Deviations must be proposed and discussed before implementation
-- This repository remains clean and implementation-free
-
----
-
-## License
-
-This project is for internal evaluation purposes only.
+## ⚖️ License
+Internal evaluation project.
