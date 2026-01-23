@@ -62,8 +62,9 @@ class SMSService:
         1. Her bir taslak MUTLAKA "{data.website_url}" adresini içermelidir.
         2. Metinler akıcı olmalı.
         3. Kampanya tarihlerini ve indirim oranını metne doğal bir şekilde yedir.
-        4. Hedef kitleye ({data.target_audience}) uygun bir dil kullan.
-        5. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
+        4. Tarih belirtirken MUTLAKA yılı da ekle (Örn: 29.01.2026 veya 29 Ocak 2026). Sadece gün/ay yazma.
+        5. Hedef kitleye ({data.target_audience}) uygun bir dil kullan.
+        6. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
 
         İstenen Taslak Türleri:
         {", ".join(selected_types)}
