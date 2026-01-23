@@ -10,14 +10,20 @@ class GeminiClient:
 
     async def generate_text(self, prompt: str) -> str:
         try:
-            # Gemini calls are synchronous, wrap if needed or use run_in_executor in real production
-            # For this MVP, direct call is fine or we can assume async usage if library supports it (it handles it).
-            # Actually google-generativeai 'generate_content' is synchronous blocking by default 
-            # unless using the async client which is newer. 
-            # Let's use standard call for simplicity, or wrap in future.
-            
             response = self.model.generate_content(prompt)
             return response.text
         except Exception as e:
             print(f"Error calling Gemini: {e}")
             raise e
+
+    async def generate_json(self, prompt: str) -> dict:
+        try:
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            import json
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error calling Gemini for JSON: {e}")
+            return {"phone": None}
