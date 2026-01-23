@@ -20,20 +20,30 @@ class SMSService:
             "info_text": "Web sitesi içeriği alınamadı.",
             "phone_number": "Belirtilmedi"
         }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
         try:
-            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True, headers=headers) as client:
                 response = await client.get(url)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
-                    # Extract phone numbers using regex
-                    # This regex seeks common Turkish and international formats
-                    phone_pattern = r'(?:\+90|0)?\s?[2-9]\d{2}\s?\d{3}\s?\d{2}\s?\d{2}'
+                    # Extract phone numbers using broader regex for Turkish formats
+                    # 1. Standard (05xx, 02xx etc) 
+                    # 2. Customer service (444 xxxx)
+                    # 3. 0850 series
+                    phone_pattern = r'((?:\+90|0?)\s?\(?[2-9]\d{2}\)?\s?\d{3}\s?\d{2}\s?\d{2})|(444\s?\d{4})|(0850\s?\d{3}\s?\d{2}\s?\d{2})'
                     text_content = soup.get_text()
-                    phones = re.findall(phone_pattern, text_content)
+                    phones = []
+                    for match in re.finditer(phone_pattern, text_content):
+                        num = match.group().strip()
+                        if len(re.sub(r'\D', '', num)) >= 7: # Ensure at least 7 digits
+                            phones.append(num)
+                    
                     if phones:
-                        # Take the first unique one
-                        scraped_data["phone_number"] = list(set(phones))[0].strip()
+                        scraped_data["phone_number"] = list(set(phones))[0]
+                        print(f"DEBUG: Found phones: {phones}")
 
                     # Extract meta description and title
                     title = soup.title.string if soup.title else ""
@@ -42,12 +52,13 @@ class SMSService:
                     if meta_tag:
                         meta_desc = meta_tag.get("content", "")
                     
-                    # Extract some body text (first 1000 chars)
+                    # Extract more body text (first 5000 chars) to reach footer info
                     for script in soup(["script", "style"]):
                         script.decompose()
-                    body_text = soup.get_text(separator=' ', strip=True)[:1000]
+                    body_text = soup.get_text(separator=' ', strip=True)[:5000]
                     
                     scraped_data["info_text"] = f"Başlık: {title}\nDescription: {meta_desc}\nİçerik Özeti: {body_text}"
+                    print(f"DEBUG: Scraped title: {title}")
         except Exception as e:
             print(f"Scraping error: {e}")
         return scraped_data
