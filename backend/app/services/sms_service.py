@@ -1,4 +1,5 @@
 import httpx
+import re
 from bs4 import BeautifulSoup
 from app.clients.gemini_client import GeminiClient
 from app.models.request_models import SMSRequest
@@ -14,13 +15,26 @@ class SMSService:
             "Lüks", "Genç", "Vurucu"
         ]
 
-    async def _scrape_website(self, url: str) -> str:
+    async def _scrape_website(self, url: str) -> dict:
+        scraped_data = {
+            "info_text": "Web sitesi içeriği alınamadı.",
+            "phone_number": "Belirtilmedi"
+        }
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                 response = await client.get(url)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
+                    # Extract phone numbers using regex
+                    # This regex seeks common Turkish and international formats
+                    phone_pattern = r'(?:\+90|0)?\s?[2-9]\d{2}\s?\d{3}\s?\d{2}\s?\d{2}'
+                    text_content = soup.get_text()
+                    phones = re.findall(phone_pattern, text_content)
+                    if phones:
+                        # Take the first unique one
+                        scraped_data["phone_number"] = list(set(phones))[0].strip()
+
                     # Extract meta description and title
                     title = soup.title.string if soup.title else ""
                     meta_desc = ""
@@ -33,12 +47,12 @@ class SMSService:
                         script.decompose()
                     body_text = soup.get_text(separator=' ', strip=True)[:1000]
                     
-                    return f"Başlık: {title}\nDescription: {meta_desc}\nİçerik Özeti: {body_text}"
+                    scraped_data["info_text"] = f"Başlık: {title}\nDescription: {meta_desc}\nİçerik Özeti: {body_text}"
         except Exception as e:
             print(f"Scraping error: {e}")
-        return "Web sitesi içeriği alınamadı."
+        return scraped_data
 
-    def _construct_prompt(self, data: SMSRequest, scraped_info: str) -> str:
+    def _construct_prompt(self, data: SMSRequest, scraped_info: str, phone_number: str) -> str:
         products_str = ", ".join(data.products)
         count = min(max(data.message_count, 1), 10)
         selected_types = self.draft_types[:count]
@@ -49,6 +63,7 @@ class SMSService:
         
         Kampanya Detayları:
         - Web Sitesi: {data.website_url}
+        - İletişim Numarası: {phone_number}
         - Ürünler: {products_str}
         - İndirim Oranı: %{data.discount_rate}
         - Başlangıç Tarihi: {data.start_date or 'Belirtilmedi'}
@@ -60,11 +75,12 @@ class SMSService:
 
         ZORUNLU KURALLAR:
         1. Her bir taslak MUTLAKA "{data.website_url}" adresini içermelidir.
-        2. Metinler akıcı olmalı.
-        3. Kampanya tarihlerini ve indirim oranını metne doğal bir şekilde yedir.
-        4. Tarih belirtirken MUTLAKA yılı da ekle (Örn: 29.01.2026 veya 29 Ocak 2026). Sadece gün/ay yazma.
-        5. Hedef kitleye ({data.target_audience}) uygun bir dil kullan.
-        6. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
+        2. Her bir taslak MUTLAKA "{phone_number}" iletişim numarasini içermelidir (eğer numara 'Belirtilmedi' değilse).
+        3. Metinler akıcı olmalı.
+        4. Kampanya tarihlerini ve indirim oranını metne doğal bir şekilde yedir.
+        5. Tarih belirtirken MUTLAKA yılı da ekle (Örn: 29.01.2026 veya 29 Ocak 2026). Sadece gün/ay yazma.
+        6. Hedef kitleye ({data.target_audience}) uygun bir dil kullan.
+        7. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
 
         İstenen Taslak Türleri:
         {", ".join(selected_types)}
@@ -79,10 +95,10 @@ class SMSService:
 
     async def generate_campaign_drafts(self, data: SMSRequest) -> SMSResponse:
         # Scrape website content
-        scraped_info = await self._scrape_website(data.website_url)
+        scraped_data = await self._scrape_website(data.website_url)
         
         # Construct dynamic prompt
-        prompt = self._construct_prompt(data, scraped_info)
+        prompt = self._construct_prompt(data, scraped_data["info_text"], scraped_data["phone_number"])
         
         # Call Gemini
         generated_text = await self.client.generate_text(prompt)
