@@ -9,6 +9,8 @@ export default function Home() {
         startDate: '',
         endDate: '',
         discountRate: 25,
+        messageCount: 3,
+        targetAudience: ''
     });
 
     const [productInput, setProductInput] = useState('');
@@ -180,16 +182,14 @@ export default function Home() {
                             <span className="material-symbols-outlined text-primary">group</span>
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Hedef Kitle</h3>
                         </div>
-                        <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Müşteri Listesi (CSV/Excel)</label>
-                        <div className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer group">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                <div className="p-3 bg-white dark:bg-slate-700 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                    <span className="material-symbols-outlined text-slate-400 dark:text-slate-300 text-3xl">cloud_upload</span>
-                                </div>
-                                <p className="mb-1 text-sm text-slate-500 dark:text-slate-400"><span className="font-semibold text-primary">Yüklemek için tıklayın</span> veya sürükleyip bırakın</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">CSV, XLS veya XLSX (MAKS. 10MB)</p>
-                            </div>
-                        </div>
+                        <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Kitle Tanımı (İsteğe Bağlı)</label>
+                        <textarea
+                            name="targetAudience"
+                            value={formData.targetAudience}
+                            onChange={handleChange}
+                            className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-y min-h-[100px]"
+                            placeholder="Örn: 20-30 yaş arası, teknolojiye ilgili, İzmir'de yaşayan üniversite öğrencileri..."
+                        />
                     </div>
 
                     <div className="flex pt-2">
