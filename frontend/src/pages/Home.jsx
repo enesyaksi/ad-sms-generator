@@ -4,7 +4,6 @@ import { generateSms } from '../services/api';
 export default function Home() {
     const [formData, setFormData] = useState({
         websiteUrl: 'https://myshop.com/summer-sale',
-
         products: ['Summer Dress', 'Beach Towel'],
         startDate: '',
         endDate: '',
@@ -17,6 +16,7 @@ export default function Home() {
     const [drafts, setDrafts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [editingIndex, setEditingIndex] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,15 +44,16 @@ export default function Home() {
     const handleGenerate = async () => {
         setLoading(true);
         setError(null);
+        setEditingIndex(null);
         try {
-            // Map frontend camelCase to backend snake_case
             const apiRequest = {
                 website_url: formData.websiteUrl,
-
                 products: formData.products,
                 start_date: formData.startDate || null,
                 end_date: formData.endDate || null,
-                discount_rate: parseInt(formData.discountRate)
+                discount_rate: parseInt(formData.discountRate),
+                message_count: parseInt(formData.messageCount),
+                target_audience: formData.targetAudience
             };
 
             const response = await generateSms(apiRequest);
@@ -63,6 +64,20 @@ export default function Home() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCopy = (text) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    const handleEditToggle = (index) => {
+        setEditingIndex(editingIndex === index ? null : index);
+    };
+
+    const handleDraftEditChange = (index, newValue) => {
+        const updatedDrafts = [...drafts];
+        updatedDrafts[index].content = newValue;
+        setDrafts(updatedDrafts);
     };
 
     const badges = {
@@ -81,6 +96,7 @@ export default function Home() {
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Yapılandırma</h3>
                         </div>
 
+                        {/* Website URL */}
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Web Sitesi URL</label>
                             <div className="flex w-full items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden transition-all">
@@ -98,8 +114,7 @@ export default function Home() {
                             <p className="text-xs text-slate-500">Ürün detaylarını almak için bu sayfayı tarayacağız.</p>
                         </div>
 
-
-
+                        {/* Products */}
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Satıştaki Ürünler</label>
                             <div className="flex flex-wrap items-center gap-2 w-full p-2 min-h-[48px] rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
@@ -121,6 +136,7 @@ export default function Home() {
                             </div>
                         </div>
 
+                        {/* Date & Discount */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col gap-2">
                                 <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Kampanya Süresi</label>
@@ -175,8 +191,29 @@ export default function Home() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Message Count Input */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Oluşturulacak Mesaj Sayısı</label>
+                            <div className="flex w-full items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden transition-all">
+                                <div className="pl-3 flex items-center justify-center text-slate-400">
+                                    <span className="material-symbols-outlined">numbers</span>
+                                </div>
+                                <input
+                                    name="messageCount"
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    value={formData.messageCount}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 h-11 text-sm outline-none px-2"
+                                    placeholder="3"
+                                />
+                            </div>
+                        </div>
                     </div>
 
+                    {/* Target Audience */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4">
                         <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4 mb-2">
                             <span className="material-symbols-outlined text-primary">group</span>
@@ -238,16 +275,32 @@ export default function Home() {
                                         </span>
                                     </div>
                                     <div className="p-4">
-                                        <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                                            {draft.content}
-                                        </p>
+                                        {editingIndex === i ? (
+                                            <textarea
+                                                className="w-full min-h-[100px] p-2 border border-slate-300 rounded-md text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary/50 outline-none"
+                                                value={draft.content}
+                                                onChange={(e) => handleDraftEditChange(i, e.target.value)}
+                                            />
+                                        ) : (
+                                            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                                                {draft.content}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="px-4 py-3 flex gap-2 justify-end border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-                                        <button className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Kopyala">
+                                        <button
+                                            onClick={() => handleCopy(draft.content)}
+                                            className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                                            title="Kopyala"
+                                        >
                                             <span className="material-symbols-outlined text-[18px]">content_copy</span>
                                         </button>
-                                        <button className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Düzenle">
-                                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                                        <button
+                                            onClick={() => handleEditToggle(i)}
+                                            className={`p-1.5 rounded-md transition-colors ${editingIndex === i ? 'text-primary bg-primary/10' : 'text-slate-400 hover:text-primary hover:bg-primary/10'}`}
+                                            title="Düzenle"
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">{editingIndex === i ? 'save' : 'edit'}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -256,8 +309,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-
-
         </div>
     );
 }
