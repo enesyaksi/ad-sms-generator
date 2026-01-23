@@ -8,16 +8,15 @@ class GeminiClient:
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel('gemini-flash-latest')
 
-    async def generate_text(self, prompt: str) -> str:
+    async def generate_json(self, prompt: str) -> dict:
         try:
-            # Gemini calls are synchronous, wrap if needed or use run_in_executor in real production
-            # For this MVP, direct call is fine or we can assume async usage if library supports it (it handles it).
-            # Actually google-generativeai 'generate_content' is synchronous blocking by default 
-            # unless using the async client which is newer. 
-            # Let's use standard call for simplicity, or wrap in future.
-            
-            response = self.model.generate_content(prompt)
-            return response.text
+            # Re-configuring for JSON mode if supported, or just requesting strict JSON in prompt
+            response = self.model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            import json
+            return json.loads(response.text)
         except Exception as e:
-            print(f"Error calling Gemini: {e}")
-            raise e
+            print(f"Error calling Gemini for JSON: {e}")
+            return {"phone": None}
