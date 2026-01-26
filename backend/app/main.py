@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.controllers.sms_controller import router as sms_router
+from app.controllers.auth_controller import router as auth_router
 from app.exceptions.api_exceptions import register_exceptions
+from app.config.firebase_config import initialize_firebase
+
+# Initialize Firebase Admin SDK
+initialize_firebase()
 
 app = FastAPI(
     title="AdManager SMS Generator",
@@ -26,6 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(sms_router)
+app.include_router(auth_router)
 register_exceptions(app)
 
 @app.get("/")
