@@ -5,8 +5,11 @@ venv/
 __pycache__/
 *.pyc
 
+
 # Environment variables
 .env
+.env.local
+.env.*.local
 backend/.env
 
 # Mac system files (common noise)
@@ -14,3 +17,9 @@ backend/.env
 
 # Generated output
 models.txt
+
+# Firebase
+serviceAccountKey.json
+**/serviceAccountKey.json
+firebase-debug.log
+.firebase/
