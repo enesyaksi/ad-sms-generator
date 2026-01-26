@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 import { customersApi } from '../services/api';
 
 const Dashboard = () => {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         fetchCustomers();
@@ -31,186 +29,166 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-hidden min-h-screen">
-            <div className="flex h-screen w-full">
-                {/* Sidebar */}
-                <Sidebar />
+        <div className="p-6 md:p-10 transition-all duration-300">
+            <div className="max-w-7xl mx-auto space-y-8">
+                {/* Breadcrumb */}
+                <nav aria-label="Breadcrumb" className="flex">
+                    <ol className="flex items-center space-x-2 text-sm">
+                        <li>
+                            <Link to="/" className="text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">Ana Sayfa</Link>
+                        </li>
+                        <li>
+                            <span className="text-slate-300 dark:text-slate-600">/</span>
+                        </li>
+                        <li>
+                            <span aria-current="page" class="font-medium text-slate-900 dark:text-slate-100">Müşteri Seçimi</span>
+                        </li>
+                    </ol>
+                </nav>
 
-                <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-                    {/* Mobile Header */}
-                    <header className="md:hidden h-16 bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 shrink-0">
-                        <div className="font-bold text-lg text-slate-900 dark:text-white">Reklam Yöneticisi</div>
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                {/* Title & Actions */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="flex flex-col gap-2 text-left">
+                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Müşterilerimiz</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-lg font-light">Lütfen kampanya oluşturmak için bir müşteri seçin.</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            to="/customers/new"
+                            className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/25 whitespace-nowrap"
                         >
-                            <span className="material-symbols-outlined">menu</span>
+                            <span className="material-symbols-outlined text-[20px]">add</span>
+                            <span>Yeni Müşteri Ekle</span>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Filter Bar */}
+                <div className="bg-surface-light dark:bg-surface-dark p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-2">
+                    <div className="relative flex-1 w-full text-left">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="material-symbols-outlined text-slate-400">search</span>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="İsim, marka veya URL ile müşteri ara..."
+                            className="block w-full pl-10 pr-3 py-2.5 border-none bg-transparent rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 sm:text-sm outline-none"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+                    <div className="flex items-center gap-2 w-full sm:w-auto px-2">
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filtrele
                         </button>
-                    </header>
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            <span className="material-symbols-outlined text-[18px]">sort</span>
+                            Sırala
+                        </button>
+                    </div>
+                </div>
 
-                    <div className="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 md:p-10 scroll-smooth">
-                        <div className="max-w-7xl mx-auto space-y-8">
-                            {/* Breadcrumb */}
-                            <nav aria-label="Breadcrumb" className="flex">
-                                <ol className="flex items-center space-x-2 text-sm">
-                                    <li>
-                                        <Link to="/" className="text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors">Ana Sayfa</Link>
-                                    </li>
-                                    <li>
-                                        <span className="text-slate-300 dark:text-slate-600">/</span>
-                                    </li>
-                                    <li>
-                                        <span aria-current="page" class="font-medium text-slate-900 dark:text-slate-100">Müşteri Seçimi</span>
-                                    </li>
-                                </ol>
-                            </nav>
-
-                            {/* Title & Actions */}
-                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                                <div className="flex flex-col gap-2">
-                                    <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Müşterilerimiz</h2>
-                                    <p className="text-slate-500 dark:text-slate-400 text-lg font-light">Lütfen kampanya oluşturmak için bir müşteri seçin.</p>
+                {/* Customer Grid */}
+                {loading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <div key={i} className="bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-[180px] animate-pulse">
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <Link
-                                        to="/customers/new"
-                                        className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/25"
-                                    >
-                                        <span className="material-symbols-outlined text-[20px]">add</span>
-                                        <span>Yeni Müşteri Ekle</span>
-                                    </Link>
+                                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
                                 </div>
                             </div>
-
-                            {/* Filter Bar */}
-                            <div className="bg-surface-light dark:bg-surface-dark p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center gap-2">
-                                <div className="relative flex-1 w-full">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span className="material-symbols-outlined text-slate-400">search</span>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="İsim, marka veya URL ile müşteri ara..."
-                                        className="block w-full pl-10 pr-3 py-2.5 border-none bg-transparent rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 sm:text-sm outline-none"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
+                        ))}
+                    </div>
+                ) : filteredCustomers.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredCustomers.map((customer) => (
+                            <div key={customer.id} className="group bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full relative overflow-hidden text-left">
+                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="material-symbols-outlined text-slate-400 hover:text-primary">more_horiz</span>
                                 </div>
-                                <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
-                                <div className="flex items-center gap-2 w-full sm:w-auto px-2">
-                                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                        <span className="material-symbols-outlined text-[18px]">filter_list</span>
-                                        Filtrele
-                                    </button>
-                                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                        <span className="material-symbols-outlined text-[18px]">sort</span>
-                                        Sırala
-                                    </button>
+                                <div className="flex flex-col gap-4">
+                                    <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                                        {customer.logo_url ? (
+                                            <img src={customer.logo_url} alt={customer.name} className="w-full h-full object-contain p-2" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-primary bg-primary/10 text-xl font-bold">
+                                                {customer.name?.charAt(0)}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors truncate">{customer.name}</h3>
+                                        <a
+                                            href={customer.website_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm text-slate-500 dark:text-slate-400 hover:underline truncate block"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {customer.website_url?.replace(/^https?:\/\//, '')}
+                                        </a>
+                                    </div>
+                                </div>
+                                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
+                                    <span className="text-xs text-slate-400 font-medium group-hover:text-primary flex items-center gap-1 transition-colors">
+                                        Kampanya Başlat
+                                        <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                    </span>
                                 </div>
                             </div>
+                        ))}
+                        {/* "Add New" Card */}
+                        <Link
+                            to="/customers/new"
+                            className="group bg-background-light dark:bg-background-dark rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 p-5 hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
+                        >
+                            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
+                            </div>
+                            <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary">Yeni Ekle</span>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 bg-surface-light dark:bg-surface-dark rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                        <div className="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+                            <span className="material-symbols-outlined text-slate-400 text-4xl">search_off</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Müşteri Bulunamadı</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2">Aramanızla eşleşen bir müşteri bulunamadı veya henüz müşteri eklenmedi.</p>
+                        <Link
+                            to="/customers/new"
+                            className="mt-6 inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-sm"
+                        >
+                            Yeni Müşteri Ekle
+                        </Link>
+                    </div>
+                )}
 
-                            {/* Customer Grid */}
-                            {loading ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {[...Array(8)].map((_, i) => (
-                                        <div key={i} className="bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 p-5 h-[180px] animate-pulse">
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                                                <div className="flex-1 space-y-2">
-                                                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                                                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
-                                                </div>
-                                            </div>
-                                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                                                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : filteredCustomers.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    {filteredCustomers.map((customer) => (
-                                        <div key={customer.id} className="group bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="material-symbols-outlined text-slate-400 hover:text-primary">more_horiz</span>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                                                    {customer.logo_url ? (
-                                                        <img src={customer.logo_url} alt={customer.name} className="w-full h-full object-contain p-2" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-primary bg-primary/10 text-xl font-bold">
-                                                            {customer.name?.charAt(0)}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{customer.name}</h3>
-                                                    <a
-                                                        href={customer.website_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm text-slate-500 dark:text-slate-400 hover:underline"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        {customer.website_url?.replace(/^https?:\/\//, '')}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
-                                                <span className="text-xs text-slate-400 font-medium group-hover:text-primary flex items-center gap-1 transition-colors">
-                                                    Kampanya Başlat
-                                                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {/* "Add New" Card */}
-                                    <Link
-                                        to="/customers/new"
-                                        className="group bg-background-light dark:bg-background-dark rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 p-5 hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
-                                    >
-                                        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                            <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
-                                        </div>
-                                        <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary">Yeni Ekle</span>
-                                    </Link>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-20 bg-surface-light dark:bg-surface-dark rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-                                    <div className="w-20 h-20 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
-                                        <span className="material-symbols-outlined text-slate-400 text-4xl">search_off</span>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Müşteri Bulunamadı</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 mt-2">Aramanızla eşleşen bir müşteri bulunamadı veya henüz müşteri eklenmedi.</p>
-                                    <Link
-                                        to="/customers/new"
-                                        className="mt-6 inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-sm"
-                                    >
-                                        Yeni Müşteri Ekle
-                                    </Link>
-                                </div>
-                            )}
-
-                            {/* Pagination Info */}
-                            {!loading && filteredCustomers.length > 0 && (
-                                <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-6">
-                                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                                        Toplam <span className="font-medium text-slate-900 dark:text-white">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900 dark:text-white">1-{filteredCustomers.length}</span> arası gösteriliyor
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400" disabled>
-                                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                                        </button>
-                                        <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">
-                                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                {/* Pagination Info */}
+                {!loading && filteredCustomers.length > 0 && (
+                    <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-6">
+                        <div className="text-sm text-slate-500 dark:text-slate-400">
+                            Toplam <span className="font-medium text-slate-900 dark:text-white">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900 dark:text-white">1-{filteredCustomers.length}</span> arası gösteriliyor
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400" disabled>
+                                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">
+                                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
                         </div>
                     </div>
-                </main>
+                )}
             </div>
         </div>
     );
