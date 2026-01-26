@@ -63,5 +63,39 @@ class LogoExtractionService:
         Download logo image and store it in Firebase Storage.
         Returns the public URL of the stored logo.
         """
-        # TODO: Implement storage logic
+        if not logo_url:
+            return None
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True, headers=self.headers) as client:
+                response = await client.get(logo_url)
+                if response.status_code != 200:
+                    print(f"Failed to download logo from {logo_url}: {response.status_code}")
+                    return None
+                
+                content_type = response.headers.get("Content-Type", "image/png")
+                # Extract extension from content type or URL
+                ext = content_type.split("/")[-1] if "/" in content_type else "png"
+                if len(ext) > 4: ext = "png" # Sanity check for long extensions
+                
+                filename = f"logos/{customer_id}_{uuid.uuid4().hex[:8]}.{ext}"
+                
+                # Get the default bucket
+                bucket = storage.bucket()
+                blob = bucket.blob(filename)
+                
+                # Upload the image content
+                blob.upload_from_string(
+                    response.content,
+                    content_type=content_type
+                )
+                
+                # Make the blob public
+                blob.make_public()
+                
+                return blob.public_url
+
+        except Exception as e:
+            print(f"Error storing logo for customer {customer_id}: {e}")
+        
         return None
