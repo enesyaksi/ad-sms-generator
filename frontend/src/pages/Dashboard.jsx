@@ -41,7 +41,7 @@ const Dashboard = () => {
                             <span className="text-slate-300 dark:text-slate-600">/</span>
                         </li>
                         <li>
-                            <span aria-current="page" class="font-medium text-slate-900 dark:text-slate-100">Müşteri Seçimi</span>
+                            <span aria-current="page" className="font-medium text-slate-900 dark:text-slate-100">Müşteri Seçimi</span>
                         </li>
                     </ol>
                 </nav>
