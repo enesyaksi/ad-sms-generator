@@ -2,22 +2,33 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-const Sidebar = () => {
+const Sidebar = ({ mobile, onClick }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
             await logout();
+            if (onClick) onClick();
             navigate('/login');
         } catch (error) {
             console.error("Logout failed:", error);
         }
     };
 
+    const navItemClass = ({ isActive }) =>
+        `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${isActive
+            ? 'bg-primary/10 text-primary'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors'
+        }`;
+
+    const sidebarClass = mobile
+        ? "flex flex-col h-full bg-surface-light dark:bg-surface-dark"
+        : "w-64 bg-surface-light dark:bg-surface-dark border-r border-slate-200 dark:border-slate-800 flex-shrink-0 flex flex-col justify-between hidden md:flex transition-all duration-300 h-screen sticky top-0";
+
     return (
-        <aside className="w-64 bg-surface-light dark:bg-surface-dark border-r border-slate-200 dark:border-slate-800 flex-shrink-0 flex flex-col justify-between hidden md:flex transition-all duration-300">
-            <div className="flex flex-col gap-6 p-6">
+        <aside className={sidebarClass}>
+            <div className="flex flex-col gap-6 p-6 flex-1 overflow-y-auto">
                 <div className="flex items-center gap-3">
                     <div
                         className="relative w-10 h-10 rounded-full bg-cover bg-center shrink-0 border border-slate-200 dark:border-slate-700 bg-primary/10 flex items-center justify-center text-primary"
@@ -26,7 +37,7 @@ const Sidebar = () => {
                         {!user?.photoURL && <span className="material-symbols-outlined">person</span>}
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
                     </div>
-                    <div className="flex flex-col overflow-hidden">
+                    <div className="flex flex-col overflow-hidden text-left">
                         <h1 className="text-sm font-bold truncate text-slate-900 dark:text-white">Reklam Yöneticisi</h1>
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Admin Paneli</p>
                     </div>
@@ -35,12 +46,8 @@ const Sidebar = () => {
                 <nav className="flex flex-col gap-2">
                     <NavLink
                         to="/"
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${isActive
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-primary transition-colors'
-                            }`
-                        }
+                        onClick={onClick}
+                        className={navItemClass}
                     >
                         <span className="material-symbols-outlined text-[20px]">dashboard</span>
                         <span className="text-sm font-medium">Genel Bakış</span>
