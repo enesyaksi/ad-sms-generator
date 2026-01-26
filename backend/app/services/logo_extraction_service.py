@@ -97,5 +97,7 @@ class LogoExtractionService:
 
         except Exception as e:
             print(f"Error storing logo for customer {customer_id}: {e}")
+            # Fallback: return the original logo URL if storage fails
+            return logo_url
         
-        return None
+        return logo_url
