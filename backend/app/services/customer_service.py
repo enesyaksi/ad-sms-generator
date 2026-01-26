@@ -3,16 +3,18 @@ from typing import List, Optional
 from firebase_admin import firestore
 from app.models.customer_models import Customer, CustomerCreate, CustomerUpdate
 from app.services.logo_extraction_service import LogoExtractionService
+from app.services.website_scraper import WebsiteScraper
 
 class CustomerService:
     def __init__(self):
         self.db = firestore.client()
         self.collection = self.db.collection("customers")
         self.logo_service = LogoExtractionService()
+        self.scraper = WebsiteScraper()
 
     async def create_customer(self, customer_data: CustomerCreate, user_id: str) -> Customer:
         """
-        Create a new customer in Firestore and automatically extract/store their logo.
+        Create a new customer in Firestore and automatically extract/store their logo and phone.
         """
         # Create a new document to get an ID
         doc_ref = self.collection.document()
@@ -24,7 +26,20 @@ class CustomerService:
         if logo_url:
             stored_logo_url = await self.logo_service.download_and_store_logo(logo_url, customer_id)
 
+        # Extract website info (phone candidates etc)
+        scraped_data = await self.scraper.scrape_site_info(customer_data.website_url)
+        extracted_phone = await self.scraper.identify_best_phone(
+            customer_data.website_url,
+            scraped_data["info_text"],
+            scraped_data["candidates"]
+        )
+
         customer_dict = customer_data.model_dump()
+        
+        # Auto-fill phone if provided data is empty but scraper found one
+        if not customer_dict.get("phone_number") and extracted_phone:
+            customer_dict["phone_number"] = extracted_phone
+
         customer_dict.update({
             "id": customer_id,
             "user_id": user_id,
