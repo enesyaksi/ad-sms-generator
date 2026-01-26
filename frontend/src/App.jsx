@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import SavedCampaigns from './pages/SavedCampaigns';
-import './App.css';
-
+import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<div className="flex h-screen items-center justify-center text-gray-500">Giriş Sayfası (Yakında)</div>} />
+          <Route path="/login" element={<Login />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
