@@ -34,7 +34,7 @@ export const healthCheck = async () => {
 
 export const customersApi = {
   getAll: async () => {
-    const response = await api.get('/customers');
+    const response = await api.get('/customers/');
     return response.data;
   },
   getOne: async (id) => {
@@ -42,7 +42,7 @@ export const customersApi = {
     return response.data;
   },
   create: async (data) => {
-    const response = await api.post('/customers', data);
+    const response = await api.post('/customers/', data);
     return response.data;
   },
   update: async (id, data) => {
