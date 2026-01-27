@@ -24,10 +24,10 @@ const Signup = () => {
             return false;
         }
 
-        // Password strength: min 8 chars, 1 uppercase, 1 number
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+        // Password strength: min 8 chars, 1 lowercase, 1 uppercase, 1 special char
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
         if (!passwordRegex.test(password)) {
-            setError('Şifre en az 8 karakter olmalı, en az bir büyük harf ve bir rakam içermelidir.');
+            setError('Şifre en az 8 karakter olmalı, en az bir küçük harf, bir büyük harf ve bir özel karakter içermelidir.');
             return false;
         }
 
@@ -150,7 +150,7 @@ const Signup = () => {
                                     disabled={loading}
                                 />
                             </div>
-                            <p className="mt-1 text-[11px] text-slate-400">En az 8 karakter, bir büyük harf ve bir rakam.</p>
+                            <p className="mt-1 text-[11px] text-slate-400">En az 8 karakter, küçük ve büyük harf ve özel karakter (.,!).</p>
                         </div>
 
                         <div>

@@ -38,8 +38,9 @@ const Settings = () => {
             setMessage({ type: 'error', text: 'Şifreler eşleşmiyor.' });
             return;
         }
-        if (newPassword.length < 6) {
-            setMessage({ type: 'error', text: 'Şifre en az 6 karakter olmalıdır.' });
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            setMessage({ type: 'error', text: 'Şifre en az 8 karakter olmalı, en az bir küçük harf, bir büyük harf ve bir özel karakter içermelidir.' });
             return;
         }
         setLoading(true);
