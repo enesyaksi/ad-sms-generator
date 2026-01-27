@@ -22,7 +22,6 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="generator" element={<Home />} />
               <Route path="saved" element={<SavedCampaigns />} />
-              <Route path="customers/new" element={<div className="p-10 font-bold text-2xl">Yeni Müşteri Ekleme Paneli (Yakında)</div>} />
             </Route>
           </Route>
         </Routes>
