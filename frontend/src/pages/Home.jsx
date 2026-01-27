@@ -120,13 +120,13 @@ export default function Home() {
     };
 
     const badges = {
-        Short: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-        Urgent: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
-        Friendly: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-        Klasik: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-        Acil: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300",
-        Samimi: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
-        Minimalist: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+        Short: "bg-indigo-100 text-indigo-700",
+        Urgent: "bg-rose-100 text-rose-700",
+        Friendly: "bg-emerald-100 text-emerald-700",
+        Klasik: "bg-indigo-100 text-indigo-700",
+        Acil: "bg-rose-100 text-rose-700",
+        Samimi: "bg-emerald-100 text-emerald-700",
+        Minimalist: "bg-purple-100 text-purple-700"
     };
 
     return (
@@ -136,28 +136,28 @@ export default function Home() {
                 <nav aria-label="Breadcrumb" className="flex">
                     <ol className="flex items-center space-x-2 text-sm">
                         <li>
-                            <Link to="/" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium">Müşteri Paneli</Link>
+                            <Link to="/" className="text-slate-500 hover:text-primary transition-colors font-medium">Müşteri Paneli</Link>
                         </li>
                         <li>
-                            <span className="text-slate-300 dark:text-slate-600">/</span>
+                            <span className="text-slate-300">/</span>
                         </li>
                         <li>
-                            <span aria-current="page" className="font-semibold text-slate-900 dark:text-slate-100">SMS Oluşturucu</span>
+                            <span aria-current="page" className="font-semibold text-slate-900">SMS Oluşturucu</span>
                         </li>
                     </ol>
                 </nav>
 
                 {location.state?.customer && (
-                    <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 rounded-xl p-4 flex items-center justify-between">
+                    <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
                                 {location.state.customer.name?.charAt(0).toUpperCase() || 'M'}
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                                <h2 className="text-lg font-bold text-slate-900">
                                     {location.state.customer.name}
                                 </h2>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                <p className="text-xs text-slate-500 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">public</span>
                                     {location.state.customer.website_url}
                                 </p>
@@ -176,14 +176,14 @@ export default function Home() {
 
             <div className="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 mb-12">
                 <div className="xl:col-span-7 2xl:col-span-8 flex flex-col gap-6">
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-6">
-                        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4 mb-2">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-6">
+                        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-2">
                             <span className="material-symbols-outlined text-primary">edit_note</span>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Yapılandırma</h3>
+                            <h3 className="text-lg font-semibold text-slate-900">Yapılandırma</h3>
                         </div>
 
                         {error && (
-                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg flex items-center gap-2 text-sm animate-shake">
+                            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center gap-2 text-sm animate-shake">
                                 <span className="material-symbols-outlined text-[20px]">error</span>
                                 {error}
                             </div>
@@ -191,8 +191,8 @@ export default function Home() {
 
                         {/* Website URL */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Web Sitesi URL (Kilitli)</label>
-                            <div className="flex w-full items-center rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 focus-within:ring-0 overflow-hidden transition-all group">
+                            <label className="text-slate-700 text-sm font-medium">Web Sitesi URL (Kilitli)</label>
+                            <div className="flex w-full items-center rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-0 overflow-hidden transition-all group">
                                 <div className="pl-3 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
                                     <span className="material-symbols-outlined text-[20px]">lock</span>
                                 </div>
@@ -200,7 +200,7 @@ export default function Home() {
                                     name="websiteUrl"
                                     value={formData.websiteUrl}
                                     readOnly
-                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-500 dark:text-slate-400 h-11 text-sm outline-none px-2 cursor-not-allowed"
+                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-500 h-11 text-sm outline-none px-2 cursor-not-allowed"
                                     placeholder="https://www.magazaniz.com"
                                 />
                             </div>
@@ -209,12 +209,12 @@ export default function Home() {
 
                         {/* Products */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Satıştaki Ürünler</label>
-                            <div className="flex flex-wrap items-center gap-2 w-full p-2 min-h-[48px] rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+                            <label className="text-slate-700 text-sm font-medium">Satıştaki Ürünler</label>
+                            <div className="flex flex-wrap items-center gap-2 w-full p-2 min-h-[48px] rounded-lg border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
                                 {formData.products.map((p, i) => (
-                                    <div key={i} className="flex items-center gap-1 bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-300 px-2.5 py-1 rounded-md text-sm font-medium">
+                                    <div key={i} className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1 rounded-md text-sm font-medium">
                                         {p}
-                                        <button onClick={() => removeProduct(i)} className="hover:text-blue-700 dark:hover:text-white flex items-center justify-center">
+                                        <button onClick={() => removeProduct(i)} className="hover:text-blue-700 flex items-center justify-center">
                                             <span className="material-symbols-outlined text-[16px]">close</span>
                                         </button>
                                     </div>
@@ -223,7 +223,7 @@ export default function Home() {
                                     value={productInput}
                                     onChange={(e) => setProductInput(e.target.value)}
                                     onKeyDown={handleProductKeyDown}
-                                    className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 h-8 text-sm min-w-[150px] outline-none"
+                                    className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 h-8 text-sm min-w-[150px] outline-none"
                                     placeholder="Ürün yazın ve enter'a basın..."
                                 />
                             </div>
@@ -233,7 +233,7 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                             {/* Campaign Duration */}
                             <div className="md:col-span-5 flex flex-col gap-2">
-                                <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Kampanya Süresi</label>
+                                <label className="text-slate-700 text-sm font-medium">Kampanya Süresi</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -243,7 +243,7 @@ export default function Home() {
                                             name="startDate"
                                             value={formData.startDate}
                                             onChange={handleChange}
-                                            className="block w-full pl-10 pr-3 h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none appearance-none"
+                                            className="block w-full pl-10 pr-3 h-11 rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none appearance-none"
                                             type="date"
                                         />
                                     </div>
@@ -256,7 +256,7 @@ export default function Home() {
                                             value={formData.endDate}
                                             onChange={handleChange}
                                             min={formData.startDate}
-                                            className="block w-full pl-10 pr-3 h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none appearance-none"
+                                            className="block w-full pl-10 pr-3 h-11 rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none appearance-none"
                                             type="date"
                                         />
                                     </div>
@@ -266,7 +266,7 @@ export default function Home() {
                             {/* Discount Rate */}
                             <div className="md:col-span-4 flex flex-col gap-2">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">İndirim Oranı</label>
+                                    <label className="text-slate-700 text-sm font-medium">İndirim Oranı</label>
                                     <span className="text-primary font-bold text-sm">%{formData.discountRate}</span>
                                 </div>
                                 <div className="h-11 flex items-center gap-4 px-1">
@@ -274,7 +274,7 @@ export default function Home() {
                                         name="discountRate"
                                         value={formData.discountRate}
                                         onChange={handleChange}
-                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700 accent-primary"
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                                         max="100" min="0" type="range"
                                     />
                                     <input
@@ -282,14 +282,14 @@ export default function Home() {
                                         type="number"
                                         value={formData.discountRate}
                                         onChange={handleChange}
-                                        className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-center text-sm focus:border-primary focus:ring-primary outline-none py-2"
+                                        className="w-20 rounded-lg border border-slate-300 bg-white text-slate-900 text-center text-sm focus:border-primary focus:ring-primary outline-none py-2"
                                     />
                                 </div>
                             </div>
 
                             {/* Message Count */}
                             <div className="md:col-span-3 flex flex-col gap-2">
-                                <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Taslak Sayısı</label>
+                                <label className="text-slate-700 text-sm font-medium">Taslak Sayısı</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                         <span className="material-symbols-outlined text-[18px]">layers</span>
@@ -301,7 +301,7 @@ export default function Home() {
                                         max="10"
                                         value={formData.messageCount}
                                         onChange={handleChange}
-                                        className="block w-full pl-10 h-11 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none"
+                                        className="block w-full pl-10 h-11 rounded-lg border border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary focus:ring-primary sm:text-sm outline-none"
                                         placeholder="6"
                                     />
                                 </div>
@@ -310,18 +310,18 @@ export default function Home() {
                     </div>
 
                     {/* Target Audience (Tag-based) */}
-                    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4">
-                        <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4 mb-2">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-4">
+                        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-2">
                             <span className="material-symbols-outlined text-primary">group</span>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Hedef Kitle</h3>
+                            <h3 className="text-lg font-semibold text-slate-900">Hedef Kitle</h3>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Hedef Kitle Özellikleri</label>
-                            <div className="flex flex-wrap items-center gap-2 w-full p-2 min-h-[80px] rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+                            <label className="text-slate-700 text-sm font-medium">Hedef Kitle Özellikleri</label>
+                            <div className="flex flex-wrap items-center gap-2 w-full p-2 min-h-[80px] rounded-lg border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
                                 {formData.targetAudience.map((tag, i) => (
-                                    <div key={i} className="flex items-center gap-1 bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-300 px-2.5 py-1 rounded-md text-sm font-medium">
+                                    <div key={i} className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1 rounded-md text-sm font-medium">
                                         {tag}
-                                        <button onClick={() => removeAudienceTag(i)} className="hover:text-blue-700 dark:hover:text-white flex items-center justify-center">
+                                        <button onClick={() => removeAudienceTag(i)} className="hover:text-blue-700 flex items-center justify-center">
                                             <span className="material-symbols-outlined text-[16px]">close</span>
                                         </button>
                                     </div>
@@ -330,7 +330,7 @@ export default function Home() {
                                     value={audienceInput}
                                     onChange={(e) => setAudienceInput(e.target.value)}
                                     onKeyDown={handleAudienceKeyDown}
-                                    className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 h-8 text-sm min-w-[200px] outline-none"
+                                    className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 h-8 text-sm min-w-[200px] outline-none"
                                     placeholder="Örn: Açık Hava Sporcuları..."
                                 />
                             </div>
@@ -359,26 +359,26 @@ export default function Home() {
                 {/* Right Column (Preview) */}
                 <div className="xl:col-span-5 2xl:col-span-4 flex flex-col gap-6 relative">
                     <div className="sticky top-28 flex flex-col gap-4 max-h-[calc(100vh-140px)]">
-                        <div className="flex items-center justify-between bg-background-light dark:bg-background-dark pb-2 z-10">
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <div className="flex items-center justify-between bg-background-light pb-2 z-10">
+                            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">preview</span>
                                 Yapı Zeka Taslakları
                             </h3>
-                            <span className="text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded-full">
+                            <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">
                                 {drafts.length} Oluşturuldu
                             </span>
                         </div>
 
                         {drafts.length === 0 ? (
-                            <div className="flex flex-col gap-6 items-center justify-center text-center p-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 text-slate-400">
+                            <div className="flex flex-col gap-6 items-center justify-center text-center p-12 bg-white rounded-xl shadow-sm border border-slate-200 text-slate-400">
                                 <span className="material-symbols-outlined text-6xl opacity-20">chat_bubble_outline</span>
                                 <p>Henüz mesaj oluşturulmadı.<br />Formu doldurun ve oluştur butonuna basın.</p>
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4 overflow-y-auto pr-1 pb-4">
                                 {drafts.map((draft, i) => (
-                                    <div key={i} className="group bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all overflow-hidden shrink-0 relative">
-                                        <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                                    <div key={i} className="group bg-white rounded-xl shadow-sm border border-slate-200 hover:border-primary/50 transition-all overflow-hidden shrink-0 relative">
+                                        <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex justify-between items-center">
                                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Taslak {i + 1}</span>
                                             <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${badges[draft.type] || 'bg-slate-100'}`}>
                                                 {draft.type}
@@ -387,17 +387,17 @@ export default function Home() {
                                         <div className="p-4">
                                             {editingIndex === i ? (
                                                 <textarea
-                                                    className="w-full min-h-[100px] p-2 border border-slate-300 rounded-md text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-primary/50 outline-none"
+                                                    className="w-full min-h-[100px] p-2 border border-slate-300 rounded-md text-sm text-slate-700 bg-white focus:ring-2 focus:ring-primary/50 outline-none"
                                                     value={draft.content}
                                                     onChange={(e) => handleDraftEditChange(i, e.target.value)}
                                                 />
                                             ) : (
-                                                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                                                <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
                                                     {draft.content}
                                                 </p>
                                             )}
                                         </div>
-                                        <div className="px-4 py-3 flex gap-2 justify-end border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                                        <div className="px-4 py-3 flex gap-2 justify-end border-t border-slate-100 bg-slate-50/50">
                                             <button
                                                 onClick={() => handleCopy(draft.content)}
                                                 className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
