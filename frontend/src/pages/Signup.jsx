@@ -102,7 +102,7 @@ const Signup = () => {
                                     className="block w-full pl-10 pr-4 py-3 border border-slate-200 bg-white rounded-lg text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                                     id="name"
                                     name="name"
-                                    placeholder="Enes Yakşi"
+                                    placeholder="Ad Soyad"
                                     required
                                     type="text"
                                     value={name}
