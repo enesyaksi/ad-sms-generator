@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { customersApi } from '../services/api';
 import CustomerCard from '../components/CustomerCard';
+import CustomerModal from '../components/CustomerModal';
 
 const Dashboard = () => {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,14 +32,32 @@ const Dashboard = () => {
         navigate('/generator', { state: { customer } });
     };
 
+    const handleAddClick = () => {
+        setSelectedCustomer(null);
+        setIsModalOpen(true);
+    };
+
     const handleEdit = (customer) => {
-        // This will be implemented in Issue #9 with CustomerModal
-        console.log("Edit customer:", customer);
-        // navigate(`/customers/edit/${customer.id}`); 
+        setSelectedCustomer(customer);
+        setIsModalOpen(true);
+    };
+
+    const handleSave = async (formData) => {
+        try {
+            if (selectedCustomer) {
+                const updated = await customersApi.update(selectedCustomer.id, formData);
+                setCustomers(customers.map(c => c.id === updated.id ? updated : c));
+            } else {
+                const created = await customersApi.create(formData);
+                setCustomers([created, ...customers]);
+            }
+        } catch (error) {
+            console.error("Failed to save customer:", error);
+            throw error; // Let modal handle the error display
+        }
     };
 
     const handleDelete = async (id) => {
-        // This will be implemented in Issue #9 with a confirmation dialog
         if (window.confirm("Bu müşteriyi silmek istediğinize emin misiniz?")) {
             try {
                 await customersApi.delete(id);
@@ -77,13 +98,13 @@ const Dashboard = () => {
                         <p className="text-slate-500 dark:text-slate-400 text-lg font-light">Lütfen kampanya oluşturmak için bir müşteri seçin.</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link
-                            to="/customers/new"
+                        <button
+                            onClick={handleAddClick}
                             className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-sm shadow-primary/25 whitespace-nowrap"
                         >
                             <span className="material-symbols-outlined text-[20px]">add</span>
                             <span>Yeni Müşteri Ekle</span>
-                        </Link>
+                        </button>
                     </div>
                 </div>
 
@@ -144,15 +165,15 @@ const Dashboard = () => {
                             />
                         ))}
                         {/* "Add New" Card */}
-                        <Link
-                            to="/customers/new"
+                        <div
+                            onClick={handleAddClick}
                             className="group bg-background-light dark:bg-background-dark rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 p-5 hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
                         >
                             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
                             </div>
                             <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary">Yeni Ekle</span>
-                        </Link>
+                        </div>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 bg-surface-light dark:bg-surface-dark rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
@@ -161,12 +182,12 @@ const Dashboard = () => {
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Müşteri Bulunamadı</h3>
                         <p className="text-slate-500 dark:text-slate-400 mt-2">Aramanızla eşleşen bir müşteri bulunamadı veya henüz müşteri eklenmedi.</p>
-                        <Link
-                            to="/customers/new"
+                        <button
+                            onClick={handleAddClick}
                             className="mt-6 inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-sm"
                         >
                             Yeni Müşteri Ekle
-                        </Link>
+                        </button>
                     </div>
                 )}
 
@@ -187,6 +208,13 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
+
+            <CustomerModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSave}
+                customer={selectedCustomer}
+            />
         </div>
     );
 };
