@@ -99,6 +99,7 @@ const Settings = () => {
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
+                                    maxLength={100}
                                     className="w-full p-3 bg-white rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                     placeholder="Adınız Soyadınız"
                                 />
@@ -147,6 +148,7 @@ const Settings = () => {
                                     required
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
+                                    maxLength={128}
                                     className="w-full p-2.5 bg-white rounded-lg border border-slate-200 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     placeholder="••••••••"
                                 />
@@ -158,6 +160,7 @@ const Settings = () => {
                                     required
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
+                                    maxLength={128}
                                     className="w-full p-2.5 bg-white rounded-lg border border-slate-200 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     placeholder="••••••••"
                                 />
