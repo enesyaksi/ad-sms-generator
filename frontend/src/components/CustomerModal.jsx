@@ -62,14 +62,14 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-slate-900">
                         {customer ? 'Müşteriyi Düzenle' : 'Yeni Müşteri Ekle'}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
                     >
                         <span className="material-symbols-outlined">close</span>
                     </button>
@@ -77,18 +77,18 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     {errors.submit && (
-                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-lg text-sm text-red-600 dark:text-red-400">
+                        <div className="bg-red-50 border border-red-200 p-3 rounded-lg text-sm text-red-600">
                             {errors.submit}
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="name">
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5" htmlFor="name">
                             Şirket Adı
                         </label>
                         <input
                             id="name"
-                            className={`block w-full px-4 py-2.5 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-primary'
+                            className={`block w-full px-4 py-2.5 rounded-lg border bg-white text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                                 }`}
                             placeholder="Örn: ABC Mağazacılık"
                             value={formData.name}
@@ -99,7 +99,7 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="website_url">
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5" htmlFor="website_url">
                             Web Sitesi URL
                         </label>
                         <div className="relative">
@@ -108,7 +108,7 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
                             </div>
                             <input
                                 id="website_url"
-                                className={`block w-full pl-16 pr-4 py-2.5 rounded-lg border bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.website_url ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-700 focus:border-primary'
+                                className={`block w-full pl-16 pr-4 py-2.5 rounded-lg border bg-white text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all ${errors.website_url ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-primary'
                                     }`}
                                 placeholder="www.alanadi.com"
                                 value={formData.website_url.replace(/^https?:\/\//, '')}
@@ -123,12 +123,12 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5" htmlFor="phone_number">
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5" htmlFor="phone_number">
                             Telefon Numarası (Opsiyonel)
                         </label>
                         <input
                             id="phone_number"
-                            className="block w-full px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                            className="block w-full px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                             placeholder="Örn: +90 5XX XXX XX XX"
                             value={formData.phone_number}
                             onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
@@ -140,7 +140,7 @@ const CustomerModal = ({ isOpen, onClose, onSave, customer = null }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                             disabled={isSubmitting}
                         >
                             İptal
