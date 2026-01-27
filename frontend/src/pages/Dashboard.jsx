@@ -11,8 +11,11 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    const ITEMS_PER_PAGE = 8;
 
     useEffect(() => {
         fetchCustomers();
@@ -74,6 +77,17 @@ const Dashboard = () => {
         customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.website_url?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     return (
         <div className="p-6 md:p-10 transition-all duration-300">
@@ -159,7 +173,7 @@ const Dashboard = () => {
                     </div>
                 ) : filteredCustomers.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredCustomers.map((customer) => (
+                        {paginatedCustomers.map((customer) => (
                             <CustomerCard
                                 key={customer.id}
                                 customer={customer}
@@ -168,16 +182,18 @@ const Dashboard = () => {
                                 onDelete={handleDelete}
                             />
                         ))}
-                        {/* "Add New" Card */}
-                        <div
-                            onClick={handleAddClick}
-                            className="group bg-background-light rounded-xl border-2 border-dashed border-slate-300 p-5 hover:border-primary hover:bg-slate-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
-                        >
-                            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
+                        {/* "Add New" Card - Only show on last page */}
+                        {currentPage === totalPages && (
+                            <div
+                                onClick={handleAddClick}
+                                className="group bg-background-light rounded-xl border-2 border-dashed border-slate-300 p-5 hover:border-primary hover:bg-slate-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
+                            >
+                                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
+                                </div>
+                                <span className="text-sm font-semibold text-slate-600 group-hover:text-primary">Yeni Ekle</span>
                             </div>
-                            <span className="text-sm font-semibold text-slate-600 group-hover:text-primary">Yeni Ekle</span>
-                        </div>
+                        )}
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 bg-surface-light rounded-2xl border border-dashed border-slate-200">
@@ -199,13 +215,24 @@ const Dashboard = () => {
                 {!loading && filteredCustomers.length > 0 && (
                     <div className="flex items-center justify-between border-t border-slate-200 pt-6">
                         <div className="text-sm text-slate-500">
-                            Toplam <span className="font-medium text-slate-900">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900">1-{filteredCustomers.length}</span> arası gösteriliyor
+                            Toplam <span className="font-medium text-slate-900">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900">{startIndex + 1}-{Math.min(endIndex, filteredCustomers.length)}</span> arası gösteriliyor
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600" disabled>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 transition-all"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                             </button>
-                            <button className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600">
+                            <span className="text-sm font-medium text-slate-700 min-w-[60px] text-center">
+                                {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 transition-all"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                             </button>
                         </div>

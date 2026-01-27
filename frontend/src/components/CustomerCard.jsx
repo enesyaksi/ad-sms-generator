@@ -23,11 +23,11 @@ const CustomerCard = ({ customer, onStartCampaign, onEdit, onDelete }) => {
 
             <div className="flex flex-col gap-4">
                 {/* Logo Area */}
-                <div className="w-16 h-16 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                <div className="w-20 h-20 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                     {customer.logo_url ? (
-                        <img src={customer.logo_url} alt={customer.name} className="w-full h-full object-contain p-2" />
+                        <img src={customer.logo_url} alt={customer.name} className="w-full h-full object-contain p-2.5" />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-primary bg-primary/10 text-xl font-bold">
+                        <div className="w-full h-full flex items-center justify-center text-primary bg-primary/10 text-2xl font-bold">
                             {customer.name?.charAt(0).toUpperCase()}
                         </div>
                     )}
