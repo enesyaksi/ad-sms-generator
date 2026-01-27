@@ -34,5 +34,9 @@ BRANCHING.md
 Task.md
 *.md
 !README.md
+!SETUP_GUIDE.md
+!API_EXAMPLES.md
+!USER_GUIDE.md
 !backend/README.md
 !frontend/README.md
+!docs/**/README.md
