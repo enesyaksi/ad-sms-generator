@@ -105,6 +105,7 @@ const Signup = () => {
                                     placeholder="Ad Soyad"
                                     required
                                     type="text"
+                                    maxLength={100}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     disabled={loading}
@@ -125,6 +126,7 @@ const Signup = () => {
                                     placeholder="ornek@alanadi.com"
                                     required
                                     type="email"
+                                    maxLength={254}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     disabled={loading}
@@ -145,6 +147,7 @@ const Signup = () => {
                                     placeholder="••••••••"
                                     required
                                     type="password"
+                                    maxLength={128}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={loading}
@@ -166,6 +169,7 @@ const Signup = () => {
                                     placeholder="••••••••"
                                     required
                                     type="password"
+                                    maxLength={128}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     disabled={loading}

@@ -69,6 +69,7 @@ const Login = () => {
                                     placeholder="ornek@alanadi.com"
                                     required={true}
                                     type="email"
+                                    maxLength={254}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     disabled={loading}
@@ -88,6 +89,7 @@ const Login = () => {
                                     placeholder="••••••••"
                                     required={true}
                                     type="password"
+                                    maxLength={128}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={loading}
