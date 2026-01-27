@@ -1,6 +1,8 @@
 import httpx
 import re
 from bs4 import BeautifulSoup
+import idna
+from urllib.parse import urlparse, urlunparse
 from typing import Dict, List, Optional
 from app.clients.gemini_client import GeminiClient
 
@@ -11,17 +13,33 @@ class WebsiteScraper:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
+    def _normalize_url(self, url: str) -> str:
+        """
+        Convert IDN (Internationalized Domain Names) to Punycode.
+        """
+        try:
+            parsed = urlparse(url)
+            hostname = parsed.hostname
+            if hostname:
+                puny_host = idna.encode(hostname).decode('ascii')
+                return urlunparse(parsed._replace(netloc=puny_host if not parsed.port else f"{puny_host}:{parsed.port}"))
+            return url
+        except Exception as e:
+            print(f"URL normalization error: {e}")
+            return url
+
     async def scrape_site_info(self, url: str) -> dict:
         """
         Fetch website content and extract phone candidates and info text.
         """
+        normalized_url = self._normalize_url(url)
         scraped_data = {
             "info_text": "Web sitesi içeriği alınamadı.",
             "candidates": []
         }
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True, headers=self.headers) as client:
-                response = await client.get(url)
+                response = await client.get(normalized_url)
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     
