@@ -11,8 +11,11 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    const ITEMS_PER_PAGE = 8;
 
     useEffect(() => {
         fetchCustomers();
@@ -75,9 +78,25 @@ const Dashboard = () => {
         customer.website_url?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Pagination calculations
+    // Add 1 to total count for the "Add New" card
+    const totalItems = filteredCustomers.length + 1;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+    // Show "Add New" card if there's space on current page
+    const showAddCard = paginatedCustomers.length < ITEMS_PER_PAGE && currentPage === totalPages;
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     return (
-        <div className="p-6 md:p-10 transition-all duration-300">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="h-full overflow-y-auto p-4 md:p-6">
+            <div className="max-w-7xl mx-auto flex flex-col min-h-full space-y-4">
                 {/* Breadcrumb */}
                 <nav aria-label="Breadcrumb" className="flex">
                     <ol className="flex items-center space-x-2 text-sm">
@@ -94,7 +113,7 @@ const Dashboard = () => {
                 </nav>
 
                 {/* Title & Actions */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="flex flex-col gap-2 text-left">
                         <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
                             Hoş Geldin, {user?.displayName || 'Kullanıcı'} 👋
@@ -140,72 +159,81 @@ const Dashboard = () => {
                 </div>
 
                 {/* Customer Grid */}
-                {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {[...Array(8)].map((_, i) => (
-                            <div key={i} className="bg-surface-light rounded-xl border border-slate-200 p-5 h-[180px] animate-pulse">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-16 h-16 rounded-full bg-slate-200"></div>
-                                    <div className="flex-1 space-y-2">
-                                        <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                                        <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                {/* Customer Grid */}
+                <div className="flex-1">
+                    {loading ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {[...Array(8)].map((_, i) => (
+                                <div key={i} className="bg-surface-light rounded-xl border border-slate-200 p-5 h-[270px] animate-pulse">
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-16 h-16 rounded-full bg-slate-200"></div>
+                                        <div className="flex-1 space-y-2">
+                                            <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                                            <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                                        </div>
+                                    </div>
+                                    <div className="pt-4 border-t border-slate-100 flex justify-end">
+                                        <div className="h-3 bg-slate-200 rounded w-1/4"></div>
                                     </div>
                                 </div>
-                                <div className="pt-4 border-t border-slate-100 flex justify-end">
-                                    <div className="h-3 bg-slate-200 rounded w-1/4"></div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {paginatedCustomers.map((customer) => (
+                                <CustomerCard
+                                    key={customer.id}
+                                    customer={customer}
+                                    onStartCampaign={handleStartCampaign}
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                />
+                            ))}
+                            {/* "Add New" Card */}
+                            {showAddCard && (
+                                <div
+                                    onClick={handleAddClick}
+                                    className="group bg-background-light rounded-xl border-2 border-dashed border-slate-300 p-5 hover:border-primary hover:bg-slate-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[270px]"
+                                >
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
+                                    </div>
+                                    <span className="text-sm font-semibold text-slate-600 group-hover:text-primary">Yeni Ekle</span>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : filteredCustomers.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredCustomers.map((customer) => (
-                            <CustomerCard
-                                key={customer.id}
-                                customer={customer}
-                                onStartCampaign={handleStartCampaign}
-                                onEdit={handleEdit}
-                                onDelete={handleDelete}
-                            />
-                        ))}
-                        {/* "Add New" Card */}
-                        <div
-                            onClick={handleAddClick}
-                            className="group bg-background-light rounded-xl border-2 border-dashed border-slate-300 p-5 hover:border-primary hover:bg-slate-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
-                        >
-                            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary">add</span>
-                            </div>
-                            <span className="text-sm font-semibold text-slate-600 group-hover:text-primary">Yeni Ekle</span>
+                            )}
                         </div>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 bg-surface-light rounded-2xl border border-dashed border-slate-200">
-                        <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-                            <span className="material-symbols-outlined text-slate-400 text-4xl">search_off</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-900">Müşteri Bulunamadı</h3>
-                        <p className="text-slate-500 mt-2">Aramanızla eşleşen bir müşteri bulunamadı veya henüz müşteri eklenmedi.</p>
-                        <button
-                            onClick={handleAddClick}
-                            className="mt-6 inline-flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-all shadow-sm"
-                        >
-                            Yeni Müşteri Ekle
-                        </button>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {/* Pagination Info */}
-                {!loading && filteredCustomers.length > 0 && (
-                    <div className="flex items-center justify-between border-t border-slate-200 pt-6">
+                {!loading && (
+                    <div className="flex items-center justify-between border-t border-slate-200 pt-6 mt-auto">
                         <div className="text-sm text-slate-500">
-                            Toplam <span className="font-medium text-slate-900">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900">1-{filteredCustomers.length}</span> arası gösteriliyor
+                            Toplam <span className="font-medium text-slate-900">{filteredCustomers.length}</span> müşteriden <span className="font-medium text-slate-900">
+                                {filteredCustomers.length > 0 && paginatedCustomers.length > 0
+                                    ? `${Math.min(startIndex + 1, filteredCustomers.length)}-${Math.min(endIndex, filteredCustomers.length)}`
+                                    : filteredCustomers.length === 0
+                                        ? "0"
+                                        : "-"
+                                }
+                            </span> arası gösteriliyor
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600" disabled>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 transition-all"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                             </button>
-                            <button className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600">
+                            <span className="text-sm font-medium text-slate-700 min-w-[60px] text-center">
+                                {currentPage} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 transition-all"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                             </button>
                         </div>

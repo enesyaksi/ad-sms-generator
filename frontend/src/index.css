@@ -6,6 +6,18 @@
   html {
     font-family: 'Inter', sans-serif;
   }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 /* Custom Scrollbar from Design */

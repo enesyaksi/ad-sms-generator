@@ -130,9 +130,9 @@ export default function Home() {
     };
 
     return (
-        <div className="p-4 md:p-8 pb-20 space-y-6">
+        <div className="h-full overflow-y-auto p-3 md:p-4">
             {/* Breadcrumbs & Header */}
-            <div className="max-w-[1400px] mx-auto space-y-4">
+            <div className="max-w-[1400px] mx-auto space-y-3">
                 <nav aria-label="Breadcrumb" className="flex">
                     <ol className="flex items-center space-x-2 text-sm">
                         <li>
@@ -148,11 +148,17 @@ export default function Home() {
                 </nav>
 
                 {location.state?.customer && (
-                    <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex items-center justify-between">
+                    <div className="bg-primary/5 border border-primary/10 rounded-xl p-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
-                                {location.state.customer.name?.charAt(0).toUpperCase() || 'M'}
-                            </div>
+                            {location.state.customer.logo_url ? (
+                                <div className="w-12 h-12 rounded-full bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                                    <img src={location.state.customer.logo_url} alt={location.state.customer.name} className="w-full h-full object-contain p-1.5" />
+                                </div>
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+                                    {location.state.customer.name?.charAt(0).toUpperCase() || 'M'}
+                                </div>
+                            )}
                             <div>
                                 <h2 className="text-lg font-bold text-slate-900">
                                     {location.state.customer.name}
@@ -174,7 +180,7 @@ export default function Home() {
                 )}
             </div>
 
-            <div className="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 mb-12">
+            <div className="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-4">
                 <div className="xl:col-span-7 2xl:col-span-8 flex flex-col gap-6">
                     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-6">
                         <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-2">
