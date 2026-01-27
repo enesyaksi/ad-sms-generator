@@ -65,23 +65,26 @@ class SMSService:
         scraped_data = await self.scraper.scrape_site_info(data.website_url)
         print(f"DEBUG: Scraped candidates: {scraped_data['candidates']}")
         
-        # New AI-powered identification
-        best_phone = "Belirtilmedi"
-        try:
-            identified_phone = await self.scraper.identify_best_phone(
-                data.website_url, 
-                scraped_data["info_text"], 
-                scraped_data["candidates"]
-            )
-            if identified_phone:
-                best_phone = identified_phone
-        except Exception as e:
-            if "429" in str(e):
-                print("DEBUG: 429 during phone ID, using Belirtilmedi as fallback")
-            else:
-                raise e
+        # Determine the best phone number to use
+        # Prioritize the number provided in the request (e.g. from customer record)
+        best_phone = data.phone_number
         
-        print(f"DEBUG: AI identified best phone: {best_phone}")
+        if not best_phone:
+            print(f"DEBUG: No phone number in request, identifying from candidates: {scraped_data['candidates']}")
+            try:
+                identified_phone = await self.scraper.identify_best_phone(
+                    data.website_url, 
+                    scraped_data["info_text"], 
+                    scraped_data["candidates"]
+                )
+                best_phone = identified_phone or "Belirtilmedi"
+            except Exception as e:
+                print(f"WARNING: Phone identification failed: {e}")
+                best_phone = "Belirtilmedi"
+        else:
+            print(f"DEBUG: Using provided phone number: {best_phone}")
+        
+        print(f"DEBUG: Final contact phone used for SMS: {best_phone}")
         
         # Construct dynamic prompt
         prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone)
