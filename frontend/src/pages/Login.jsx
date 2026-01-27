@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
@@ -118,8 +118,16 @@ const Login = () => {
                         </div>
                     </form>
                 </div>
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-slate-600">
+                        Hesabınız yok mu?{' '}
+                        <Link to="/signup" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+                            Kayıt Olun
+                        </Link>
+                    </p>
+                </div>
                 <p className="mt-8 text-center text-sm text-slate-500">
-                    © 2024 Reklam Yöneticisi Admin Paneli
+                    © 2026 Reklam Yöneticisi Admin Paneli
                 </p>
             </div>
         </div>
