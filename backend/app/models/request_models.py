@@ -9,6 +9,7 @@ class SMSRequest(BaseModel):
     discount_rate: int
     message_count: int
     target_audience: str
+    phone_number: Optional[str] = None
 
     class Config:
         json_schema_extra = {

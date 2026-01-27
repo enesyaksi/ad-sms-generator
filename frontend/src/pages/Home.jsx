@@ -11,7 +11,8 @@ export default function Home() {
         endDate: '',
         discountRate: 25,
         messageCount: 6,
-        targetAudience: []
+        targetAudience: [],
+        phoneNumber: ''
     });
 
     useEffect(() => {
@@ -20,6 +21,7 @@ export default function Home() {
             setFormData(prev => ({
                 ...prev,
                 websiteUrl: customer.website_url || '',
+                phoneNumber: customer.phone_number || '',
                 // Add other fields if they exist in customer object
             }));
         }
@@ -89,7 +91,8 @@ export default function Home() {
                 end_date: formData.endDate || null,
                 discount_rate: parseInt(formData.discountRate),
                 message_count: parseInt(formData.messageCount),
-                target_audience: formData.targetAudience.join(', ')
+                target_audience: formData.targetAudience.join(', '),
+                phone_number: formData.phoneNumber
             };
 
             const response = await generateSms(apiRequest);
@@ -179,6 +182,13 @@ export default function Home() {
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Yapılandırma</h3>
                         </div>
 
+                        {error && (
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg flex items-center gap-2 text-sm animate-shake">
+                                <span className="material-symbols-outlined text-[20px]">error</span>
+                                {error}
+                            </div>
+                        )}
+
                         {/* Website URL */}
                         <div className="flex flex-col gap-2">
                             <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">Web Sitesi URL</label>
@@ -195,6 +205,24 @@ export default function Home() {
                                 />
                             </div>
                             <p className="text-xs text-slate-500">Ürün detaylarını almak için bu sayfayı tarayacağız.</p>
+                        </div>
+
+                        {/* Phone Number */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-slate-700 dark:text-slate-300 text-sm font-medium">İletişim Numarası</label>
+                            <div className="flex w-full items-center rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary overflow-hidden transition-all">
+                                <div className="pl-3 flex items-center justify-center text-slate-400">
+                                    <span className="material-symbols-outlined">call</span>
+                                </div>
+                                <input
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder:text-slate-400 h-11 text-sm outline-none px-2"
+                                    placeholder="+90 5XX XXX XX XX"
+                                />
+                            </div>
+                            <p className="text-xs text-slate-500">Mesajlarda görünecek iletişim numarası.</p>
                         </div>
 
                         {/* Products */}
