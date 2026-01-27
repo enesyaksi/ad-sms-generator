@@ -95,8 +95,8 @@ const Dashboard = () => {
     }, [searchTerm]);
 
     return (
-        <div className="p-6 md:p-10 transition-all duration-300">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="h-full overflow-y-auto p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
                 {/* Breadcrumb */}
                 <nav aria-label="Breadcrumb" className="flex">
                     <ol className="flex items-center space-x-2 text-sm">
