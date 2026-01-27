@@ -52,6 +52,14 @@ const Sidebar = ({ mobile, onClick }) => {
                         <span className="material-symbols-outlined text-[20px]">dashboard</span>
                         <span className="text-sm font-medium">Genel Bakış</span>
                     </NavLink>
+                    <NavLink
+                        to="/settings"
+                        onClick={onClick}
+                        className={navItemClass}
+                    >
+                        <span className="material-symbols-outlined text-[20px]">settings</span>
+                        <span className="text-sm font-medium">Ayarlar</span>
+                    </NavLink>
                 </nav>
             </div>
 
