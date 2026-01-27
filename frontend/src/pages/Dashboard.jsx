@@ -79,10 +79,15 @@ const Dashboard = () => {
     );
 
     // Pagination calculations
-    const totalPages = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE);
+    // Add 1 to total count for the "Add New" card
+    const totalItems = filteredCustomers.length + 1;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+    // Show "Add New" card if there's space on current page
+    const showAddCard = paginatedCustomers.length < ITEMS_PER_PAGE && currentPage === totalPages;
 
     // Reset to page 1 when search changes
     useEffect(() => {
@@ -182,8 +187,8 @@ const Dashboard = () => {
                                 onDelete={handleDelete}
                             />
                         ))}
-                        {/* "Add New" Card - Only show on last page */}
-                        {currentPage === totalPages && (
+                        {/* "Add New" Card - Only show on last page with available space */}
+                        {showAddCard && (
                             <div
                                 onClick={handleAddClick}
                                 className="group bg-background-light rounded-xl border-2 border-dashed border-slate-300 p-5 hover:border-primary hover:bg-slate-50 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center h-full min-h-[180px]"
