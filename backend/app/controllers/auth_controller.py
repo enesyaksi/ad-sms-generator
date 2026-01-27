@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, Request
 from app.middleware.auth_middleware import verify_firebase_token, get_current_user
 from app.models.user_models import TokenVerifyRequest, AuthResponse, UserProfile
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 @router.post("/verify-token", response_model=AuthResponse)
+@limiter.limit("20/minute")
 async def verify_token(request: Request):
     """
     Verify a Firebase ID token and return user profile.
