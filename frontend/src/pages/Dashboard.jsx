@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { customersApi } from '../services/api';
 import CustomerCard from '../components/CustomerCard';
 import CustomerModal from '../components/CustomerModal';
@@ -10,6 +11,7 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -94,7 +96,9 @@ const Dashboard = () => {
                 {/* Title & Actions */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="flex flex-col gap-2 text-left">
-                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Müşterilerimiz</h2>
+                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                            Hoş Geldin, {user?.displayName || 'Kullanıcı'} 👋
+                        </h2>
                         <p className="text-slate-500 dark:text-slate-400 text-lg font-light">Lütfen kampanya oluşturmak için bir müşteri seçin.</p>
                     </div>
                     <div className="flex items-center gap-3">
