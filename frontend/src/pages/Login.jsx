@@ -40,30 +40,30 @@ const Login = () => {
     };
 
     return (
-        <div className="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased min-h-screen flex items-center justify-center p-4">
+        <div className="font-display bg-background-light text-slate-900 antialiased min-h-screen flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="flex flex-col items-center mb-8">
                     <div className="w-16 h-16 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 mb-4">
                         <span className="material-symbols-outlined text-white text-4xl">campaign</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reklam Yöneticisi</h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2">Hoş Geldiniz</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Reklam Yöneticisi</h1>
+                    <p className="text-slate-500 mt-2">Hoş Geldiniz</p>
                 </div>
-                <div className="bg-surface-light dark:bg-surface-dark rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+                <div className="bg-surface-light rounded-2xl border border-slate-200 p-8 shadow-xl shadow-slate-200/50">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-lg text-sm text-red-600 dark:text-red-400">
+                            <div className="bg-red-50 border border-red-200 p-3 rounded-lg text-sm text-red-600">
                                 {error}
                             </div>
                         )}
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" htmlFor="email">E-posta</label>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="email">E-posta</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-slate-400 text-[20px]">mail</span>
                                 </div>
                                 <input
-                                    className="block w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                    className="block w-full pl-10 pr-4 py-3 border border-slate-200 bg-white rounded-lg text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                                     id="email"
                                     name="email"
                                     placeholder="ornek@alanadi.com"
@@ -76,13 +76,13 @@ const Login = () => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" htmlFor="password">Şifre</label>
+                            <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="password">Şifre</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span className="material-symbols-outlined text-slate-400 text-[20px]">lock</span>
                                 </div>
                                 <input
-                                    className="block w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                    className="block w-full pl-10 pr-4 py-3 border border-slate-200 bg-white rounded-lg text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                                     id="password"
                                     name="password"
                                     placeholder="••••••••"
@@ -96,8 +96,8 @@ const Login = () => {
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <input className="h-4 w-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-700 rounded" id="remember-me" name="remember-me" type="checkbox" />
-                                <label className="ml-2 block text-sm text-slate-600 dark:text-slate-400" htmlFor="remember-me">
+                                <input className="h-4 w-4 text-primary focus:ring-primary border-slate-300 rounded" id="remember-me" name="remember-me" type="checkbox" />
+                                <label className="ml-2 block text-sm text-slate-600" htmlFor="remember-me">
                                     Beni Hatırla
                                 </label>
                             </div>
@@ -118,7 +118,7 @@ const Login = () => {
                         </div>
                     </form>
                 </div>
-                <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-8 text-center text-sm text-slate-500">
                     © 2024 Reklam Yöneticisi Admin Paneli
                 </p>
             </div>

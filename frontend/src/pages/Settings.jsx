@@ -67,8 +67,8 @@ const Settings = () => {
         <div className="p-4 md:p-8 space-y-6">
             <div className="max-w-4xl mx-auto space-y-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Kullanıcı Ayarları</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Profilinizi ve uygulama tercihlerinizi yönetin.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Kullanıcı Ayarları</h1>
+                    <p className="text-slate-500">Profilinizi ve uygulama tercihlerinizi yönetin.</p>
                 </div>
 
                 {message.text && (
@@ -84,27 +84,27 @@ const Settings = () => {
                 )}
 
                 {/* Profile Section */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
-                    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
                         <span className="material-symbols-outlined text-primary">person</span>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Profil Bilgileri</h2>
+                        <h2 className="text-lg font-semibold text-slate-900">Profil Bilgileri</h2>
                     </div>
 
                     <form onSubmit={handleUpdateProfile} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Görünen Ad</label>
+                                <label className="text-sm font-medium text-slate-700">Görünen Ad</label>
                                 <input
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
-                                    className="w-full p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                    className="w-full p-3 bg-white rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                     placeholder="Adınız Soyadınız"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">E-posta Adresi</label>
-                                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                                <label className="text-sm font-medium text-slate-700">E-posta Adresi</label>
+                                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-slate-500 cursor-not-allowed">
                                     {user?.email}
                                 </div>
                                 <p className="text-[10px] text-slate-400">E-posta adresi değiştirilemez.</p>
@@ -123,10 +123,10 @@ const Settings = () => {
                 </div>
 
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
-                    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-4">
                         <span className="material-symbols-outlined text-primary">security</span>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Güvenlik</h2>
+                        <h2 className="text-lg font-semibold text-slate-900">Güvenlik</h2>
                     </div>
 
                     {!showPasswordForm ? (
@@ -140,24 +140,24 @@ const Settings = () => {
                     ) : (
                         <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md animate-in fade-in slide-in-from-left-2 duration-300">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Yeni Şifre</label>
+                                <label className="text-sm font-medium text-slate-700">Yeni Şifre</label>
                                 <input
                                     type="password"
                                     required
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    className="w-full p-2.5 bg-white rounded-lg border border-slate-200 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     placeholder="••••••••"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Yeni Şifre (Tekrar)</label>
+                                <label className="text-sm font-medium text-slate-700">Yeni Şifre (Tekrar)</label>
                                 <input
                                     type="password"
                                     required
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    className="w-full p-2.5 bg-white rounded-lg border border-slate-200 text-slate-900 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -176,7 +176,7 @@ const Settings = () => {
                                         setNewPassword('');
                                         setConfirmPassword('');
                                     }}
-                                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    className="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-200 transition-colors"
                                 >
                                     İptal
                                 </button>
