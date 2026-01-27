@@ -127,7 +127,50 @@ export default function Home() {
     };
 
     return (
-        <div className="p-4 md:p-8 pb-20">
+        <div className="p-4 md:p-8 pb-20 space-y-6">
+            {/* Breadcrumbs & Header */}
+            <div className="max-w-[1400px] mx-auto space-y-4">
+                <nav aria-label="Breadcrumb" className="flex">
+                    <ol className="flex items-center space-x-2 text-sm">
+                        <li>
+                            <Link to="/" className="text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium">Müşteri Paneli</Link>
+                        </li>
+                        <li>
+                            <span className="text-slate-300 dark:text-slate-600">/</span>
+                        </li>
+                        <li>
+                            <span aria-current="page" className="font-semibold text-slate-900 dark:text-slate-100">SMS Oluşturucu</span>
+                        </li>
+                    </ol>
+                </nav>
+
+                {location.state?.customer && (
+                    <div className="bg-primary/5 dark:bg-primary/10 border border-primary/10 dark:border-primary/20 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">
+                                {location.state.customer.name?.charAt(0).toUpperCase() || 'M'}
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                                    {location.state.customer.name}
+                                </h2>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[14px]">public</span>
+                                    {location.state.customer.website_url}
+                                </p>
+                            </div>
+                        </div>
+                        <Link
+                            to="/"
+                            className="text-primary hover:text-primary/80 text-sm font-semibold flex items-center gap-1 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">group</span>
+                            Müşteri Değiştir
+                        </Link>
+                    </div>
+                )}
+            </div>
+
             <div className="max-w-[1400px] mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 mb-12">
                 <div className="xl:col-span-7 2xl:col-span-8 flex flex-col gap-6">
                     <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-6">

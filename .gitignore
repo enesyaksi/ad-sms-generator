@@ -23,3 +23,16 @@ serviceAccountKey.json
 **/serviceAccountKey.json
 firebase-debug.log
 .firebase/
+
+# Project Management
+PRs.md
+issues.md
+walkthrough.md
+implementation.md
+implementation_plan.md
+BRANCHING.md
+Task.md
+*.md
+!README.md
+!backend/README.md
+!frontend/README.md
