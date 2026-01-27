@@ -96,7 +96,7 @@ const Dashboard = () => {
 
     return (
         <div className="h-full overflow-y-auto p-4 md:p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-7xl mx-auto space-y-4">
                 {/* Breadcrumb */}
                 <nav aria-label="Breadcrumb" className="flex">
                     <ol className="flex items-center space-x-2 text-sm">
@@ -113,7 +113,7 @@ const Dashboard = () => {
                 </nav>
 
                 {/* Title & Actions */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="flex flex-col gap-2 text-left">
                         <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
                             Hoş Geldin, {user?.displayName || 'Kullanıcı'} 👋
