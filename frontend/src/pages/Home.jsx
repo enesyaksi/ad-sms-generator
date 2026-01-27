@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { generateSms } from '../services/api';
 
 export default function Home() {
+    const location = useLocation();
     const [formData, setFormData] = useState({
-        websiteUrl: 'https://myshop.com/summer-sale',
-        products: ['Yazlık Elbise', 'Plaj Havlusu'],
+        websiteUrl: '',
+        products: [],
         startDate: '',
         endDate: '',
         discountRate: 25,
         messageCount: 6,
-        targetAudience: ['Gençler', 'Moda Severler']
+        targetAudience: []
     });
+
+    useEffect(() => {
+        if (location.state?.customer) {
+            const { customer } = location.state;
+            setFormData(prev => ({
+                ...prev,
+                websiteUrl: customer.website_url || '',
+                // Add other fields if they exist in customer object
+            }));
+        }
+    }, [location]);
 
     const [productInput, setProductInput] = useState('');
     const [audienceInput, setAudienceInput] = useState('');
