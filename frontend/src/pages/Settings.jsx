@@ -10,9 +10,6 @@ const Settings = () => {
     const [message, setMessage] = useState({ type: '', text: '' });
     const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-    const [darkMode, setDarkMode] = useState(
-        document.documentElement.classList.contains('dark')
-    );
 
     useEffect(() => {
         if (user?.displayName) {
@@ -65,17 +62,6 @@ const Settings = () => {
         }
     };
 
-    const toggleDarkMode = () => {
-        const isDark = !darkMode;
-        setDarkMode(isDark);
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    };
 
     return (
         <div className="p-4 md:p-8 space-y-6">
@@ -87,8 +73,8 @@ const Settings = () => {
 
                 {message.text && (
                     <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${message.type === 'success'
-                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400'
-                            : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        : 'bg-rose-50 border-rose-200 text-rose-700'
                         }`}>
                         <span className="material-symbols-outlined">
                             {message.type === 'success' ? 'check_circle' : 'error'}
@@ -136,30 +122,6 @@ const Settings = () => {
                     </form>
                 </div>
 
-                {/* Preferences Section */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
-                    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
-                        <span className="material-symbols-outlined text-primary">settings</span>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Uygulama Tercihleri</h2>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="font-medium text-slate-900 dark:text-white">Karanlık Mod</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">Uygulama görünümünü değiştirin.</p>
-                        </div>
-                        <button
-                            onClick={toggleDarkMode}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-offset-2 focus:ring-2 focus:ring-primary ${darkMode ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'
-                                }`}
-                        >
-                            <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'
-                                    }`}
-                            />
-                        </button>
-                    </div>
-                </div>
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
                     <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
