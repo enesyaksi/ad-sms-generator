@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { customersApi } from '../services/api';
+import CustomerCard from '../components/CustomerCard';
 
 const Dashboard = () => {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCustomers();
@@ -20,6 +22,28 @@ const Dashboard = () => {
             console.error("Failed to fetch customers:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStartCampaign = (customer) => {
+        navigate('/generator', { state: { customer } });
+    };
+
+    const handleEdit = (customer) => {
+        // This will be implemented in Issue #9 with CustomerModal
+        console.log("Edit customer:", customer);
+        // navigate(`/customers/edit/${customer.id}`); 
+    };
+
+    const handleDelete = async (id) => {
+        // This will be implemented in Issue #9 with a confirmation dialog
+        if (window.confirm("Bu müşteriyi silmek istediğinize emin misiniz?")) {
+            try {
+                await customersApi.delete(id);
+                setCustomers(customers.filter(c => c.id !== id));
+            } catch (error) {
+                console.error("Failed to delete customer:", error);
+            }
         }
     };
 
@@ -111,40 +135,13 @@ const Dashboard = () => {
                 ) : filteredCustomers.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredCustomers.map((customer) => (
-                            <div key={customer.id} className="group bg-surface-light dark:bg-surface-dark rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full relative overflow-hidden text-left">
-                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span className="material-symbols-outlined text-slate-400 hover:text-primary">more_horiz</span>
-                                </div>
-                                <div className="flex flex-col gap-4">
-                                    <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                                        {customer.logo_url ? (
-                                            <img src={customer.logo_url} alt={customer.name} className="w-full h-full object-contain p-2" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-primary bg-primary/10 text-xl font-bold">
-                                                {customer.name?.charAt(0)}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors truncate">{customer.name}</h3>
-                                        <a
-                                            href={customer.website_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm text-slate-500 dark:text-slate-400 hover:underline truncate block"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            {customer.website_url?.replace(/^https?:\/\//, '')}
-                                        </a>
-                                    </div>
-                                </div>
-                                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
-                                    <span className="text-xs text-slate-400 font-medium group-hover:text-primary flex items-center gap-1 transition-colors">
-                                        Kampanya Başlat
-                                        <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                                    </span>
-                                </div>
-                            </div>
+                            <CustomerCard
+                                key={customer.id}
+                                customer={customer}
+                                onStartCampaign={handleStartCampaign}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                            />
                         ))}
                         {/* "Add New" Card */}
                         <Link
