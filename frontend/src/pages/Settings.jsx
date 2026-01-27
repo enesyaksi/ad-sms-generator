@@ -1,11 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 const Settings = () => {
-    const { user } = useAuth();
+    const { user, updateUserName, changePassword } = useAuth();
+    const [displayName, setDisplayName] = useState(user?.displayName || '');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState({ type: '', text: '' });
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+
     const [darkMode, setDarkMode] = useState(
         document.documentElement.classList.contains('dark')
     );
+
+    useEffect(() => {
+        if (user?.displayName) {
+            setDisplayName(user.displayName);
+        }
+    }, [user]);
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage({ type: '', text: '' });
+        try {
+            await updateUserName(displayName);
+            setMessage({ type: 'success', text: 'Profil başarıyla güncellendi!' });
+        } catch (err) {
+            console.error(err);
+            setMessage({ type: 'error', text: 'Profil güncellenirken bir hata oluştu.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdatePassword = async (e) => {
+        e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            setMessage({ type: 'error', text: 'Şifreler eşleşmiyor.' });
+            return;
+        }
+        if (newPassword.length < 6) {
+            setMessage({ type: 'error', text: 'Şifre en az 6 karakter olmalıdır.' });
+            return;
+        }
+        setLoading(true);
+        setMessage({ type: '', text: '' });
+        try {
+            await changePassword(newPassword);
+            setMessage({ type: 'success', text: 'Şifreniz başarıyla değiştirildi!' });
+            setNewPassword('');
+            setConfirmPassword('');
+            setShowPasswordForm(false);
+        } catch (err) {
+            console.error(err);
+            if (err.code === 'auth/requires-recent-login') {
+                setMessage({ type: 'error', text: 'Bu işlem için yakında giriş yapmış olmanız gerekiyor. Lütfen tekrar giriş yapıp deneyin.' });
+            } else {
+                setMessage({ type: 'error', text: 'Şifre değiştirilirken bir hata oluştu.' });
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const toggleDarkMode = () => {
         const isDark = !darkMode;
@@ -27,6 +85,18 @@ const Settings = () => {
                     <p className="text-slate-500 dark:text-slate-400">Profilinizi ve uygulama tercihlerinizi yönetin.</p>
                 </div>
 
+                {message.text && (
+                    <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${message.type === 'success'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400'
+                            : 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400'
+                        }`}>
+                        <span className="material-symbols-outlined">
+                            {message.type === 'success' ? 'check_circle' : 'error'}
+                        </span>
+                        <p className="text-sm font-medium">{message.text}</p>
+                    </div>
+                )}
+
                 {/* Profile Section */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
                     <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -34,20 +104,36 @@ const Settings = () => {
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Profil Bilgileri</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Görünen Ad</label>
-                            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium">
-                                {user?.displayName || 'Belirtilmedi'}
+                    <form onSubmit={handleUpdateProfile} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Görünen Ad</label>
+                                <input
+                                    type="text"
+                                    value={displayName}
+                                    onChange={(e) => setDisplayName(e.target.value)}
+                                    className="w-full p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                                    placeholder="Adınız Soyadınız"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">E-posta Adresi</label>
+                                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed">
+                                    {user?.email}
+                                </div>
+                                <p className="text-[10px] text-slate-400">E-posta adresi değiştirilemez.</p>
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">E-posta Adresi</label>
-                            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium">
-                                {user?.email}
-                            </div>
+                        <div className="flex justify-end">
+                            <button
+                                type="submit"
+                                disabled={loading || displayName === user?.displayName}
+                                className="px-6 py-2.5 bg-primary hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                            >
+                                {loading ? 'Güncelleniyor...' : 'Değişiklikleri Kaydet'}
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 {/* Preferences Section */}
@@ -75,17 +161,66 @@ const Settings = () => {
                     </div>
                 </div>
 
-                {/* Security Section */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 space-y-6">
                     <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
                         <span className="material-symbols-outlined text-primary">security</span>
                         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Güvenlik</h2>
                     </div>
 
-                    <button className="text-sm font-semibold text-primary hover:text-blue-600 transition-colors flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[18px]">lock_reset</span>
-                        Şifreyi Değiştir
-                    </button>
+                    {!showPasswordForm ? (
+                        <button
+                            onClick={() => setShowPasswordForm(true)}
+                            className="text-sm font-semibold text-primary hover:text-blue-600 transition-colors flex items-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+                            Şifreyi Değiştir
+                        </button>
+                    ) : (
+                        <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md animate-in fade-in slide-in-from-left-2 duration-300">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Yeni Şifre</label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="w-full p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Yeni Şifre (Tekrar)</label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="w-full p-2.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                            <div className="flex items-center gap-3 pt-2">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                                >
+                                    {loading ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowPasswordForm(false);
+                                        setNewPassword('');
+                                        setConfirmPassword('');
+                                    }}
+                                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                >
+                                    İptal
+                                </button>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>
