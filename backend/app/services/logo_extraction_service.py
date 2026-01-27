@@ -6,20 +6,42 @@ from urllib.parse import urljoin, urlparse
 from firebase_admin import storage
 import firebase_admin
 
+import idna
+from urllib.parse import urljoin, urlparse, urlunparse
+
 class LogoExtractionService:
     def __init__(self):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
+    def _normalize_url(self, url: str) -> str:
+        """
+        Convert IDN (Internationalized Domain Names) to Punycode.
+        Example: https://odtüden.com.tr -> https://xn--otden-kva1b.com.tr
+        """
+        try:
+            parsed = urlparse(url)
+            hostname = parsed.hostname
+            if hostname:
+                # Convert hostname to punycode
+                puny_host = idna.encode(hostname).decode('ascii')
+                # Replace hostname in parsed URL
+                return urlunparse(parsed._replace(netloc=puny_host if not parsed.port else f"{puny_host}:{parsed.port}"))
+            return url
+        except Exception as e:
+            print(f"URL normalization error: {e}")
+            return url
+
     async def extract_logo_from_url(self, website_url: str) -> str:
         """
         Scrape website HTML to identify and return the logo URL.
         Searches for og:image, favicons, and images with "logo" in class/id/alt.
         """
+        normalized_url = self._normalize_url(website_url)
         try:
             async with httpx.AsyncClient(timeout=10.0, follow_redirects=True, headers=self.headers) as client:
-                response = await client.get(website_url)
+                response = await client.get(normalized_url)
                 if response.status_code != 200:
                     print(f"Failed to fetch {website_url}: {response.status_code}")
                     return None

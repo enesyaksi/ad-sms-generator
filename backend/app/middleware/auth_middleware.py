@@ -1,10 +1,10 @@
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, Depends
 from firebase_admin import auth
 import firebase_admin
 
 async def verify_firebase_token(request: Request):
     """
-    Middleware to verify Firebase ID tokens in the Authorization header.
+    Middleware/Dependency to verify Firebase ID tokens in the Authorization header.
     Expected format: Authorization: Bearer <token>
     """
     auth_header = request.headers.get("Authorization")
@@ -34,10 +34,8 @@ async def verify_firebase_token(request: Request):
     except Exception as e:
         raise HTTPException(status_code=401, detail="Authentication failed")
 
-def get_current_user(request: Request):
+async def get_current_user(decoded_token: dict = Depends(verify_firebase_token)):
     """
-    Dependency to get the current user from the request state.
+    Dependency to get the current user from the verified token.
     """
-    if not hasattr(request.state, "user"):
-        raise HTTPException(status_code=401, detail="User not authenticated")
-    return request.state.user
+    return decoded_token

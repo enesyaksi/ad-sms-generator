@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import SavedCampaigns from './pages/SavedCampaigns';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -22,6 +23,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="generator" element={<Home />} />
               <Route path="saved" element={<SavedCampaigns />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
           </Route>
         </Routes>
