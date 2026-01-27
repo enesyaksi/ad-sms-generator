@@ -8,3 +8,4 @@ python-multipart==0.0.6
 beautifulsoup4==4.12.3
 firebase-admin>=6.4.0
 idna==3.6
+slowapi==0.1.9
