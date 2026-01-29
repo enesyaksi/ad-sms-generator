@@ -1,4 +1,12 @@
 
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+.next/
+.env.production
+.env.development
+
 # Backend virtual environment
 backend/venv/
 venv/
