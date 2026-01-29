@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Customers from './pages/Customers';
 import CustomerDetails from './pages/CustomerDetails';
+import Campaigns from './pages/Campaigns';
 import Overview from './pages/Overview';
 import SavedCampaigns from './pages/SavedCampaigns';
 import Settings from './pages/Settings';
@@ -27,7 +28,7 @@ function App() {
               <Route index element={<Overview />} />
               <Route path="customers" element={<Customers />} />
               <Route path="customers/:customerId" element={<CustomerDetails />} />
-              <Route path="campaigns" element={<SavedCampaigns />} />
+              <Route path="campaigns" element={<Campaigns />} />
               <Route path="generator" element={<Home />} />
               <Route path="settings" element={<Settings />} />
             </Route>
