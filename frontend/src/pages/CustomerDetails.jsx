@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, NavLink } from 'react-router-dom';
 import { customersApi, campaignsApi } from '../services/api';
+import CampaignModal from '../components/CampaignModal';
 
 const CustomerDetails = () => {
     const { customerId } = useParams();
@@ -12,6 +13,8 @@ const CustomerDetails = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Tümü');
     const [currentPage, setCurrentPage] = useState(1);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCampaign, setEditingCampaign] = useState(null);
     const itemsPerPage = 5;
 
     useEffect(() => {
@@ -57,6 +60,31 @@ const CustomerDetails = () => {
 
     const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage);
     const paginatedCampaigns = filteredCampaigns.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handleCreateClick = () => {
+        setEditingCampaign(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (campaign) => {
+        setEditingCampaign(campaign);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveCampaign = async (formData) => {
+        try {
+            if (editingCampaign) {
+                const updated = await campaignsApi.update(editingCampaign.id, formData);
+                setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
+            } else {
+                const created = await campaignsApi.create(formData);
+                setCampaigns([...campaigns, created]);
+            }
+        } catch (error) {
+            console.error("Failed to save campaign:", error);
+            throw error;
+        }
+    };
 
     if (loading) {
         return (
@@ -124,9 +152,9 @@ const CustomerDetails = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="flex-shrink-0 w-full md:w-auto mt-4 md:mt-0">
+                        <div className="flex-shrink-0 w-full md:w-auto mt-4 md:mt-0 text-left">
                             <button
-                                onClick={() => navigate('/campaigns/new', { state: { customerId: customer.id } })}
+                                onClick={handleCreateClick}
                                 className="flex w-full md:w-auto cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-primary/90 transition-colors text-white gap-2 text-sm font-medium shadow-sm shadow-blue-500/20"
                             >
                                 <span className="material-symbols-outlined text-[20px]">add</span>
@@ -214,12 +242,21 @@ const CustomerDetails = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button
-                                                    onClick={() => navigate(`/campaigns/${campaign.id}`)}
-                                                    className="text-primary hover:text-primary/80 font-medium px-3 py-1.5 rounded-md hover:bg-primary/5 transition-colors"
-                                                >
-                                                    Yönet
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleEditClick(campaign)}
+                                                        className="text-slate-400 hover:text-primary p-1.5 rounded-md hover:bg-slate-50 transition-colors"
+                                                        title="Düzenle"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => navigate(`/campaigns/${campaign.id}`)}
+                                                        className="text-primary hover:text-primary/80 font-medium px-3 py-1.5 rounded-md hover:bg-primary/5 transition-colors"
+                                                    >
+                                                        Yönet
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
@@ -255,6 +292,15 @@ const CustomerDetails = () => {
                     )}
                 </div>
             </div>
+
+            <CampaignModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveCampaign}
+                campaign={editingCampaign}
+                customers={customer ? [customer] : []}
+                lockedCustomerId={customerId}
+            />
         </div>
     );
 };

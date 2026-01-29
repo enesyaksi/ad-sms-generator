@@ -68,8 +68,17 @@ class CustomerService:
         """
         Get all customers belonging to a specific user.
         """
-        docs = self.collection.where("user_id", "==", user_id).order_by("created_at", direction=firestore.Query.DESCENDING).stream()
-        return [Customer(**doc.to_dict()) for doc in docs]
+        # Remove order_by from query to avoid composite index requirement
+        docs = self.collection.where("user_id", "==", user_id).stream()
+        customers = []
+        for doc in docs:
+            data = doc.to_dict()
+            data["id"] = doc.id
+            customers.append(Customer(**data))
+        
+        # Sort in-memory instead
+        customers.sort(key=lambda x: x.created_at, reverse=True)
+        return customers
 
     def get_customer(self, customer_id: str, user_id: str) -> Optional[Customer]:
         """
@@ -102,7 +111,10 @@ class CustomerService:
         doc_ref.update(update_data)
         
         # Return the updated customer
-        return Customer(**doc_ref.get().to_dict())
+        updated_doc = doc_ref.get()
+        data = updated_doc.to_dict()
+        data["id"] = updated_doc.id
+        return Customer(**data)
 
     def delete_customer(self, customer_id: str, user_id: str) -> bool:
         """
