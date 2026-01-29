@@ -1,241 +1,249 @@
-# AI Ad Creative Generator – Template Repository
+# AI SMS Ad Generator
 
-> ⚠️ **This repository contains no implementation code by design.**  
-> Interns must create the folder structure and code according to this document.
-
-A template project designed for intern evaluation. It defines the architecture, rules, and expectations for a full-stack AI-powered ad creative generator.
+A full-stack web application that leverages Google Gemini AI to generate high-quality, context-aware SMS ad drafts. Features a **Customer Dashboard** for managing clients, **Firebase Authentication** for secure access, and intelligent website scraping to understand product context.
 
 ---
 
-## Table of Contents
+## 📑 Table of Contents
 
-- [Project Overview](#project-overview)
-- [High-Level Architecture](#high-level-architecture)
-- [Backend Architecture](#backend-architecture)
-- [Frontend Architecture](#frontend-architecture)
-- [API Contract](#api-contract)
-- [Prompt Construction](#prompt-construction)
-- [Development Rules](#development-rules)
-- [Evaluation Criteria](#evaluation-criteria)
-- [Ownership](#ownership)
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [High-Level Architecture](#-high-level-architecture)
+- [API Documentation](#-api-documentation)
+- [Folder Structure](#-folder-structure)
+- [Known Limitations](#-known-limitations)
+- [License](#-license)
 
 ---
 
-## Project Overview
+## 🚀 Quick Start
 
-The goal of this project is to build a web-based application that generates advertising images using AI.
+### Prerequisites
+- **Node.js** (v18+)
+- **Python** (v3.10+)
+- **Google Gemini API Key** ([Google AI Studio](https://aistudio.google.com/))
+- **Firebase Project** ([Firebase Console](https://console.firebase.google.com/))
 
-**Users will be able to:**
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/Scripts/activate  # Windows
+   # or
+   source venv/bin/activate      # Mac/Linux
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Configure environment:
+   Create a `.env` file in the `backend` folder:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key
+   FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
+   ```
+5. Add your Firebase service account key file (`serviceAccountKey.json`) to the backend folder.
+6. Run the server:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-- Enter an ad headline
-- Describe the desired visual
-- Select an ad size (e.g., `300x250`, `320x480`)
-- Choose an AI image generation model (ChatGPT or Gemini)
-- Generate and preview an AI-created image
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure environment:
+   Create a `.env` file in the `frontend` folder:
+   ```env
+   VITE_API_BASE_URL=http://localhost:8000
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your-project-id
+   VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   ```
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-This project simulates a real-world full-stack development workflow.
-
----
-
-## High-Level Architecture
-
-```
-React Frontend → Python Backend (API) → AI Providers (OpenAI / Gemini)
-```
-
-| Layer | Responsibilities |
-|-------|------------------|
-| **Frontend** | UI rendering, user interaction, API communication |
-| **Backend** | Business logic, prompt construction, AI provider selection |
-| **AI Providers** | Image generation only |
-
-> ⚠️ **Important:** Frontend must never communicate directly with AI providers.
-
----
-
-## Backend Architecture
-
-The backend must follow a **layered architecture**.
-
-### Layers
-
-| Layer | Responsibility |
-|-------|----------------|
-| **Controller** | HTTP request / response handling |
-| **Service** | Business logic and orchestration |
-| **Client** | External AI provider communication |
-| **Util** | Shared helpers and prompt building |
-| **Model** | Request and response schemas |
-| **Config** | Environment and application configuration |
-
-### Required Folder Structure
-
-```
-backend/
-├── app/
-│   ├── main.py
-│   │
-│   ├── controllers/
-│   │   └── image_controller.py
-│   │
-│   ├── services/
-│   │   └── image_generation_service.py
-│   │
-│   ├── clients/
-│   │   ├── openai_client.py
-│   │   └── gemini_client.py
-│   │
-│   ├── utils/
-│   │   ├── prompt_builder.py
-│   │   └── image_utils.py
-│   │
-│   ├── models/
-│   │   ├── request_models.py
-│   │   └── response_models.py
-│   │
-│   ├── config/
-│   │   └── settings.py
-│   │
-│   └── exceptions/
-│       └── api_exceptions.py
-│
-├── requirements.txt
-└── .env.example
-```
-
-### Backend Rules
-
-- ✅ Controllers must **not** contain business logic
-- ✅ Services must **not** contain HTTP logic
-- ✅ Clients must **only** handle external API calls
-- ✅ Prompt construction must be isolated in `utils`
-- ✅ API keys must be loaded via environment variables
+> 📘 For detailed setup instructions including Firebase configuration, see [SETUP_GUIDE.md](./SETUP_GUIDE.md).
 
 ---
 
-## Frontend Architecture
+## 🛠 Features
 
-The frontend must be implemented using **React.js** with functional components.
+### Core Features
+- **AI-Powered SMS Generation**: Context-aware SMS drafts using Google Gemini AI
+- **Website Scraping**: Automatically extracts product details and brand voice from target websites
+- **Phone Number Extraction**: Identifies primary contact numbers from websites
 
-### Required Folder Structure
+### Customer Management (Dashboard)
+- **Customer Dashboard**: Visual overview of all saved customers with logo, name, and website
+- **Customer Cards**: Quick access to start campaigns for any customer
+- **Add/Edit Customers**: Create and manage customer profiles with automatic logo extraction
+- **Pagination**: Organized display with 8 customers per page
 
-```
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── Form/
-│   │   │   └── AdForm.jsx
-│   │   │
-│   │   ├── Preview/
-│   │   │   └── ImagePreview.jsx
-│   │   │
-│   │   └── common/
-│   │       └── Button.jsx
-│   │
-│   ├── services/
-│   │   └── api.js
-│   │
-│   ├── pages/
-│   │   └── Home.jsx
-│   │
-│   ├── App.jsx
-│   └── main.jsx
-│
-└── package.json
-```
+### Authentication & Security
+- **Firebase Authentication**: Secure login with Email/Password
+- **Google Sign-In**: One-click authentication with Google accounts
+- **User Settings**: Change display name and password
+- **Protected Routes**: All features require authentication
 
-### Frontend Rules
-
-- ✅ No API keys in frontend
-- ✅ API calls must be isolated in `services`
-- ✅ Components must be small and reusable
-- ✅ UI must follow the **Google Stitch** design
+### SMS Generation Features
+- **Dynamic Draft Count**: Generate 1-10 distinct SMS drafts per request
+- **Audience Targeting**: Customize tone based on target audience tags
+- **Turkish Support**: Native support for Turkish language and date formatting
+- **Campaign Dates**: Configurable start and end dates with year enforcement
+- **Rate-Limit Resilience**: Built-in retry logic for API quotas
 
 ---
 
-## API Contract
+## 🏗 High-Level Architecture
 
-### Endpoint
+The application follows a modern decoupled architecture with Firebase integration:
 
+```mermaid
+graph LR
+    A[React Frontend] --> B[FastAPI Backend]
+    A --> F[Firebase Auth]
+    B --> C[BeautifulSoup Scraper]
+    B --> D[Google Gemini AI]
+    B --> E[Firestore Database]
+    F --> E
 ```
-POST /generate-image
-```
 
-### Request Body
+### Tech Stack
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React, Vite, Vanilla CSS |
+| **Backend** | FastAPI (Python), httpx |
+| **AI** | Google Generative AI (Gemini SDK) |
+| **Authentication** | Firebase Auth |
+| **Database** | Cloud Firestore |
+| **Scraping** | BeautifulSoup4 |
 
+---
+
+## 🔌 API Documentation
+
+### Authentication Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/verify-token` | Verify Firebase ID token |
+| `GET` | `/auth/user` | Get current user profile (protected) |
+
+### Customer Endpoints (Protected)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/customers` | List all customers |
+| `POST` | `/customers` | Create a new customer |
+| `GET` | `/customers/{id}` | Get single customer |
+| `PUT` | `/customers/{id}` | Update customer |
+| `DELETE` | `/customers/{id}` | Delete customer |
+
+### SMS Generation
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/generate-sms` | Generate SMS ad drafts |
+
+#### Generate SMS Request Example
 ```json
 {
-  "headline": "Summer Sale",
-  "description": "Minimal product ad with bright background",
-  "size": "300x250",
-  "model": "chatgpt"
+  "website_url": "https://example.com",
+  "products": ["Product A", "Product B"],
+  "discount_rate": 20,
+  "message_count": 3,
+  "target_audience": "Gençler",
+  "start_date": "2026-02-01",
+  "end_date": "2026-02-15",
+  "phone_number": "+90 555 123 4567"
 }
 ```
 
-### Response Body
-
+#### Generate SMS Response Example
 ```json
 {
-  "image": "base64_or_url",
-  "provider": "chatgpt",
-  "size": "300x250"
+  "drafts": [
+    {
+      "type": "Klasik",
+      "content": "Harika fırsat! Product A şimdi %20 indirimle..."
+    },
+    {
+      "type": "Acil",
+      "content": "SON ŞANS! Kampanya 15.02.2026 tarihinde bitiyor..."
+    }
+  ]
 }
 ```
 
+> 📘 For more API examples, see [API_EXAMPLES.md](./API_EXAMPLES.md).
+
 ---
 
-## Prompt Construction
-
-Prompt building must happen **only in the backend**.
-
-### Responsibilities
-
-- Merge headline and visual description
-- Apply ad size constraints
-- Optimize prompt for ad creatives
-- Handle provider-specific formatting
-
-### Implementation Location
+## 📁 Folder Structure
 
 ```
-backend/app/utils/prompt_builder.py
+.
+├── backend/
+│   ├── app/
+│   │   ├── controllers/      # API Routers (auth, customer, sms)
+│   │   ├── services/         # Business logic (scraping, AI prompts, customer ops)
+│   │   ├── clients/          # Gemini API client
+│   │   ├── models/           # Pydantic request/response schemas
+│   │   ├── config/           # Environment settings, Firebase config
+│   │   └── middleware/       # Auth middleware
+│   ├── serviceAccountKey.json  # Firebase Admin SDK (gitignored)
+│   └── requirements.txt
+└── frontend/
+    ├── src/
+    │   ├── pages/            # Login, Signup, Dashboard, Home, Settings
+    │   ├── contexts/         # AuthContext (Firebase auth state)
+    │   ├── components/       # CustomerCard, CustomerModal, Layout, etc.
+    │   ├── services/         # API service layer
+    │   └── config/           # Firebase SDK config
+    └── package.json
 ```
 
 ---
 
-## Development Rules
+## ⚠️ Known Limitations
 
-| Rule | Description |
-|------|-------------|
-| **Template Usage** | Interns must use "Use this template" to create their own repository |
-| **Development Location** | All development happens in the intern's repository |
-| **Issue Tracking** | One GitHub issue = one feature |
-| **Branching** | One feature = one branch |
-| **Main Protection** | No direct commits to `main` |
-| **Code Review** | All changes must go through Pull Requests |
+### Cloudflare Bot Protection
+Websites protected by advanced bot detection systems (like Cloudflare) may return a `403 Forbidden` error during scraping.
+- **Impact**: Cannot read product context or extract phone numbers
+- **Handling**: AI generates generic drafts based on manual input
 
----
+### Gemini Rate Limits (RPM)
+Free-tier API keys have strict limits (15 RPM or lower).
+- **Impact**: Rapid requests may trigger "429 Too Many Requests"
+- **Handling**: Backend includes 5-second automatic retry logic
 
-## Evaluation Criteria
-
-Interns will be evaluated based on:
-
-- 📐 Architecture compliance
-- 📝 Code quality and readability
-- 🧩 Proper layer separation
-- 🌿 Git discipline (branches, commits, PRs)
-- 📚 Documentation clarity
+### IDN/Non-ASCII URLs
+International domain names are supported via automatic Punycode conversion.
 
 ---
 
-## Ownership
+## 📸 Screenshots
 
-- Architecture and rules are defined in this repository
-- Deviations must be proposed and discussed before implementation
-- This repository remains clean and implementation-free
+> **TODO**: Add screenshots of key features here:
+> 1. Login Page - `docs/screenshots/login.png`
+> 2. Customer Dashboard - `docs/screenshots/dashboard.png`
+> 3. SMS Generator - `docs/screenshots/sms-generator.png`
+> 4. User Settings - `docs/screenshots/settings.png`
 
 ---
 
-## License
-
-This project is for internal evaluation purposes only.
+## ⚖️ License
+Internal evaluation project.

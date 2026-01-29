@@ -1,26 +1,23 @@
 # 🚀 Setup Guide
 
-This guide walks you through setting up the AI Ad Creative Generator project from scratch.
+Complete setup guide for the AI SMS Ad Generator with Firebase integration.
 
 ---
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Step 1: Create Your Repository](#step-1-create-your-repository)
+- [Step 1: Firebase Setup](#step-1-firebase-setup)
 - [Step 2: Clone and Setup](#step-2-clone-and-setup)
 - [Step 3: Backend Setup](#step-3-backend-setup)
 - [Step 4: Frontend Setup](#step-4-frontend-setup)
-- [Step 5: Environment Variables](#step-5-environment-variables)
-- [Step 6: Running the Project](#step-6-running-the-project)
-- [Step 7: Verify Everything Works](#step-7-verify-everything-works)
+- [Step 5: Running the Project](#step-5-running-the-project)
+- [Step 6: Verify Everything Works](#step-6-verify-everything-works)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Prerequisites
-
-Before starting, make sure you have the following installed:
 
 | Tool | Version | Check Command | Download |
 |------|---------|---------------|----------|
@@ -28,141 +25,103 @@ Before starting, make sure you have the following installed:
 | Python | 3.10+ | `python --version` | [python.org](https://python.org/) |
 | Node.js | 18+ | `node --version` | [nodejs.org](https://nodejs.org/) |
 | npm | 9+ | `npm --version` | Comes with Node.js |
-| VS Code | Latest | - | [code.visualstudio.com](https://code.visualstudio.com/) |
 
-### Recommended VS Code Extensions
-
-```
-- Python (Microsoft)
-- Pylance
-- ES7+ React/Redux/React-Native snippets
-- Prettier - Code formatter
-- ESLint
-- GitLens
-```
+### Required Accounts
+- **Google AI Studio Account** - For Gemini API key ([aistudio.google.com](https://aistudio.google.com/))
+- **Firebase Account** - For Authentication and Firestore ([console.firebase.google.com](https://console.firebase.google.com/))
 
 ---
 
-## Step 1: Create Your Repository
+## Step 1: Firebase Setup
 
-### 1.1 Use the Template
+### 1.1 Create Firebase Project
 
-1. Go to the template repository on GitHub
-2. Click the green **"Use this template"** button
-3. Select **"Create a new repository"**
-4. Configure your new repository:
-   - Owner: Your GitHub account
-   - Repository name: `ai-ad-creative-generator`
-   - Visibility: Private (recommended)
-5. Click **"Create repository"**
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click **"Create a project"** (or **"Add project"**)
+3. Enter project name (e.g., `ai-sms-generator`)
+4. Disable Google Analytics (optional for this project)
+5. Click **Create project**
 
-### 1.2 Verify Repository Created
+### 1.2 Enable Authentication
 
-Your new repository should have:
-```
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── CODEOWNERS
-│   └── PULL_REQUEST_TEMPLATE.md
-├── BRANCHING.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── PR_EVALUATION.md
-├── README.md
-└── TASKS.md
-```
+1. In Firebase Console, go to **Build → Authentication**
+2. Click **Get started**
+3. Go to **Sign-in method** tab
+4. Enable the following providers:
+   - **Email/Password**: Click, toggle "Enable", Save
+   - **Google**: Click, toggle "Enable", configure support email, Save
+
+### 1.3 Create Firestore Database
+
+1. Go to **Build → Firestore Database**
+2. Click **Create database**
+3. Choose **Start in test mode** (for development)
+4. Select a region close to you
+5. Click **Enable**
+
+### 1.4 Get Firebase Web Configuration
+
+1. Go to **Project Settings** (gear icon) → **General**
+2. Scroll down to **"Your apps"**
+3. Click the **Web** icon (`</>`) to add a web app
+4. Register app with a nickname (e.g., `ai-sms-web`)
+5. Copy the configuration object - you'll need these values:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "AIza...",
+     authDomain: "your-project-id.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project-id.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "1:123456789:web:abc123"
+   };
+   ```
+
+### 1.5 Generate Service Account Key (Backend)
+
+1. Go to **Project Settings** → **Service accounts**
+2. Click **"Generate new private key"**
+3. Confirm by clicking **"Generate key"**
+4. Save the downloaded JSON file as `serviceAccountKey.json`
+5. **⚠️ IMPORTANT**: Keep this file secure, never commit to Git!
 
 ---
 
 ## Step 2: Clone and Setup
 
-### 2.1 Clone Your Repository
+### 2.1 Clone the Repository
 
 ```bash
-# Clone your repository (not the template!)
-git clone https://github.com/YOUR_USERNAME/ai-ad-creative-generator.git
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/ai-sms-generator.git
 
 # Navigate into the project
-cd ai-ad-creative-generator
+cd ai-sms-generator
 ```
 
-### 2.2 Setup Git Configuration
+### 2.2 Verify Project Structure
 
-```bash
-# Set your identity (if not already set globally)
-git config user.name "Your Name"
-git config user.email "your.email@example.com"
-
-# Verify configuration
-git config --list
 ```
-
-### 2.3 Create Development Branch
-
-```bash
-# Create and switch to develop branch
-git checkout -b develop
-
-# Push develop branch to remote
-git push -u origin develop
+ai-sms-generator/
+├── backend/
+│   ├── app/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── config/
+│   │   └── ...
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   └── package.json
+├── README.md
+└── SETUP_GUIDE.md
 ```
 
 ---
 
 ## Step 3: Backend Setup
 
-### 3.1 Create Folder Structure
-
-```bash
-# Create backend directory structure
-mkdir -p backend/app/{controllers,services,clients,utils,models,config,exceptions}
-
-# Create empty __init__.py files (required for Python packages)
-touch backend/app/__init__.py
-touch backend/app/controllers/__init__.py
-touch backend/app/services/__init__.py
-touch backend/app/clients/__init__.py
-touch backend/app/utils/__init__.py
-touch backend/app/models/__init__.py
-touch backend/app/config/__init__.py
-touch backend/app/exceptions/__init__.py
-```
-
-Your backend structure should look like:
-```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # (create later)
-│   ├── controllers/
-│   │   ├── __init__.py
-│   │   └── image_controller.py
-│   ├── services/
-│   │   ├── __init__.py
-│   │   └── image_generation_service.py
-│   ├── clients/
-│   │   ├── __init__.py
-│   │   ├── openai_client.py
-│   │   └── gemini_client.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── prompt_builder.py
-│   │   └── image_utils.py
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── request_models.py
-│   │   └── response_models.py
-│   ├── config/
-│   │   ├── __init__.py
-│   │   └── settings.py
-│   └── exceptions/
-│       ├── __init__.py
-│       └── api_exceptions.py
-├── requirements.txt
-└── .env.example
-```
-
-### 3.2 Create Virtual Environment
+### 3.1 Create Virtual Environment
 
 ```bash
 # Navigate to backend folder
@@ -172,402 +131,226 @@ cd backend
 python -m venv venv
 
 # Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-
-# On Windows:
+# Windows:
 venv\Scripts\activate
 
-# Verify activation (should show venv path)
-which python  # macOS/Linux
-where python  # Windows
+# Mac/Linux:
+source venv/bin/activate
 ```
 
-### 3.3 Create requirements.txt
+### 3.2 Install Dependencies
 
 ```bash
-# Create requirements.txt
-cat > requirements.txt << 'EOF'
-fastapi==0.109.0
-uvicorn==0.27.0
-pydantic==2.5.3
-python-dotenv==1.0.0
-httpx==0.26.0
-openai==1.12.0
-google-generativeai==0.3.2
-python-multipart==0.0.6
-EOF
-```
-
-### 3.4 Install Dependencies
-
-```bash
-# Install all dependencies
 pip install -r requirements.txt
-
-# Verify installation
-pip list
 ```
 
-### 3.5 Create Main Entry Point
+### 3.3 Configure Environment Variables
+
+Create a `.env` file in the `backend` folder:
+
+```env
+# Google Gemini AI
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Firebase Admin SDK
+FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
+```
+
+### 3.4 Add Firebase Service Account
+
+Copy the `serviceAccountKey.json` file you downloaded earlier to the `backend` folder:
 
 ```bash
-# Create main.py
-cat > app/main.py << 'EOF'
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# Your backend folder should now contain:
+backend/
+├── app/
+├── venv/
+├── .env
+├── serviceAccountKey.json  # ← Place here
+└── requirements.txt
+```
 
-app = FastAPI(
-    title="AI Ad Creative Generator",
-    description="Generate advertising images using AI",
-    version="1.0.0"
-)
+### 3.5 Verify .gitignore
 
-# CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite default port
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+Ensure these files are in `.gitignore`:
 
-@app.get("/")
-async def root():
-    return {"message": "AI Ad Creative Generator API", "status": "running"}
-
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-EOF
+```
+.env
+serviceAccountKey.json
+venv/
+__pycache__/
 ```
 
 ### 3.6 Test Backend
 
 ```bash
-# Run the server
-uvicorn app.main:app --reload
+# Start the backend server
+uvicorn app.main:app --reload --port 8000
 
-# You should see:
+# Expected output:
 # INFO:     Uvicorn running on http://127.0.0.1:8000
 # INFO:     Application startup complete.
 ```
 
-Open http://localhost:8000 in your browser. You should see:
-```json
-{"message": "AI Ad Creative Generator API", "status": "running"}
-```
-
-Press `Ctrl+C` to stop the server.
+Open http://localhost:8000/docs to see the Swagger UI.
 
 ---
 
 ## Step 4: Frontend Setup
 
-### 4.1 Create React Project
+### 4.1 Install Dependencies
 
 ```bash
-# Go back to project root
-cd ..
-
-# Create React project with Vite
-npm create vite@latest frontend -- --template react
-
-# Navigate to frontend
-cd frontend
-```
-
-### 4.2 Install Dependencies
-
-```bash
-# Install base dependencies
-npm install
-
-# Install additional dependencies
-npm install axios
-```
-
-### 4.3 Create Folder Structure
-
-```bash
-# Create folder structure
-mkdir -p src/components/{Form,Preview,common}
-mkdir -p src/services
-mkdir -p src/pages
-```
-
-Your frontend structure should look like:
-```
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── Form/
-│   │   │   └── AdForm.jsx
-│   │   ├── Preview/
-│   │   │   └── ImagePreview.jsx
-│   │   └── common/
-│   │       └── Button.jsx
-│   ├── services/
-│   │   └── api.js
-│   ├── pages/
-│   │   └── Home.jsx
-│   ├── App.jsx
-│   └── main.jsx
-├── package.json
-└── .env.example
-```
-
-### 4.4 Create API Service
-
-```bash
-# Create API service file
-cat > src/services/api.js << 'EOF'
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-
-export const generateImage = async (params) => {
-  const response = await fetch(`${API_BASE_URL}/generate-image`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to generate image');
-  }
-
-  return response.json();
-};
-
-export const healthCheck = async () => {
-  const response = await fetch(`${API_BASE_URL}/health`);
-  return response.json();
-};
-EOF
-```
-
-### 4.5 Test Frontend
-
-```bash
-# Start development server
-npm run dev
-
-# You should see:
-# VITE v5.x.x  ready in xxx ms
-# ➜  Local:   http://localhost:5173/
-```
-
-Open http://localhost:5173 in your browser. You should see the Vite + React welcome page.
-
-Press `Ctrl+C` to stop the server.
-
----
-
-## Step 5: Environment Variables
-
-### 5.1 Backend Environment
-
-```bash
-# Navigate to backend
-cd ../backend
-
-# Create .env.example (commit this)
-cat > .env.example << 'EOF'
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Google Gemini Configuration
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Application Configuration
-APP_DEBUG=false
-APP_PORT=8000
-APP_HOST=0.0.0.0
-EOF
-
-# Create actual .env file (DO NOT commit this!)
-cp .env.example .env
-
-# Edit .env and add your real API keys
-# nano .env  or  code .env
-```
-
-### 5.2 Frontend Environment
-
-```bash
-# Navigate to frontend
+# Navigate to frontend folder
 cd ../frontend
 
-# Create .env.example (commit this)
-cat > .env.example << 'EOF'
-# API Configuration
-VITE_API_BASE_URL=http://localhost:8000
-EOF
-
-# Create actual .env file
-cp .env.example .env
+# Install dependencies
+npm install
 ```
 
-### 5.3 Update .gitignore
+### 4.2 Configure Environment Variables
+
+Create a `.env` file in the `frontend` folder with your Firebase config:
+
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:8000
+
+# Firebase Configuration (from Step 1.4)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+### 4.3 Verify .env.example
+
+Update `frontend/.env.example` with template values:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+### 4.4 Test Frontend
 
 ```bash
-# In project root, create/update .gitignore
-cd ..
+# Start the development server
+npm run dev
 
-cat > .gitignore << 'EOF'
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
-*.egg-info/
-dist/
-build/
-
-# Node
-node_modules/
-npm-debug.log*
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Build outputs
-*.log
-EOF
+# Expected output:
+#   VITE v5.x.x  ready in xxx ms
+#   ➜  Local:   http://localhost:5173/
 ```
 
 ---
 
-## Step 6: Running the Project
+## Step 5: Running the Project
 
-### 6.1 Start Backend
+### Start Both Servers
 
+You need two terminal windows:
+
+**Terminal 1 - Backend:**
 ```bash
-# Terminal 1: Backend
 cd backend
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+venv\Scripts\activate      # Windows
+# source venv/bin/activate  # Mac/Linux
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 6.2 Start Frontend
-
+**Terminal 2 - Frontend:**
 ```bash
-# Terminal 2: Frontend
 cd frontend
 npm run dev
 ```
 
-### 6.3 Access the Application
+### Access Points
 
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:8000 |
-| API Docs (Swagger) | http://localhost:8000/docs |
-| API Docs (ReDoc) | http://localhost:8000/redoc |
+| Swagger Docs | http://localhost:8000/docs |
+| ReDoc Docs | http://localhost:8000/redoc |
 
 ---
 
-## Step 7: Verify Everything Works
+## Step 6: Verify Everything Works
 
-### 7.1 Check Backend Health
+### 6.1 Check Backend Health
 
 ```bash
-# Using curl
 curl http://localhost:8000/health
 
-# Expected response:
-# {"status": "healthy"}
+# Expected: {"status": "healthy"}
 ```
 
-### 7.2 Check API Documentation
+### 6.2 Test Login Flow
 
-Open http://localhost:8000/docs in your browser.
-You should see the Swagger UI with available endpoints.
+1. Open http://localhost:5173
+2. You should see the Login page
+3. Click **"Kayıt Ol"** to create a new account
+4. Fill in:
+   - Display Name
+   - Email
+   - Password (8+ chars, upper, lower, special)
+5. After registration, you'll be redirected to the Dashboard
 
-### 7.3 Check Frontend Connects to Backend
+### 6.3 Test Customer Creation
 
-Open browser developer tools (F12) → Network tab.
-The frontend should be able to call the backend without CORS errors.
+1. On Dashboard, click **"Yeni Müşteri Ekle"**
+2. Enter company name and website URL
+3. Click **"Kaydet"**
+4. Customer card should appear with auto-extracted logo
+
+### 6.4 Test SMS Generation
+
+1. Click **"Kampanya Başlat"** on a customer card
+2. Fill in campaign details (products, discount, dates)
+3. Click **"Oluştur"**
+4. SMS drafts should be generated
 
 ---
 
 ## Troubleshooting
 
-### Python Issues
+### Backend Issues
 
 | Problem | Solution |
 |---------|----------|
-| `python: command not found` | Use `python3` instead, or add Python to PATH |
-| `venv not activating` | Check the activation command for your OS |
-| `ModuleNotFoundError` | Run `pip install -r requirements.txt` again |
-| `Port 8000 already in use` | Kill the process or use `--port 8001` |
+| `ModuleNotFoundError` | Run `pip install -r requirements.txt` |
+| Firebase init error | Check `serviceAccountKey.json` path in `.env` |
+| Port 8000 in use | Use `--port 8001` or kill existing process |
 
-### Node.js Issues
-
-| Problem | Solution |
-|---------|----------|
-| `npm: command not found` | Reinstall Node.js |
-| `EACCES permission denied` | Don't use `sudo`, fix npm permissions |
-| `node_modules issues` | Delete `node_modules` and run `npm install` |
-| `Port 5173 already in use` | Kill the process or Vite will auto-pick another |
-
-### Git Issues
+### Frontend Issues
 
 | Problem | Solution |
 |---------|----------|
-| `Permission denied (publickey)` | Setup SSH keys for GitHub |
-| `Failed to push` | Run `git pull` first, then push |
-| `Merge conflicts` | See GIT_WORKFLOW.md for resolution steps |
+| Firebase auth error | Verify all `VITE_FIREBASE_*` env vars are set |
+| CORS error | Ensure backend is running on port 8000 |
+| Blank page | Check browser console for errors |
 
-### CORS Issues
-
-If you see CORS errors in browser console:
-
-```python
-# Make sure backend has CORS configured in main.py
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
-### Environment Variable Issues
+### Firebase Issues
 
 | Problem | Solution |
 |---------|----------|
-| API key not loading | Check `.env` file exists and has correct format |
-| Frontend can't read env | Prefix with `VITE_` for Vite projects |
-| Changes not reflecting | Restart the server after changing `.env` |
+| `auth/invalid-api-key` | Check `VITE_FIREBASE_API_KEY` is correct |
+| `auth/unauthorized-domain` | Add `localhost` to authorized domains in Firebase Console |
+| Firestore permission denied | Check Firestore rules (use test mode for dev) |
 
----
+### Adding Localhost to Authorized Domains
 
-## Next Steps
-
-After completing setup:
-
-1. ✅ Read [TASKS.md](./TASKS.md) to understand your assignments
-2. ✅ Read [CODING_STANDARDS.md](./CODING_STANDARDS.md) before writing code
-3. ✅ Read [BRANCHING.md](./BRANCHING.md) for Git workflow
-4. ✅ Create your first feature branch
-5. ✅ Start with your assigned issue
+1. Go to Firebase Console → Authentication → Settings
+2. Under **Authorized domains**, ensure `localhost` is listed
+3. If not, click **Add domain** and add `localhost`
 
 ---
 
@@ -575,7 +358,7 @@ After completing setup:
 
 ```bash
 # Start Backend
-cd backend && source venv/bin/activate && uvicorn app.main:app --reload
+cd backend && venv\Scripts\activate && uvicorn app.main:app --reload
 
 # Start Frontend
 cd frontend && npm run dev
@@ -585,12 +368,9 @@ git checkout develop && git pull && git checkout -b feature/your-feature
 
 # Commit Changes
 git add . && git commit -m "feat(scope): description"
-
-# Push Branch
-git push -u origin feature/your-feature
 ```
 
 ---
 
-> 💡 **Tip:** Keep this guide open in a separate tab while working.  
-> You'll likely refer back to it multiple times!
+> 💡 **Tip:** Keep both terminal windows visible while developing.
+> Backend logs will show API requests, frontend console shows React errors.
