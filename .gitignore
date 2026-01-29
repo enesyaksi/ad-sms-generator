@@ -1,0 +1,57 @@
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+.next/
+.env.production
+.env.development
+
+# Backend virtual environment
+backend/venv/
+venv/
+__pycache__/
+*.pyc
+
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Mac system files (common noise)
+.DS_Store
+
+# Generated output
+models.txt
+
+# Firebase
+serviceAccountKey.json
+**/serviceAccountKey.json
+firebase-debug.log
+.firebase/
+
+# Project Management
+PRs.md
+issues.md
+walkthrough.md
+implementation.md
+implementation_plan.md
+BRANCHING.md
+Task.md
+*.md
+!README.md
+!SETUP_GUIDE.md
+!API_EXAMPLES.md
+!USER_GUIDE.md
+!BACKEND_SERVICES.md
+!CONTRIBUTING.md
+!CODING_STANDARDS.md
+!GIT_WORKFLOW.md
+!COMMON_MISTAKES.md
+!RESOURCES.md
+!PR_EVALUATION.md
+!TASKS.md
+!backend/README.md
+!frontend/README.md
+!docs/**/README.md
