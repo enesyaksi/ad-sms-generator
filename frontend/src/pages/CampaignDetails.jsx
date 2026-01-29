@@ -11,7 +11,8 @@ const CampaignDetails = () => {
     const [activeTab, setActiveTab] = useState('drafts'); // 'drafts' or 'saved'
 
     // SMS Generator State
-    const [targetAudience, setTargetAudience] = useState('Yeni Üyeler');
+    const [targetAudience, setTargetAudience] = useState([]);
+    const [audienceInput, setAudienceInput] = useState('');
     const [drafts, setDrafts] = useState([]);
     const [savedMessages, setSavedMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -55,7 +56,7 @@ const CampaignDetails = () => {
                 end_date: campaign.end_date || null,
                 discount_rate: campaign.discount_rate || 0,
                 message_count: 3,
-                target_audience: targetAudience,
+                target_audience: targetAudience.join(', '),
                 phone_number: customer?.phone_number || ''
             };
 
@@ -74,7 +75,7 @@ const CampaignDetails = () => {
         try {
             const messageData = {
                 content: draft.content,
-                target_audience: targetAudience
+                target_audience: targetAudience.join(', ')
             };
             const saved = await campaignsApi.saveMessage(campaignId, messageData);
             setSavedMessages([saved, ...savedMessages]);
@@ -83,6 +84,20 @@ const CampaignDetails = () => {
             console.error("Failed to save message:", err);
             setError("Mesaj kaydedilemedi.");
         }
+    };
+
+    const handleAddAudienceToken = (e) => {
+        if (e.key === 'Enter' && audienceInput.trim()) {
+            e.preventDefault();
+            if (!targetAudience.includes(audienceInput.trim())) {
+                setTargetAudience([...targetAudience, audienceInput.trim()]);
+            }
+            setAudienceInput('');
+        }
+    };
+
+    const removeAudienceToken = (token) => {
+        setTargetAudience(targetAudience.filter(t => t !== token));
     };
 
     const handleDeleteSaved = async (messageId) => {
@@ -171,8 +186,8 @@ const CampaignDetails = () => {
                                 <div className="flex items-center gap-3 mb-1.5">
                                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{campaign.name}</h1>
                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${campaign.status === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                            campaign.status === 'Taslak' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                                                'bg-slate-50 text-slate-600 border-slate-200'
+                                        campaign.status === 'Taslak' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                            'bg-slate-50 text-slate-600 border-slate-200'
                                         }`}>
                                         {campaign.status === 'Aktif' && (
                                             <span className="relative flex h-2 w-2">
@@ -217,23 +232,20 @@ const CampaignDetails = () => {
                     </div>
                 </div>
 
-                {/* Stats & Config Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="col-span-1 lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:shadow-md">
+                {/* Products & Config Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div className="lg:col-span-2 bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:shadow-md">
                         <div className="flex items-center justify-between mb-4">
                             <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5">
-                                <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                                    <span className="material-symbols-outlined text-[20px] block">inventory_2</span>
+                                <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                                    <span className="material-symbols-outlined text-[20px] block font-bold">inventory_2</span>
                                 </div>
                                 KAMPANYA ÜRÜNLERİ
                             </span>
-                            <span className="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
-                                {campaign.products?.length || 0} Ürün
-                            </span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                        <div className="flex flex-wrap items-center gap-2.5">
                             {campaign.products?.map((product, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 hover:bg-slate-100/80 transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                                <div key={idx} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 hover:bg-slate-100/80 transition-colors shadow-sm">
                                     <span className="text-sm font-bold text-slate-700">{product}</span>
                                 </div>
                             ))}
@@ -243,39 +255,72 @@ const CampaignDetails = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-3">
-                            <div className="p-1.5 bg-emerald-100/50 rounded-lg text-emerald-600">
-                                <span className="material-symbols-outlined text-[20px] block">percent</span>
+                    <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
+                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-4">
+                            <div className="p-2 bg-emerald-100/50 rounded-xl text-emerald-600">
+                                <span className="material-symbols-outlined text-[20px] block font-bold">percent</span>
                             </div>
                             İNDİRİM ORANI
                         </span>
                         <div className="flex items-baseline gap-2 mt-auto">
-                            <span className="text-3xl font-black text-slate-900 leading-none">%{campaign.discount_rate || 0}</span>
-                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Özel Teklif</span>
+                            <span className="text-4xl font-black text-slate-900 leading-none">%{campaign.discount_rate || 0}</span>
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-2 hover:border-primary/30 transition-all group hover:shadow-md relative overflow-visible z-20">
-                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-3">
-                            <div className="p-1.5 bg-amber-100/50 rounded-lg text-amber-600">
-                                <span className="material-symbols-outlined text-[20px] block">group_add</span>
+                    <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
+                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-4">
+                            <div className="p-2 bg-indigo-100/50 rounded-xl text-indigo-600">
+                                <span className="material-symbols-outlined text-[20px] block font-bold">schedule</span>
                             </div>
-                            HEDEF KİTLE TERCİHİ
+                            KALAN SÜRE
                         </span>
-                        <div className="relative mt-auto">
-                            <select
-                                value={targetAudience}
-                                onChange={(e) => setTargetAudience(e.target.value)}
-                                className="w-full pl-4 pr-10 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl text-sm font-bold text-slate-700 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none appearance-none cursor-pointer hover:bg-white transition-all shadow-inner"
-                            >
-                                <option value="Yeni Üyeler">Yeni Üyeler</option>
-                                <option value="Sadık Müşteriler">Sadık Müşteriler</option>
-                                <option value="Öğrenciler">Öğrenciler</option>
-                                <option value="Aileler">Aileler</option>
-                            </select>
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 pointer-events-none text-[22px]">unfold_more</span>
+                        <div className="flex items-baseline gap-2 mt-auto">
+                            <span className={`text-3xl font-black leading-none ${daysRemaining > 0 ? 'text-orange-600' : 'text-red-600'}`}>
+                                {daysRemaining > 0 ? daysRemaining : 0}
+                            </span>
+                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Gün</span>
                         </div>
+                    </div>
+                </div>
+
+                {/* Tag Based Audience Selection */}
+                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3 mb-8 border-b border-slate-100 pb-4">
+                        <div className="p-2.5 bg-blue-100/50 rounded-xl text-primary">
+                            <span className="material-symbols-outlined text-[24px] block font-bold">groups</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">Hedef Kitle</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="text-sm font-bold text-slate-600 flex items-center gap-2">
+                            Hedef Kitle Özellikleri
+                        </label>
+                        <div className="flex flex-wrap gap-2.5 p-4 bg-white border-2 border-slate-100 rounded-2xl min-h-[72px] focus-within:border-primary/30 focus-within:ring-4 focus-within:ring-primary/5 transition-all shadow-inner items-center">
+                            {targetAudience.map((token, idx) => (
+                                <div key={idx} className="flex items-center gap-2 bg-blue-50 text-primary border border-blue-100/50 rounded-xl px-4 py-2 font-bold text-sm shadow-sm group/tag animate-in zoom-in-95 duration-200">
+                                    {token}
+                                    <button
+                                        onClick={() => removeAudienceToken(token)}
+                                        className="text-primary/40 hover:text-primary transition-colors flex items-center"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                </div>
+                            ))}
+                            <input
+                                type="text"
+                                value={audienceInput}
+                                onChange={(e) => setAudienceInput(e.target.value)}
+                                onKeyDown={handleAddAudienceToken}
+                                placeholder={targetAudience.length === 0 ? "Örn: Gençler, Moda Severler, Açık Hava Sporcuları..." : "Yenisini ekle..."}
+                                className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 placeholder-slate-400 min-w-[200px]"
+                            />
+                        </div>
+                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5 px-1">
+                            <span className="material-symbols-outlined text-[14px]">info</span>
+                            Kitle özelliklerini yazıp Enter'a basarak ekleyebilirsiniz.
+                        </p>
                     </div>
                 </div>
 
@@ -448,49 +493,7 @@ const CampaignDetails = () => {
                     </div>
                 </div>
 
-                {/* Production Trend Section */}
-                <div className="mt-12 border-t-2 border-slate-100 pt-10 pb-16">
-                    <div className="flex flex-col md:flex-row gap-12 md:items-end justify-between">
-                        <div className="flex-1">
-                            <h4 className="text-xs font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center gap-3">
-                                <div className="w-8 h-1 bg-primary rounded-full"></div>
-                                HAFTALIK ÜRETİM AKTİVİTESİ
-                            </h4>
-                            <div className="flex items-end gap-4 h-32 w-full max-w-md">
-                                {[
-                                    { day: 'Pzt', h: '40%' },
-                                    { day: 'Sal', h: '65%' },
-                                    { day: 'Çar', h: '85%', active: true },
-                                    { day: 'Per', h: '30%' },
-                                    { day: 'Cum', h: '55%' },
-                                    { day: 'Cmt', h: '25%' },
-                                    { day: 'Paz', h: '15%' }
-                                ].map((d, i) => (
-                                    <div key={i} className="flex flex-col items-center gap-2.5 w-full group cursor-pointer">
-                                        <div
-                                            className={`w-full rounded-t-xl transition-all duration-500 ease-out border-x border-t ${d.active ? 'bg-gradient-to-b from-primary to-blue-600 shadow-xl shadow-primary/30 border-primary' : 'bg-slate-100 group-hover:bg-slate-200 border-slate-200/50'}`}
-                                            style={{ height: d.h }}
-                                        ></div>
-                                        <span className={`text-[11px] font-black tracking-wider ${d.active ? 'text-primary' : 'text-slate-400'}`}>{d.day}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="text-right flex flex-col gap-3 items-start md:items-end">
-                            <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-sm ring-4 ring-slate-50/50">
-                                <span className="relative flex h-2.5 w-2.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-300 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-400"></span>
-                                </span>
-                                <p className="text-sm text-slate-600 font-medium">Son güncelleme: <span className="font-extrabold text-slate-900">Az önce</span></p>
-                            </div>
-                            <p className="text-[12px] text-slate-400 font-bold italic flex items-center gap-1.5 uppercase tracking-tighter">
-                                <span className="material-symbols-outlined text-[16px] text-primary">psychology</span>
-                                Gemini API tarafından optimize edildi
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                {/* Production Trend Section REMOVED */}
             </main>
         </div>
     );
