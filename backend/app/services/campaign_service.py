@@ -142,7 +142,12 @@ class CampaignService:
             return []
             
         docs = campaign_ref.collection("saved_messages").order_by("created_at", direction=firestore.Query.DESCENDING).stream()
-        return [SavedMessage(**doc.to_dict()) for doc in docs]
+        messages = []
+        for doc in docs:
+            data = doc.to_dict()
+            data["id"] = doc.id
+            messages.append(SavedMessage(**data))
+        return messages
 
     def delete_saved_message(self, campaign_id: str, message_id: str, user_id: str) -> bool:
         """

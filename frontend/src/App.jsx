@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Customers from './pages/Customers';
 import CustomerDetails from './pages/CustomerDetails';
 import Campaigns from './pages/Campaigns';
+import CampaignDetails from './pages/CampaignDetails';
 import Overview from './pages/Overview';
 import SavedCampaigns from './pages/SavedCampaigns';
 import Settings from './pages/Settings';
@@ -29,6 +30,7 @@ function App() {
               <Route path="customers" element={<Customers />} />
               <Route path="customers/:customerId" element={<CustomerDetails />} />
               <Route path="campaigns" element={<Campaigns />} />
+              <Route path="campaigns/:campaignId" element={<CampaignDetails />} />
               <Route path="generator" element={<Home />} />
               <Route path="settings" element={<Settings />} />
             </Route>
