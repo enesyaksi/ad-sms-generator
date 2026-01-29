@@ -16,19 +16,32 @@ const CustomerDetails = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            console.log("Fetching data for customerId:", customerId);
+            setLoading(true);
+
+            // Fetch Customer
             try {
-                setLoading(true);
-                const [customerData, campaignsData] = await Promise.all([
-                    customersApi.getOne(customerId),
-                    campaignsApi.getAll(customerId)
-                ]);
+                const customerData = await customersApi.getOne(customerId);
+                console.log("Customer data received:", customerData);
                 setCustomer(customerData);
-                setCampaigns(campaignsData);
             } catch (error) {
                 console.error("Error fetching customer details:", error);
-            } finally {
-                setLoading(false);
             }
+
+            // Fetch Campaigns
+            try {
+                const campaignsData = await campaignsApi.getAll(customerId);
+                console.log("Campaigns data received:", campaignsData);
+                setCampaigns(campaignsData);
+            } catch (error) {
+                console.error("Error fetching campaigns:", error);
+                // If it's a 500 error, it might be the Firestore index issue
+                if (error.response?.status === 500) {
+                    console.warn("Possible missing Firestore index for campaigns query.");
+                }
+            }
+
+            setLoading(false);
         };
 
         if (customerId) {
@@ -193,9 +206,9 @@ const CustomerDetails = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-left">
                                                 <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${campaign.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
-                                                        campaign.status === 'Taslak' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                                                            campaign.status === 'Planlandı' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                                                                'bg-slate-100 text-slate-600 border-slate-200'
+                                                    campaign.status === 'Taslak' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                                        campaign.status === 'Planlandı' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                                                            'bg-slate-100 text-slate-600 border-slate-200'
                                                     }`}>
                                                     {campaign.status}
                                                 </span>
