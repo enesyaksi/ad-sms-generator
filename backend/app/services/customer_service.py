@@ -81,6 +81,7 @@ class CustomerService:
         if doc.exists:
             data = doc.to_dict()
             if data.get("user_id") == user_id:
+                data["id"] = doc.id
                 return Customer(**data)
         return None
 
