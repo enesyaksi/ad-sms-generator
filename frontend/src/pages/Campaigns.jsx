@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { campaignsApi, customersApi } from '../services/api';
+import CampaignModal from '../components/CampaignModal';
 
 const Campaigns = () => {
     const navigate = useNavigate();
@@ -11,6 +12,8 @@ const Campaigns = () => {
     const [customerFilter, setCustomerFilter] = useState('Tüm Müşteriler');
     const [statusFilter, setStatusFilter] = useState('Tüm Durumlar');
     const [currentPage, setCurrentPage] = useState(1);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCampaign, setEditingCampaign] = useState(null);
     const itemsPerPage = 10;
 
     useEffect(() => {
@@ -49,6 +52,21 @@ const Campaigns = () => {
         setCustomerFilter('Tüm Müşteriler');
         setStatusFilter('Tüm Durumlar');
         setCurrentPage(1);
+    };
+
+    const handleEditClick = (campaign) => {
+        setEditingCampaign(campaign);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveCampaign = async (formData) => {
+        try {
+            const updated = await campaignsApi.update(editingCampaign.id, formData);
+            setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
+        } catch (error) {
+            console.error("Failed to save campaign:", error);
+            throw error;
+        }
     };
 
     if (loading) {
@@ -168,9 +186,9 @@ const Campaigns = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${campaign.status === 'Aktif' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                                            campaign.status === 'Taslak' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                                                campaign.status === 'Planlandı' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                                                                    'bg-slate-100 text-slate-600 border-slate-200'
+                                                        campaign.status === 'Taslak' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                                            campaign.status === 'Planlandı' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                                'bg-slate-100 text-slate-600 border-slate-200'
                                                         }`}>
                                                         {campaign.status}
                                                     </span>
@@ -188,7 +206,7 @@ const Campaigns = () => {
                                                             <span className="material-symbols-outlined text-[20px]">visibility</span>
                                                         </button>
                                                         <button
-                                                            onClick={() => navigate(`/campaigns/${campaign.id}`)}
+                                                            onClick={() => handleEditClick(campaign)}
                                                             className="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all"
                                                             title="Düzenle"
                                                         >
@@ -231,6 +249,13 @@ const Campaigns = () => {
                     )}
                 </div>
             </div>
+
+            <CampaignModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveCampaign}
+                campaign={editingCampaign}
+            />
         </div>
     );
 };
