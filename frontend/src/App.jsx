@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
+import Customers from './pages/Customers';
 import Overview from './pages/Overview';
 import SavedCampaigns from './pages/SavedCampaigns';
 import Settings from './pages/Settings';
@@ -24,7 +24,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Layout />}>
               <Route index element={<Overview />} />
-              <Route path="customers" element={<Dashboard />} />
+              <Route path="customers" element={<Customers />} />
               <Route path="campaigns" element={<SavedCampaigns />} />
               <Route path="generator" element={<Home />} />
               <Route path="settings" element={<Settings />} />
