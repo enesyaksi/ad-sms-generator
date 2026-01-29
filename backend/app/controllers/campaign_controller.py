@@ -78,3 +78,41 @@ async def delete_campaign(
     if not success:
         raise HTTPException(status_code=404, detail="Campaign not found or unauthorized")
     return None
+
+@router.post("/{campaign_id}/messages", response_model=SavedMessage, status_code=status.HTTP_201_CREATED)
+async def save_message(
+    campaign_id: str,
+    message_data: SavedMessageCreate,
+    user: dict = Depends(get_current_user)
+):
+    """
+    Save an AI-generated SMS message to a campaign.
+    """
+    message = await campaign_service.save_message(campaign_id, message_data, user["uid"])
+    if not message:
+        raise HTTPException(status_code=404, detail="Campaign not found or unauthorized")
+    return message
+
+@router.get("/{campaign_id}/messages", response_model=List[SavedMessage])
+async def list_saved_messages(
+    campaign_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """
+    List all saved messages for a specific campaign.
+    """
+    return campaign_service.get_saved_messages(campaign_id, user["uid"])
+
+@router.delete("/{campaign_id}/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_saved_message(
+    campaign_id: str,
+    message_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """
+    Delete a saved message from a campaign.
+    """
+    success = campaign_service.delete_saved_message(campaign_id, message_id, user["uid"])
+    if not success:
+        raise HTTPException(status_code=404, detail="Message/Campaign not found or unauthorized")
+    return None
