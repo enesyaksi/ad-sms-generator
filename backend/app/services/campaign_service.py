@@ -38,12 +38,16 @@ class CampaignService:
         if customer_id:
             query = query.where("customer_id", "==", customer_id)
             
-        docs = query.order_by("created_at", direction=firestore.Query.DESCENDING).stream()
+        # Remove order_by to avoid index requirements
+        docs = query.stream()
         campaigns = []
         for doc in docs:
             data = doc.to_dict()
             data["id"] = doc.id
             campaigns.append(Campaign(**data))
+        
+        # Sort in-memory
+        campaigns.sort(key=lambda x: x.created_at, reverse=True)
         return campaigns
 
     def get_campaign(self, campaign_id: str, user_id: str) -> Optional[Campaign]:
