@@ -233,94 +233,89 @@ const CampaignDetails = () => {
                 </div>
 
                 {/* Products & Config Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div className="lg:col-span-2 bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:shadow-md">
-                        <div className="flex items-center justify-between mb-4">
-                            <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5">
-                                <div className="p-2 bg-primary/10 rounded-xl text-primary">
-                                    <span className="material-symbols-outlined text-[20px] block font-bold">inventory_2</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Products - Reduced size */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:shadow-md">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2">
+                                <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                                    <span className="material-symbols-outlined text-[18px] block font-bold">inventory_2</span>
                                 </div>
-                                KAMPANYA ÜRÜNLERİ
+                                ÜRÜNLER
                             </span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2.5">
+                        <div className="flex flex-wrap items-center gap-1.5 overflow-y-auto max-h-[72px] no-scrollbar">
                             {campaign.products?.map((product, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 hover:bg-slate-100/80 transition-colors shadow-sm">
-                                    <span className="text-sm font-bold text-slate-700">{product}</span>
+                                <div key={idx} className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-1 hover:bg-slate-100/80 transition-colors">
+                                    <span className="text-[12px] font-bold text-slate-700">{product}</span>
                                 </div>
                             ))}
                             {(!campaign.products || campaign.products.length === 0) && (
-                                <span className="text-sm text-slate-400 italic">Ürün belirtilmemiş.</span>
+                                <span className="text-[11px] text-slate-400 italic font-medium">Yok</span>
                             )}
                         </div>
                     </div>
 
-                    <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-4">
-                            <div className="p-2 bg-emerald-100/50 rounded-xl text-emerald-600">
-                                <span className="material-symbols-outlined text-[20px] block font-bold">percent</span>
+                    {/* Tag Based Audience - Inside Grid */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                            <div className="p-1.5 bg-blue-100/50 rounded-lg text-primary">
+                                <span className="material-symbols-outlined text-[18px] block font-bold">group_add</span>
                             </div>
-                            İNDİRİM ORANI
+                            HEDEF KİTLE
                         </span>
-                        <div className="flex items-baseline gap-2 mt-auto">
-                            <span className="text-4xl font-black text-slate-900 leading-none">%{campaign.discount_rate || 0}</span>
+                        <div className="flex-1 flex flex-col gap-2">
+                            <div className="flex flex-wrap gap-1.5 p-2 bg-slate-50 border border-slate-100 rounded-xl min-h-[44px] max-h-[84px] overflow-y-auto focus-within:bg-white focus-within:border-primary/30 transition-all items-center no-scrollbar group-focus-within:border-primary/30">
+                                {targetAudience.map((token, idx) => (
+                                    <div key={idx} className="flex items-center gap-1 bg-white text-primary border border-primary/20 rounded-lg px-2 py-0.5 font-bold text-[10px] shadow-sm whitespace-nowrap">
+                                        {token}
+                                        <button
+                                            onClick={() => removeAudienceToken(token)}
+                                            className="text-primary/40 hover:text-primary transition-colors flex items-center"
+                                        >
+                                            <span className="material-symbols-outlined text-[14px]">close</span>
+                                        </button>
+                                    </div>
+                                ))}
+                                <input
+                                    type="text"
+                                    value={audienceInput}
+                                    onChange={(e) => setAudienceInput(e.target.value)}
+                                    onKeyDown={handleAddAudienceToken}
+                                    placeholder={targetAudience.length === 0 ? "Kitle yaz..." : ""}
+                                    className="flex-1 bg-transparent border-none outline-none text-[12px] font-medium text-slate-700 placeholder-slate-400 min-w-[60px]"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-7 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[11px] font-bold uppercase tracking-[0.1em] flex items-center gap-2.5 mb-4">
-                            <div className="p-2 bg-indigo-100/50 rounded-xl text-indigo-600">
-                                <span className="material-symbols-outlined text-[20px] block font-bold">schedule</span>
+                    {/* Discount */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                            <div className="p-1.5 bg-emerald-100/50 rounded-lg text-emerald-600">
+                                <span className="material-symbols-outlined text-[18px] block font-bold">percent</span>
                             </div>
-                            KALAN SÜRE
+                            İNDİRİM
                         </span>
-                        <div className="flex items-baseline gap-2 mt-auto">
+                        <div className="flex items-baseline gap-1 mt-auto">
+                            <span className="text-3xl font-black text-slate-900 leading-none">%{campaign.discount_rate || 0}</span>
+                        </div>
+                    </div>
+
+                    {/* Time Remaining */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                            <div className="p-1.5 bg-amber-100/50 rounded-lg text-amber-600">
+                                <span className="material-symbols-outlined text-[18px] block font-bold">schedule</span>
+                            </div>
+                            SÜRE
+                        </span>
+                        <div className="flex items-baseline gap-1 mt-auto">
                             <span className={`text-3xl font-black leading-none ${daysRemaining > 0 ? 'text-orange-600' : 'text-red-600'}`}>
                                 {daysRemaining > 0 ? daysRemaining : 0}
                             </span>
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Gün</span>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Gün</span>
                         </div>
-                    </div>
-                </div>
-
-                {/* Tag Based Audience Selection */}
-                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8 hover:shadow-md transition-all">
-                    <div className="flex items-center gap-3 mb-8 border-b border-slate-100 pb-4">
-                        <div className="p-2.5 bg-blue-100/50 rounded-xl text-primary">
-                            <span className="material-symbols-outlined text-[24px] block font-bold">groups</span>
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">Hedef Kitle</h3>
-                    </div>
-
-                    <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-600 flex items-center gap-2">
-                            Hedef Kitle Özellikleri
-                        </label>
-                        <div className="flex flex-wrap gap-2.5 p-4 bg-white border-2 border-slate-100 rounded-2xl min-h-[72px] focus-within:border-primary/30 focus-within:ring-4 focus-within:ring-primary/5 transition-all shadow-inner items-center">
-                            {targetAudience.map((token, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-blue-50 text-primary border border-blue-100/50 rounded-xl px-4 py-2 font-bold text-sm shadow-sm group/tag animate-in zoom-in-95 duration-200">
-                                    {token}
-                                    <button
-                                        onClick={() => removeAudienceToken(token)}
-                                        className="text-primary/40 hover:text-primary transition-colors flex items-center"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px]">close</span>
-                                    </button>
-                                </div>
-                            ))}
-                            <input
-                                type="text"
-                                value={audienceInput}
-                                onChange={(e) => setAudienceInput(e.target.value)}
-                                onKeyDown={handleAddAudienceToken}
-                                placeholder={targetAudience.length === 0 ? "Örn: Gençler, Moda Severler, Açık Hava Sporcuları..." : "Yenisini ekle..."}
-                                className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 placeholder-slate-400 min-w-[200px]"
-                            />
-                        </div>
-                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5 px-1">
-                            <span className="material-symbols-outlined text-[14px]">info</span>
-                            Kitle özelliklerini yazıp Enter'a basarak ekleyebilirsiniz.
-                        </p>
                     </div>
                 </div>
 
@@ -390,7 +385,7 @@ const CampaignDetails = () => {
                                                         </span>
                                                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                             <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
-                                                            {targetAudience}
+                                                            {targetAudience.join(', ')}
                                                         </span>
                                                     </div>
                                                     <p className="text-slate-800 text-[17px] font-medium leading-[1.6] bg-slate-50/80 p-6 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
@@ -492,8 +487,6 @@ const CampaignDetails = () => {
                         )}
                     </div>
                 </div>
-
-                {/* Production Trend Section REMOVED */}
             </main>
         </div>
     );
