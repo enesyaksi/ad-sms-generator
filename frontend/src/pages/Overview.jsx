@@ -20,22 +20,22 @@ const Overview = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [customers, campaigns] = await Promise.all([
+                const [customersData, campaignsData] = await Promise.all([
                     customersApi.getAll(),
                     campaignsApi.getAll()
                 ]);
 
-                setCustomers(customers);
+                setCustomers(customersData);
 
                 // Calculate stats
-                const activeCustomersCount = customers.length; // Simplified for now
-                const totalCampaignsCount = campaigns.length;
+                const activeCustomersCount = customersData.length; // Simplified for now
+                const totalCampaignsCount = campaignsData.length;
 
                 // For messages, we'd need to fetch messages for each campaign or have a separate meta API
                 // For now, let's use some illustrative numbers or fetch counts if possible
                 // Recent 5 activities
-                const recent = campaigns.slice(0, 5).map(c => {
-                    const customer = customers.find(cust => cust.id === c.customer_id);
+                const recent = campaignsData.slice(0, 5).map(c => {
+                    const customer = customersData.find(cust => cust.id === c.customer_id);
                     return {
                         ...c,
                         customerName: customer?.name || 'Bilinmeyen Müşteri',
@@ -47,7 +47,7 @@ const Overview = () => {
                     totalCampaigns: totalCampaignsCount,
                     messagesThisMonth: 2854, // Placeholder as per design until meta API exists
                     activeCustomers: activeCustomersCount,
-                    totalCustomers: customers.length
+                    totalCustomers: customersData.length
                 });
                 setRecentActivities(recent);
             } catch (error) {
