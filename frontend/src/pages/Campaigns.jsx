@@ -59,10 +59,20 @@ const Campaigns = () => {
         setIsModalOpen(true);
     };
 
+    const handleCreateClick = () => {
+        setEditingCampaign(null);
+        setIsModalOpen(true);
+    };
+
     const handleSaveCampaign = async (formData) => {
         try {
-            const updated = await campaignsApi.update(editingCampaign.id, formData);
-            setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
+            if (editingCampaign) {
+                const updated = await campaignsApi.update(editingCampaign.id, formData);
+                setCampaigns(campaigns.map(c => c.id === updated.id ? updated : c));
+            } else {
+                const created = await campaignsApi.create(formData);
+                setCampaigns([...campaigns, created]);
+            }
         } catch (error) {
             console.error("Failed to save campaign:", error);
             throw error;
@@ -87,7 +97,7 @@ const Campaigns = () => {
                         <p className="text-[#4e7397] text-base font-normal mt-1">Tüm pazarlama aktivitelerinizi tek bir listeden izleyin ve yönetin.</p>
                     </div>
                     <button
-                        onClick={() => navigate('/customers')}
+                        onClick={handleCreateClick}
                         className="bg-primary hover:bg-blue-600 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all self-start md:self-auto"
                     >
                         <span className="material-symbols-outlined text-[20px]">add</span>
@@ -255,6 +265,7 @@ const Campaigns = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveCampaign}
                 campaign={editingCampaign}
+                customers={customers}
             />
         </div>
     );

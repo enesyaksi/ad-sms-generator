@@ -298,7 +298,8 @@ const CustomerDetails = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveCampaign}
                 campaign={editingCampaign}
-                customerId={customerId}
+                customers={customer ? [customer] : []}
+                lockedCustomerId={customerId}
             />
         </div>
     );

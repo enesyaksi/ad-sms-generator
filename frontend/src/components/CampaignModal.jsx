@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
+const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lockedCustomerId = null }) => {
     const [formData, setFormData] = useState({
         name: '',
+        customer_id: '',
         start_date: '',
         end_date: '',
         products: '',
@@ -16,6 +17,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
         if (campaign) {
             setFormData({
                 name: campaign.name || '',
+                customer_id: campaign.customer_id || '',
                 start_date: campaign.start_date ? campaign.start_date.split('T')[0] : '',
                 end_date: campaign.end_date ? campaign.end_date.split('T')[0] : '',
                 products: campaign.products ? campaign.products.join(', ') : '',
@@ -25,6 +27,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
         } else {
             setFormData({
                 name: '',
+                customer_id: lockedCustomerId || '',
                 start_date: new Date().toISOString().split('T')[0],
                 end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                 products: '',
@@ -33,7 +36,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
             });
         }
         setError('');
-    }, [campaign, isOpen]);
+    }, [campaign, isOpen, lockedCustomerId]);
 
     if (!isOpen) return null;
 
@@ -41,7 +44,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
         e.preventDefault();
         setError('');
 
-        if (!formData.name || !formData.start_date || !formData.end_date) {
+        if (!formData.name || !formData.customer_id || !formData.start_date || !formData.end_date) {
             setError('Lütfen zorunlu alanları doldurun.');
             return;
         }
@@ -51,7 +54,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
             const payload = {
                 ...formData,
                 products: formData.products.split(',').map(p => p.trim()).filter(p => p !== ''),
-                customer_id: customerId || campaign?.customer_id
+                customer_id: formData.customer_id
             };
             await onSave(payload);
             onClose();
@@ -84,6 +87,22 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customerId }) => {
                             {error}
                         </div>
                     )}
+
+                    <div className="space-y-1.5 text-left">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Müşteri *</label>
+                        <select
+                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 bg-white disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed"
+                            value={formData.customer_id}
+                            onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
+                            required
+                            disabled={!!lockedCustomerId}
+                        >
+                            <option value="">Müşteri Seçin</option>
+                            {customers.map(c => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
 
                     <div className="space-y-1.5">
                         <label className="text-sm font-semibold text-slate-700 ml-1">Kampanya Adı *</label>

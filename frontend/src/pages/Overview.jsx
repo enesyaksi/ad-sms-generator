@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { customersApi, campaignsApi } from '../services/api';
+import CampaignModal from '../components/CampaignModal';
 
 const Overview = () => {
     const [stats, setStats] = useState({
@@ -10,6 +11,9 @@ const Overview = () => {
         totalCustomers: 0
     });
     const [recentActivities, setRecentActivities] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCampaign, setEditingCampaign] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -20,6 +24,8 @@ const Overview = () => {
                     customersApi.getAll(),
                     campaignsApi.getAll()
                 ]);
+
+                setCustomers(customers);
 
                 // Calculate stats
                 const activeCustomersCount = customers.length; // Simplified for now
@@ -53,6 +59,28 @@ const Overview = () => {
 
         fetchData();
     }, []);
+
+    const handleCreateClick = () => {
+        setEditingCampaign(null);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveCampaign = async (formData) => {
+        try {
+            const created = await campaignsApi.create(formData);
+            // Refresh recent activities by prepending the new one
+            const activity = {
+                ...created,
+                customerName: customers.find(c => c.id === created.customer_id)?.name || 'Bilinmeyen Müşteri',
+                customerInitial: customers.find(c => c.id === created.customer_id)?.name[0].toUpperCase() || '?'
+            };
+            setRecentActivities([activity, ...recentActivities.slice(0, 4)]);
+            setStats(prev => ({ ...prev, totalCampaigns: prev.totalCampaigns + 1 }));
+        } catch (error) {
+            console.error("Failed to save campaign:", error);
+            throw error;
+        }
+    };
 
     const StatCard = ({ title, value, icon, color, trend, trendLabel }) => (
         <div className="flex flex-col justify-between rounded-xl p-6 bg-white border border-slate-300 shadow-sm transition-all hover:shadow-md group relative overflow-hidden">
@@ -101,7 +129,7 @@ const Overview = () => {
                         Müşteri Ekle
                     </button>
                     <button
-                        onClick={() => navigate('/campaigns')}
+                        onClick={handleCreateClick}
                         className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm shadow-blue-500/20 transition-all flex items-center gap-2"
                     >
                         <span className="material-symbols-outlined text-[20px]">add_circle</span>
@@ -191,9 +219,9 @@ const Overview = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${activity.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' :
-                                                            activity.status === 'Taslak' ? 'bg-yellow-100 text-yellow-800' :
-                                                                activity.status === 'Planlandı' ? 'bg-blue-100 text-blue-800' :
-                                                                    'bg-slate-100 text-slate-800'
+                                                        activity.status === 'Taslak' ? 'bg-yellow-100 text-yellow-800' :
+                                                            activity.status === 'Planlandı' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-slate-100 text-slate-800'
                                                         }`}>
                                                         {activity.status}
                                                     </span>
@@ -284,6 +312,14 @@ const Overview = () => {
                     </div>
                 </div>
             </footer>
+
+            <CampaignModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveCampaign}
+                campaign={editingCampaign}
+                customers={customers}
+            />
         </div>
     );
 };
