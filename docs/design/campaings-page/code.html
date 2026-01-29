@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kampanya Yönetimi - Liste Görünümü</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#197fe6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                        "panel-white": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<style>
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 font-display antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="hidden md:flex w-64 flex-col bg-white border-r border-slate-200 text-slate-600 shrink-0 transition-all duration-300">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-blue-50 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary filled">campaign</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-slate-900">Reklam Yöneticisi</h1>
+</div>
+<div class="px-4 py-2 flex flex-col gap-1 flex-1">
+<p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-2">Menü</p>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">Genel Bakış</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
+<span class="text-sm font-medium">Müşteriler</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-blue-50 text-primary shadow-sm ring-1 ring-blue-100" href="#">
+<span class="material-symbols-outlined filled">campaign</span>
+<span class="text-sm font-semibold">Kampanyalar</span>
+</a>
+</div>
+<div class="mt-auto border-t border-slate-100 p-4 bg-slate-50/50">
+<div class="flex items-center gap-3 px-2 py-2 mb-2 rounded-lg hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+<div class="size-10 rounded-full bg-cover bg-center ring-2 ring-white shadow-sm" data-alt="Professional man profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBe7b4QFTzjfJaRJGSqrq3b0YDM67Ay-cI4brBEawQ7FNr5FHS2_OsyE-CUL_zxVqx20cS0lIa_oD4ckCW9FrESwb_k29-jzjMZqIoC6VEaH-XXNuesXlw_AvAOG3j_N0w1SYIXZk0rOP964pjJN58UedaT9-scBoLcFGTB7zdh36uskNp1M_W0vSaF_1R1dAOSAz1-5dKonCWCfu411yJFMupE-Xl_VUNie9dyllQ0IPZWnf8rjzMZL7oquckYrTTJ-Jna0m7aWKU");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="text-sm font-bold text-slate-900 truncate">Ahmet Yılmaz</p>
+<p class="text-xs text-slate-500 truncate">Admin</p>
+</div>
+</div>
+<button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors mt-1 group">
+<span class="material-symbols-outlined text-[20px] group-hover:text-red-600 transition-colors">logout</span>
+<span class="text-sm font-medium">Çıkış Yap</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-y-auto bg-background-light relative w-full">
+<div class="md:hidden flex items-center justify-between bg-white border-b border-slate-200 text-slate-900 p-4 sticky top-0 z-20">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-bold">Reklam Yöneticisi</span>
+<div class="size-8 rounded-full bg-cover bg-center ring-1 ring-slate-200" data-alt="User profile mobile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAlRzqrdPPX05XZcHMEklFrYMp5hlxenQEGS-yyYLh14yN0uvQhwXZWSvzH62MliO0FuG_07Eu06156zuj5J6d8tha2BVO1uTsL3nLjqUnQmV_Qldq7UPrdoP4Q7alw67zv7AqF8uLw7vP6H1nti0BBPVckYOATdZ1LvsHYhR8Db8Nh2IXZRGSgC05c__toMhKRNYu7bhEJpYfcC64j_mvhNAOMw3IV_QecWXIHL-KOyVXYAAeFueBK7DLl5GWx4YRXpEFl5g_IMPA");'></div>
+</div>
+<div class="max-w-[1400px] mx-auto w-full p-6 md:p-8 flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h2 class="text-[#0e141b] text-3xl font-black leading-tight tracking-[-0.033em]">Kampanyalar</h2>
+<p class="text-[#4e7397] text-base font-normal mt-1">Tüm pazarlama aktivitelerinizi tek bir listeden izleyin ve yönetin.</p>
+</div>
+<button class="bg-primary hover:bg-blue-600 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Yeni Kampanya
+                </button>
+</div>
+<div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+<div class="relative w-full lg:w-96 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm text-slate-700 placeholder-slate-400 transition-all" placeholder="Kampanya adı ile ara..." type="text"/>
+</div>
+<div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+<div class="relative">
+<select class="appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-600 focus:outline-none focus:border-primary bg-white cursor-pointer min-w-[160px] hover:border-slate-300 transition-colors">
+<option>Tüm Müşteriler</option>
+<option>MyShop</option>
+<option>TeknoDünya</option>
+<option>StartupLaunch</option>
+<option>KışKoleksiyon</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">keyboard_arrow_down</span>
+</div>
+<div class="relative">
+<select class="appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-600 focus:outline-none focus:border-primary bg-white cursor-pointer min-w-[160px] hover:border-slate-300 transition-colors">
+<option>Tüm Durumlar</option>
+<option>Aktif</option>
+<option>Taslak</option>
+<option>Tamamlandı</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">keyboard_arrow_down</span>
+</div>
+<button class="p-2.5 text-slate-500 hover:text-primary border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors" title="Filtreleri Temizle">
+<span class="material-symbols-outlined text-[20px]">filter_alt_off</span>
+</button>
+</div>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/80 border-b border-slate-200 text-xs text-slate-500 uppercase font-semibold">
+<th class="px-6 py-4 tracking-wider w-1/3">Kampanya Adı</th>
+<th class="px-6 py-4 tracking-wider">Müşteri</th>
+<th class="px-6 py-4 tracking-wider text-center">Durum</th>
+<th class="px-6 py-4 tracking-wider">Tarih Aralığı</th>
+<th class="px-6 py-4 tracking-wider text-right sticky right-0 bg-slate-50/80 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">İşlemler</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-sm">
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<span class="font-bold text-slate-900 block">Yaz Sonu İndirimi</span>
+<span class="text-xs text-slate-400">ID: #CMP-2023-001</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold ring-2 ring-white shadow-sm">M</div>
+<span class="font-medium text-slate-700">MyShop</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-600">
+                                10 Eki - 25 Eki 2023
+                            </td>
+<td class="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Görüntüle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Düzenle">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<span class="font-bold text-slate-900 block">Black Friday Hazırlık</span>
+<span class="text-xs text-slate-400">ID: #CMP-2023-042</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold ring-2 ring-white shadow-sm">T</div>
+<span class="font-medium text-slate-700">TeknoDünya</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                                        Taslak
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-600">
+                                01 Kas - 05 Kas 2023
+                            </td>
+<td class="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Görüntüle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Düzenle">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<span class="font-bold text-slate-900 block">Ekim Bülteni</span>
+<span class="text-xs text-slate-400">ID: #CMP-2023-018</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs font-bold ring-2 ring-white shadow-sm">S</div>
+<span class="font-medium text-slate-700">StartupLaunch</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                        Tamamlandı
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-600">
+                                01 Eki - 01 Eki 2023
+                            </td>
+<td class="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Görüntüle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Düzenle">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<span class="font-bold text-slate-900 block">Flash Sale Duyurusu</span>
+<span class="text-xs text-slate-400">ID: #CMP-2023-055</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-xs font-bold ring-2 ring-white shadow-sm">K</div>
+<span class="font-medium text-slate-700">KışKoleksiyon</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                        Aktif
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-600">
+                                24 Eki - 25 Eki 2023
+                            </td>
+<td class="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Görüntüle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Düzenle">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-6 py-4">
+<span class="font-bold text-slate-900 block">Sadakat Programı</span>
+<span class="text-xs text-slate-400">ID: #CMP-2023-012</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 text-xs font-bold ring-2 ring-white shadow-sm">F</div>
+<span class="font-medium text-slate-700">FitYaşam</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                        Tamamlandı
+                                    </span>
+</td>
+<td class="px-6 py-4 text-slate-600">
+                                15 Eyl - 15 Eki 2023
+                            </td>
+<td class="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Görüntüle">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="p-1.5 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-md transition-all" title="Düzenle">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
+<p class="text-sm text-slate-500">
+                        Toplam <span class="font-bold text-slate-700">42</span> kampanya arasından <span class="font-bold text-slate-700">1-5</span> arası gösteriliyor
+                    </p>
+<div class="flex items-center gap-2">
+<button class="p-2 border border-slate-200 bg-white rounded-lg text-slate-400 cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="p-2 border border-slate-200 bg-white rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
