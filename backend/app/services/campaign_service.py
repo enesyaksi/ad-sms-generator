@@ -39,7 +39,12 @@ class CampaignService:
             query = query.where("customer_id", "==", customer_id)
             
         docs = query.order_by("created_at", direction=firestore.Query.DESCENDING).stream()
-        return [Campaign(**doc.to_dict()) for doc in docs]
+        campaigns = []
+        for doc in docs:
+            data = doc.to_dict()
+            data["id"] = doc.id
+            campaigns.append(Campaign(**data))
+        return campaigns
 
     def get_campaign(self, campaign_id: str, user_id: str) -> Optional[Campaign]:
         """
@@ -51,6 +56,7 @@ class CampaignService:
         if doc.exists:
             data = doc.to_dict()
             if data.get("user_id") == user_id:
+                data["id"] = doc.id
                 return Campaign(**data)
         return None
 
@@ -73,7 +79,10 @@ class CampaignService:
             update_data["status"] = update_data["status"].value
 
         doc_ref.update(update_data)
-        return Campaign(**doc_ref.get().to_dict())
+        updated_doc = doc_ref.get()
+        data = updated_doc.to_dict()
+        data["id"] = updated_doc.id
+        return Campaign(**data)
 
     def delete_campaign(self, campaign_id: str, user_id: str) -> bool:
         """
