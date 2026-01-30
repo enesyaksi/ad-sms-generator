@@ -324,7 +324,7 @@ const CampaignDetails = () => {
                                 max="10"
                                 value={messageCount}
                                 onChange={(e) => setMessageCount(parseInt(e.target.value) || 1)}
-                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2.5 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2 text-3xl font-black text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
                             />
                             <div className="flex flex-col gap-1">
                                 <button
@@ -467,7 +467,7 @@ const CampaignDetails = () => {
                     <div className="flex flex-col gap-6">
                         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 px-2">
                             <span className="material-symbols-outlined text-slate-700 text-[24px]">smartphone</span>
-                            Saved Messages
+                            Kayıtlı Mesajlar
                             {savedMessages.length > 0 && (
                                 <span className="bg-slate-800/10 text-slate-800 px-2.5 py-0.5 rounded-lg text-[12px] font-black">{savedMessages.length}</span>
                             )}
@@ -519,22 +519,22 @@ const CampaignDetails = () => {
                                             <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
                                                 <span className="material-symbols-outlined text-3xl opacity-40">chat_bubble_outline</span>
                                             </div>
-                                            <p className="text-sm font-medium text-center">No saved messages yet</p>
+                                            <p className="text-sm font-medium text-center">Henüz kayıtlı mesaj yok</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
                                             {[...savedMessages].reverse().map((msg) => (
                                                 <div key={msg.id} className="flex flex-col items-start gap-1 group">
-                                                    {/* Type & Audience Tags - Above message */}
-                                                    <div className="flex items-center gap-1.5 px-1 mb-0.5">
+                                                    {/* Audience & Type Tags - Above message */}
+                                                    <div className="flex items-center gap-2 px-1 mb-1">
+                                                        <span className="text-[10px] font-bold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md shadow-sm">
+                                                            {msg.target_audience}
+                                                        </span>
                                                         {msg.type && (
-                                                            <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded capitalize">
+                                                            <span className="text-[10px] font-bold text-primary bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md capitalize shadow-sm">
                                                                 {msg.type}
                                                             </span>
                                                         )}
-                                                        <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                                                            {msg.target_audience}
-                                                        </span>
                                                     </div>
 
                                                     {/* Message Bubble - Received style (left aligned, gray) */}
@@ -554,14 +554,14 @@ const CampaignDetails = () => {
                                                         <button
                                                             onClick={() => handleCopy(msg.content)}
                                                             className="text-slate-400 hover:text-primary transition-colors"
-                                                            title="Copy"
+                                                            title="Kopyala"
                                                         >
                                                             <span className="material-symbols-outlined text-[14px]">content_copy</span>
                                                         </button>
                                                         <button
                                                             onClick={() => handleDeleteSaved(msg.id)}
                                                             className="text-slate-400 hover:text-red-500 transition-colors"
-                                                            title="Delete"
+                                                            title="Sil"
                                                         >
                                                             <span className="material-symbols-outlined text-[14px]">delete</span>
                                                         </button>
@@ -575,7 +575,7 @@ const CampaignDetails = () => {
                                 {/* Input Area */}
                                 <div className="bg-white px-3 py-3 border-t border-slate-100 flex items-center gap-2">
                                     <div className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 flex items-center">
-                                        <span className="text-[13px] text-slate-400 font-medium">Type a message...</span>
+                                        <span className="text-[13px] text-slate-400 font-medium">Mesaj yaz...</span>
                                     </div>
                                     <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
                                         <span className="material-symbols-outlined text-[20px]">send</span>
