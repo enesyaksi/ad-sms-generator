@@ -17,6 +17,8 @@ const CampaignDetails = () => {
     const [drafts, setDrafts] = useState([]);
     const [savedMessages, setSavedMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [editingDraftIdx, setEditingDraftIdx] = useState(null);
+    const [editedContent, setEditedContent] = useState('');
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -80,7 +82,8 @@ const CampaignDetails = () => {
         try {
             const messageData = {
                 content: draft.content,
-                target_audience: draft.target_audience
+                target_audience: draft.target_audience,
+                type: draft.type
             };
             const saved = await campaignsApi.saveMessage(campaignId, messageData);
             setSavedMessages([saved, ...savedMessages]);
@@ -225,14 +228,6 @@ const CampaignDetails = () => {
                                 <span className="material-symbols-outlined text-[20px]">edit</span>
                                 Düzenle
                             </button>
-                            <button
-                                onClick={handleGenerate}
-                                disabled={isGenerating}
-                                className="flex-1 md:flex-none h-12 px-8 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold hover:shadow-xl hover:shadow-blue-500/30 transition-all flex items-center justify-center gap-2 group/btn disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                <span className={`material-symbols-outlined text-[22px] ${isGenerating ? 'animate-spin' : 'group-hover/btn:rotate-12 transition-transform'}`}>auto_awesome</span>
-                                {isGenerating ? 'Üretiliyor...' : 'Mesaj Üret'}
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -342,166 +337,250 @@ const CampaignDetails = () => {
                     </div>
                 </div>
 
-                {/* Tabs & Content */}
-                <div className="flex flex-col gap-6 mt-4">
-                    <div className="border-b border-slate-200/60">
-                        <nav className="-mb-px flex space-x-10">
-                            <button
-                                onClick={() => setActiveTab('drafts')}
-                                className={`whitespace-nowrap py-4 px-1 border-b-2 font-bold text-[15px] flex items-center gap-2.5 transition-all focus:outline-none relative ${activeTab === 'drafts' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
-                                    }`}
-                            >
-                                <span className={`material-symbols-outlined text-[22px] ${activeTab === 'drafts' ? 'filled' : ''}`}>auto_awesome</span>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
+                    {/* Yapay Zeka Taslakları Column */}
+                    <div className="flex flex-col gap-6">
+                        <div className="flex items-center justify-between px-2">
+                            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
+                                <span className="material-symbols-outlined text-primary text-[24px]">auto_awesome</span>
                                 Yapay Zeka Taslakları
                                 {drafts.length > 0 && (
-                                    <span className="bg-primary text-white px-2 py-0.5 rounded-md text-[11px] ml-1 font-black shadow-sm shadow-primary/20">{drafts.length}</span>
+                                    <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-lg text-[12px] font-black">{drafts.length}</span>
                                 )}
-                            </button>
+                            </h2>
                             <button
-                                onClick={() => setActiveTab('saved')}
-                                className={`whitespace-nowrap py-4 px-1 border-b-2 font-bold text-[15px] flex items-center gap-2.5 transition-all focus:outline-none relative ${activeTab === 'saved' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
-                                    }`}
+                                onClick={handleGenerate}
+                                disabled={isGenerating}
+                                className="h-10 px-5 rounded-xl bg-primary text-white font-bold text-[13px] hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center gap-2 disabled:opacity-70"
                             >
-                                <span className={`material-symbols-outlined text-[22px] ${activeTab === 'saved' ? 'filled' : ''}`}>bookmark_added</span>
-                                Kaydedilen Mesajlar
-                                {savedMessages.length > 0 && (
-                                    <span className="bg-slate-800 text-white px-2 py-0.5 rounded-md text-[11px] ml-1 font-black shadow-sm shadow-slate-800/20">{savedMessages.length}</span>
-                                )}
+                                <span className={`material-symbols-outlined text-[18px] ${isGenerating ? 'animate-spin' : ''}`}>auto_awesome</span>
+                                {isGenerating ? 'Üretiliyor...' : 'Mesaj Üret'}
                             </button>
-                        </nav>
-                    </div>
+                        </div>
 
-                    <div className="animate-in fade-in duration-500 slide-in-from-bottom-2">
-                        {activeTab === 'drafts' ? (
-                            <div className="space-y-6">
-                                {isGenerating ? (
-                                    <div className="bg-white p-16 rounded-3xl border border-slate-200 shadow-sm text-center flex flex-col items-center gap-6 relative overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-                                        <div className="relative">
-                                            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                                            <span className="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary animate-pulse">auto_awesome</span>
-                                        </div>
-                                        <div className="space-y-2 relative">
-                                            <p className="text-slate-900 font-bold text-lg">Yapay zeka mesajlarınızı kurguluyor...</p>
-                                            <p className="text-slate-400 text-sm font-medium">Bu işlem yaklaşık 5-10 saniye sürebilir.</p>
-                                        </div>
+                        <div className="space-y-6">
+                            {isGenerating ? (
+                                <div className="bg-white p-12 rounded-3xl border border-slate-200 shadow-sm text-center flex flex-col items-center gap-6 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+                                    <div className="relative">
+                                        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                                        <span className="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary animate-pulse">auto_awesome</span>
                                     </div>
-                                ) : drafts.length === 0 ? (
-                                    <div className="bg-white p-16 rounded-3xl border border-slate-200 flex flex-col items-center gap-6 text-slate-400 shadow-inner bg-slate-50/30">
-                                        <div className="size-20 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-4xl opacity-40">chat_bubble_outline</span>
-                                        </div>
-                                        <div className="text-center space-y-2">
-                                            <p className="text-slate-900 font-bold text-lg">Henüz mesaj üretilmedi</p>
-                                            <p className="text-slate-400 text-sm max-w-xs mx-auto">Yukarıdaki "Mesaj Üret" butonuna basarak kampanyan için özelleştirilmiş SMS metinleri oluşturabilirsin.</p>
-                                        </div>
+                                    <div className="space-y-2 relative">
+                                        <p className="text-slate-900 font-bold text-lg">Yapay zeka mesajlarınızı kurguluyor...</p>
+                                        <p className="text-slate-400 text-sm font-medium">Bu işlem yaklaşık 5-10 saniye sürebilir.</p>
                                     </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 gap-5">
-                                        {drafts.map((draft, idx) => (
-                                            <div key={idx} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col md:flex-row gap-8 relative group">
-                                                <div className="flex-1 space-y-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-blue-50 text-primary border border-primary/20 shadow-sm capitalize">
-                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">style</span>
-                                                            {draft.type}
-                                                        </span>
-                                                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
-                                                            {draft.target_audience}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-slate-800 text-[17px] font-medium leading-[1.6] bg-slate-50/80 p-6 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
+                                </div>
+                            ) : drafts.length === 0 ? (
+                                <div className="bg-white p-12 rounded-3xl border border-slate-200 flex flex-col items-center gap-6 text-slate-400 shadow-inner bg-slate-50/30">
+                                    <div className="size-16 rounded-full bg-slate-100 flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-3xl opacity-40">chat_bubble_outline</span>
+                                    </div>
+                                    <div className="text-center space-y-2">
+                                        <p className="text-slate-900 font-bold text-lg">Henüz mesaj üretilmedi</p>
+                                        <p className="text-slate-400 text-sm max-w-xs mx-auto">"Mesaj Üret" butonuna basarak kampanyan için SMS metinleri oluşturabilirsin.</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-5">
+                                    {drafts.map((draft, idx) => (
+                                        <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col gap-5 relative group">
+                                            <div className="flex-1 space-y-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-blue-50 text-primary border border-primary/20 shadow-sm capitalize">
+                                                        <span className="material-symbols-outlined text-[16px] mr-1.5">style</span>
+                                                        {draft.type}
+                                                    </span>
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                                        <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
+                                                        {draft.target_audience}
+                                                    </span>
+                                                </div>
+                                                {editingDraftIdx === idx ? (
+                                                    <textarea
+                                                        value={editedContent}
+                                                        onChange={(e) => setEditedContent(e.target.value)}
+                                                        className="w-full text-slate-800 text-[16px] font-medium leading-[1.6] bg-white p-5 rounded-2xl border-2 border-primary/20 shadow-inner focus:border-primary outline-none min-h-[120px] transition-all"
+                                                    />
+                                                ) : (
+                                                    <p className="text-slate-800 text-[16px] font-medium leading-[1.6] bg-slate-50/80 p-5 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
                                                         {draft.content}
                                                     </p>
-                                                    <div className="flex flex-wrap items-center gap-5 text-[13px] font-bold text-slate-400">
-                                                        <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span> {draft.content.length} Karakter</span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-row md:flex-col items-center justify-center gap-4 md:border-l border-slate-100 md:pl-8 min-w-[160px]">
-                                                    <button
-                                                        onClick={() => handleSaveMessage(draft)}
-                                                        className="flex-1 md:w-full h-12 flex items-center justify-center gap-2.5 px-6 rounded-xl bg-primary text-white font-bold text-[14px] hover:bg-blue-600 shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[20px]">bookmark_add</span>
-                                                        Kaydet
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleCopy(draft.content)}
-                                                        className="h-12 w-12 md:w-full flex items-center justify-center gap-2.5 px-3 rounded-xl border-2 border-slate-100 bg-white text-slate-500 hover:text-primary hover:border-primary/20 hover:bg-slate-50 transition-all font-bold text-sm"
-                                                        title="Kopyala"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[22px]">content_copy</span>
-                                                        <span className="hidden md:block">Kopyala</span>
-                                                    </button>
+                                                )}
+                                                <div className="flex flex-wrap items-center gap-5 text-[12px] font-bold text-slate-400">
+                                                    <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg">
+                                                        <span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span>
+                                                        {editingDraftIdx === idx ? editedContent.length : draft.content.length} Karakter
+                                                    </span>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {savedMessages.length === 0 ? (
-                                    <div className="bg-white p-16 rounded-3xl border border-slate-200 flex flex-col items-center gap-6 text-slate-400 shadow-inner bg-slate-50/30">
-                                        <div className="size-20 rounded-full bg-slate-100 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-4xl opacity-40">inventory</span>
-                                        </div>
-                                        <div className="text-center space-y-2">
-                                            <p className="text-slate-900 font-bold text-lg">Kayıtlı mesajın yok</p>
-                                            <p className="text-slate-400 text-sm max-w-xs mx-auto">Beğendiğin taslakları kaydederek burada saklayabilir ve daha sonra düzenleyebilirsin.</p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 gap-5">
-                                        {savedMessages.map((msg) => (
-                                            <div key={msg.id} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-8 relative overflow-hidden">
-                                                <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-                                                <div className="flex-1 space-y-5">
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm">
-                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">verified</span>
-                                                            KAYITLI MESAJ
-                                                        </span>
-                                                        <span className="text-[13px] font-bold text-slate-400 flex items-center gap-1.5">
-                                                            <span className="material-symbols-outlined text-[16px]">history</span>
-                                                            {new Date(msg.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })} tarihinde eklendi
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-slate-800 text-[17px] font-medium leading-[1.6] p-6 rounded-2xl bg-emerald-50/30 border border-emerald-100/50">
-                                                        {msg.content}
-                                                    </p>
-                                                    <div className="flex flex-wrap items-center gap-5 text-[13px] font-bold text-slate-400">
-                                                        <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span> {msg.content.length} Karakter</span>
-                                                        <span className="flex items-center gap-2 text-slate-700 bg-white border border-slate-100 shadow-sm px-4 py-1.5 rounded-xl ml-auto">
-                                                            <div className="size-2 rounded-full bg-primary animate-pulse"></div>
-                                                            Hedef: {msg.target_audience}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-row md:flex-col items-center justify-center gap-4 md:border-l border-slate-100 md:pl-8 min-w-[160px]">
-                                                    <button
-                                                        onClick={() => handleCopy(msg.content)}
-                                                        className="flex-1 md:w-full h-12 flex items-center justify-center gap-2.5 px-6 rounded-xl bg-slate-900 text-white font-bold text-[14px] hover:bg-slate-800 shadow-lg shadow-slate-200 transition-all hover:-translate-y-0.5"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[20px]">content_copy</span>
-                                                        Kopyala
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteSaved(msg.id)}
-                                                        className="h-12 w-12 md:w-full flex items-center justify-center gap-2.5 px-3 rounded-xl border-2 border-red-50 bg-white text-red-400 hover:text-red-700 hover:border-red-200 transition-all font-bold text-sm"
-                                                        title="Sil"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[22px]">delete_sweep</span>
-                                                        <span className="hidden md:block">Sil</span>
-                                                    </button>
-                                                </div>
+                                            <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                                                <button
+                                                    onClick={() => handleSaveMessage(editingDraftIdx === idx ? { ...draft, content: editedContent } : draft)}
+                                                    className="flex-1 h-11 flex items-center justify-center gap-2.5 px-6 rounded-xl bg-primary text-white font-bold text-[13px] hover:bg-blue-600 shadow-lg shadow-blue-500/25 transition-all active:scale-95"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">bookmark_add</span>
+                                                    Kaydet
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        if (editingDraftIdx === idx) {
+                                                            const newDrafts = [...drafts];
+                                                            newDrafts[idx].content = editedContent;
+                                                            setDrafts(newDrafts);
+                                                            setEditingDraftIdx(null);
+                                                        } else {
+                                                            setEditingDraftIdx(idx);
+                                                            setEditedContent(draft.content);
+                                                        }
+                                                    }}
+                                                    className={`h-11 px-4 rounded-xl border-2 transition-all font-bold text-[13px] flex items-center gap-2 ${editingDraftIdx === idx
+                                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
+                                                        : 'border-slate-100 bg-white text-slate-500 hover:text-primary hover:border-primary/20 hover:bg-slate-50'
+                                                        }`}
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">{editingDraftIdx === idx ? 'check' : 'edit_note'}</span>
+                                                    {editingDraftIdx === idx && "Tamam"}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleCopy(editingDraftIdx === idx ? editedContent : draft.content)}
+                                                    className="h-11 px-4 rounded-xl border-2 border-slate-100 bg-white text-slate-500 hover:text-primary hover:border-primary/20 hover:bg-slate-50 transition-all font-bold text-[13px]"
+                                                >
+                                                    <span className="material-symbols-outlined text-[20px]">content_copy</span>
+                                                </button>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Saved Messages Column - Phone Style */}
+                    <div className="flex flex-col gap-6">
+                        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5 px-2">
+                            <span className="material-symbols-outlined text-slate-700 text-[24px]">smartphone</span>
+                            Saved Messages
+                            {savedMessages.length > 0 && (
+                                <span className="bg-slate-800/10 text-slate-800 px-2.5 py-0.5 rounded-lg text-[12px] font-black">{savedMessages.length}</span>
+                            )}
+                        </h2>
+
+                        {/* Phone Frame */}
+                        <div className="bg-slate-900 rounded-[40px] p-3 shadow-2xl shadow-slate-400/30 mx-auto w-full max-w-[380px]">
+                            {/* Phone Notch */}
+                            <div className="bg-slate-900 rounded-t-[32px] pt-2 pb-3 px-6 flex items-center justify-center">
+                                <div className="w-24 h-6 bg-black rounded-full flex items-center justify-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-slate-700"></div>
+                                    <div className="w-10 h-1 rounded-full bg-slate-700"></div>
+                                </div>
                             </div>
-                        )}
+
+                            {/* Phone Screen */}
+                            <div className="bg-gradient-to-b from-slate-100 to-slate-50 rounded-[28px] overflow-hidden">
+                                {/* Status Bar */}
+                                <div className="bg-white/80 backdrop-blur-sm px-5 py-2 flex items-center justify-between border-b border-slate-100">
+                                    <span className="text-[11px] font-bold text-slate-500">
+                                        {new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[14px] text-slate-400">signal_cellular_alt</span>
+                                        <span className="material-symbols-outlined text-[14px] text-slate-400">wifi</span>
+                                        <span className="material-symbols-outlined text-[14px] text-slate-400">battery_full</span>
+                                    </div>
+                                </div>
+
+                                {/* Chat Header - Recipient View */}
+                                <div className="bg-white px-4 py-3 flex items-center gap-3 border-b border-slate-100 shadow-sm">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-primary/30">
+                                        {customer?.name?.charAt(0).toUpperCase() || 'M'}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-slate-900 text-[14px]">{customer?.name || 'Marka'}</p>
+                                        <p className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            Kampanya SMS
+                                        </p>
+                                    </div>
+                                    <span className="material-symbols-outlined text-slate-400 text-[22px]">more_vert</span>
+                                </div>
+
+                                {/* Messages Area - Oldest at top, newest at bottom */}
+                                <div className="h-[400px] overflow-y-auto p-4 space-y-4 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wMykiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IGZpbGw9InVybCgjYSkiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiLz48L3N2Zz4=')] no-scrollbar flex flex-col-reverse">
+                                    {savedMessages.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
+                                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-3xl opacity-40">chat_bubble_outline</span>
+                                            </div>
+                                            <p className="text-sm font-medium text-center">No saved messages yet</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {[...savedMessages].reverse().map((msg) => (
+                                                <div key={msg.id} className="flex flex-col items-start gap-1 group">
+                                                    {/* Type & Audience Tags - Above message */}
+                                                    <div className="flex items-center gap-1.5 px-1 mb-0.5">
+                                                        {msg.type && (
+                                                            <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded capitalize">
+                                                                {msg.type}
+                                                            </span>
+                                                        )}
+                                                        <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                                            {msg.target_audience}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Message Bubble - Received style (left aligned, gray) */}
+                                                    <div className="relative max-w-[85%] bg-white text-slate-800 px-4 py-3 rounded-2xl rounded-bl-md shadow-md border border-slate-100">
+                                                        <p className="text-[14px] leading-relaxed font-medium">
+                                                            {msg.content}
+                                                        </p>
+                                                        {/* Bubble tail */}
+                                                        <div className="absolute -bottom-0 -left-1 w-3 h-3 bg-white border-l border-b border-slate-100 rounded-br-full"></div>
+                                                    </div>
+
+                                                    {/* Message Meta */}
+                                                    <div className="flex items-center gap-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <span className="text-[10px] text-slate-400 font-medium">
+                                                            {new Date(msg.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handleCopy(msg.content)}
+                                                            className="text-slate-400 hover:text-primary transition-colors"
+                                                            title="Copy"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[14px]">content_copy</span>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteSaved(msg.id)}
+                                                            className="text-slate-400 hover:text-red-500 transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Input Area */}
+                                <div className="bg-white px-3 py-3 border-t border-slate-100 flex items-center gap-2">
+                                    <div className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 flex items-center">
+                                        <span className="text-[13px] text-slate-400 font-medium">Type a message...</span>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
+                                        <span className="material-symbols-outlined text-[20px]">send</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Phone Home Indicator */}
+                            <div className="flex justify-center pt-3 pb-1">
+                                <div className="w-28 h-1 bg-slate-600 rounded-full"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
