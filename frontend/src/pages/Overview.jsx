@@ -167,15 +167,12 @@ const Overview = () => {
                     value={stats.messagesThisMonth.toLocaleString()}
                     icon="forum"
                     color="purple"
-                    trend="+24%"
-                    trendLabel="1.200 hedef üzerine"
                 />
                 <StatCard
-                    title="Aktif Müşteriler"
-                    value={stats.activeCustomers}
+                    title="Toplam Müşteriler"
+                    value={stats.totalCustomers}
                     icon="group"
                     color="orange"
-                    trendLabel={`${stats.totalCustomers} toplam müşteri`}
                 />
             </div>
 
