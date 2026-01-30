@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { customersApi, campaignsApi } from '../services/api';
+import { customersApi, campaignsApi, analyticsApi } from '../services/api';
 import CampaignModal from '../components/CampaignModal';
 
 const Overview = () => {
@@ -15,6 +15,8 @@ const Overview = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [weeklyTrend, setWeeklyTrend] = useState({ trend: [], total_weekly: 0, most_productive_day: '—' });
+    const [trendLoading, setTrendLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,11 +30,9 @@ const Overview = () => {
                 setCustomers(customersData);
 
                 // Calculate stats
-                const activeCustomersCount = customersData.length; // Simplified for now
+                const activeCustomersCount = customersData.length;
                 const totalCampaignsCount = campaignsData.length;
 
-                // For messages, we'd need to fetch messages for each campaign or have a separate meta API
-                // For now, let's use some illustrative numbers or fetch counts if possible
                 // Recent 5 activities
                 const recent = campaignsData.slice(0, 5).map(c => {
                     const customer = customersData.find(cust => cust.id === c.customer_id);
@@ -45,7 +45,7 @@ const Overview = () => {
 
                 setStats({
                     totalCampaigns: totalCampaignsCount,
-                    messagesThisMonth: 2854, // Placeholder as per design until meta API exists
+                    messagesThisMonth: 0, // Will be updated from trend data
                     activeCustomers: activeCustomersCount,
                     totalCustomers: customersData.length
                 });
@@ -57,7 +57,21 @@ const Overview = () => {
             }
         };
 
+        const fetchTrendData = async () => {
+            try {
+                const trendData = await analyticsApi.getWeeklyTrend();
+                setWeeklyTrend(trendData);
+                // Update messagesThisMonth with real data
+                setStats(prev => ({ ...prev, messagesThisMonth: trendData.total_weekly }));
+            } catch (error) {
+                console.error("Error fetching trend data:", error);
+            } finally {
+                setTrendLoading(false);
+            }
+        };
+
         fetchData();
+        fetchTrendData();
     }, []);
 
     const handleCreateClick = () => {
@@ -256,42 +270,56 @@ const Overview = () => {
                     </div>
                     <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 flex flex-col h-full min-h-[400px]">
                         <div className="mb-6">
-                            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">Günlük Mesaj Üretimi</h4>
-                            <p className="text-2xl font-bold text-slate-900 mt-1">840 Mesaj</p>
-                            <p className="text-sm text-green-600 mt-0.5 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">trending_up</span>
-                                Bu hafta %15 artış
+                            <h4 className="text-sm font-medium text-slate-500 uppercase tracking-wide">Haftalık Mesaj Üretimi</h4>
+                            <p className="text-2xl font-bold text-slate-900 mt-1">
+                                {trendLoading ? '...' : `${weeklyTrend.total_weekly} Mesaj`}
+                            </p>
+                            <p className="text-sm text-slate-500 mt-0.5">
+                                Son 7 gün
                             </p>
                         </div>
                         <div className="flex-1 flex items-end justify-between gap-2 h-48 mt-4 border-b border-slate-100 pb-2">
-                            {[
-                                { day: 'Pzt', val: '40%', num: 120 },
-                                { day: 'Sal', val: '55%', num: 165 },
-                                { day: 'Çar', val: '35%', num: 105 },
-                                { day: 'Per', val: '60%', num: 180 },
-                                { day: 'Cum', val: '75%', num: 225 },
-                                { day: 'Cmt', val: '20%', num: 45, highlight: true }
-                            ].map((d, i) => (
-                                <div key={i} className="flex flex-col items-center gap-2 group w-full">
-                                    <div
-                                        className={`w-full ${d.highlight ? 'bg-primary' : 'bg-purple-100 group-hover:bg-purple-200'} rounded-t-sm relative transition-all shadow-sm`}
-                                        style={{ height: d.val }}
-                                    >
-                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {d.num}
-                                        </div>
-                                    </div>
-                                    <span className={`text-xs ${d.highlight ? 'font-bold text-slate-700' : 'text-slate-400'}`}>{d.day}</span>
+                            {trendLoading ? (
+                                <div className="w-full flex items-center justify-center text-slate-400">
+                                    Yükleniyor...
                                 </div>
-                            ))}
+                            ) : (
+                                (() => {
+                                    const maxCount = Math.max(...weeklyTrend.trend.map(d => d.count), 1);
+                                    const today = new Date().toISOString().split('T')[0];
+                                    return weeklyTrend.trend.map((d, i) => {
+                                        const heightPercent = maxCount > 0 ? Math.max((d.count / maxCount) * 100, 5) : 5;
+                                        const isToday = d.date === today;
+                                        const dayAbbr = d.day_name.substring(0, 3);
+                                        return (
+                                            <div key={i} className="flex flex-col items-center gap-2 group w-full">
+                                                <div
+                                                    className={`w-full ${isToday ? 'bg-primary' : 'bg-purple-100 group-hover:bg-purple-200'} rounded-t-sm relative transition-all shadow-sm`}
+                                                    style={{ height: `${heightPercent}%` }}
+                                                >
+                                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                                        {d.count}
+                                                    </div>
+                                                </div>
+                                                <span className={`text-xs ${isToday ? 'font-bold text-slate-700' : 'text-slate-400'}`}>{dayAbbr}</span>
+                                            </div>
+                                        );
+                                    });
+                                })()
+                            )}
                         </div>
                         <div className="mt-6 pt-4 border-t border-slate-100">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm text-slate-500">En Verimli Gün</span>
-                                <span className="text-sm font-semibold text-slate-800">Cuma</span>
+                                <span className="text-sm font-semibold text-slate-800">
+                                    {trendLoading ? '...' : weeklyTrend.most_productive_day}
+                                </span>
                             </div>
                             <div className="w-full bg-slate-100 rounded-full h-1.5">
-                                <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                                <div
+                                    className="bg-primary h-1.5 rounded-full transition-all"
+                                    style={{ width: weeklyTrend.total_weekly > 0 ? '85%' : '0%' }}
+                                ></div>
                             </div>
                         </div>
                     </div>
