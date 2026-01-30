@@ -97,26 +97,11 @@ const Customers = () => {
     return (
         <div className="h-full overflow-y-auto p-4 md:p-6">
             <div className="max-w-7xl mx-auto flex flex-col min-h-full space-y-4">
-                {/* Breadcrumb */}
-                <nav aria-label="Breadcrumb" className="flex">
-                    <ol className="flex items-center space-x-2 text-sm">
-                        <li>
-                            <Link to="/" className="text-slate-500 hover:text-primary transition-colors">Ana Sayfa</Link>
-                        </li>
-                        <li>
-                            <span className="text-slate-300">/</span>
-                        </li>
-                        <li>
-                            <span aria-current="page" className="font-medium text-slate-900">Müşteriler</span>
-                        </li>
-                    </ol>
-                </nav>
-
                 {/* Title & Actions */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="flex flex-col gap-2 text-left">
                         <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
-                            Hoş Geldin, {user?.displayName || 'Kullanıcı'} 👋
+                            Müşteriler
                         </h2>
                         <p className="text-slate-500 text-lg font-light">Lütfen kampanya oluşturmak için bir müşteri seçin.</p>
                     </div>

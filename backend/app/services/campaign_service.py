@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import List, Optional
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any
 from firebase_admin import firestore
 from app.models.campaign_models import (
     Campaign, CampaignCreate, CampaignUpdate, 
@@ -164,3 +164,136 @@ class CampaignService:
             msg_ref.delete()
             return True
         return False
+
+    def get_campaign_stats(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get campaign statistics including growth trend.
+        Compares this month's campaign count vs last month's.
+        """
+        campaigns = self.get_campaigns(user_id)
+        total_campaigns = len(campaigns)
+        
+        # Get current month and last month boundaries
+        today = datetime.now()
+        first_of_this_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        first_of_last_month = (first_of_this_month - timedelta(days=1)).replace(day=1)
+        
+        # Count campaigns by month
+        this_month_count = 0
+        last_month_count = 0
+        
+        for campaign in campaigns:
+            created_at = campaign.created_at
+            if created_at:
+                # Convert to naive datetime if timezone-aware (Firestore returns aware datetimes)
+                if hasattr(created_at, 'tzinfo') and created_at.tzinfo is not None:
+                    created_at = created_at.replace(tzinfo=None)
+                
+                if created_at >= first_of_this_month:
+                    this_month_count += 1
+                elif created_at >= first_of_last_month and created_at < first_of_this_month:
+                    last_month_count += 1
+        
+        # Calculate trend percentage
+        trend = None
+        trend_label = None
+        
+        if last_month_count > 0:
+            change = ((this_month_count - last_month_count) / last_month_count) * 100
+            if change >= 0:
+                trend = f"+{int(change)}%"
+            else:
+                trend = f"{int(change)}%"
+            trend_label = "Geçen aya göre"
+        elif this_month_count > 0:
+            trend = "+100%"
+            trend_label = "Bu ay oluşturuldu"
+        # If no campaigns this month or last month, trend stays None
+        
+        return {
+            "total_campaigns": total_campaigns,
+            "this_month_count": this_month_count,
+            "last_month_count": last_month_count,
+            "trend": trend,
+            "trend_label": trend_label
+        }
+
+    def get_weekly_trend(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get weekly message production trend for the user.
+        Aggregates saved messages by day for the last 7 days.
+        """
+        # Turkish day names (short form)
+        day_names = {
+            0: "Pzt",
+            1: "Sal",
+            2: "Çar",
+            3: "Per",
+            4: "Cum",
+            5: "Cmt",
+            6: "Paz"
+        }
+        
+        # Calculate date range (current week, Monday to Sunday)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        # Get Monday of the current week (weekday() returns 0 for Monday)
+        monday = today - timedelta(days=today.weekday())
+        
+        # Initialize counts for each day of the week (Mon-Sun)
+        daily_counts: Dict[str, int] = {}
+        for i in range(7):
+            date = monday + timedelta(days=i)
+            date_str = date.strftime("%Y-%m-%d")
+            daily_counts[date_str] = 0
+        
+        # Get all campaigns for the user
+        campaigns = self.get_campaigns(user_id)
+        
+        # Aggregate message counts by day
+        for campaign in campaigns:
+            campaign_ref = self.collection.document(campaign.id)
+            messages = campaign_ref.collection("saved_messages").stream()
+            
+            for msg in messages:
+                msg_data = msg.to_dict()
+                created_at = msg_data.get("created_at")
+                if created_at:
+                    # Handle both datetime objects and Firestore timestamps
+                    if hasattr(created_at, 'date'):
+                        msg_date = created_at.date()
+                    else:
+                        msg_date = created_at
+                    
+                    msg_date_str = msg_date.strftime("%Y-%m-%d") if hasattr(msg_date, 'strftime') else str(msg_date)[:10]
+                    
+                    if msg_date_str in daily_counts:
+                        daily_counts[msg_date_str] += 1
+        
+        # Build trend data
+        trend = []
+        for i in range(7):
+            date = monday + timedelta(days=i)
+            date_str = date.strftime("%Y-%m-%d")
+            count = daily_counts.get(date_str, 0)
+            trend.append({
+                "date": date_str,
+                "day_name": day_names[date.weekday()],
+                "count": count
+            })
+        
+        # Calculate totals
+        total_weekly = sum(daily_counts.values())
+        
+        # Find most productive day
+        most_productive_day = "—"
+        max_count = 0
+        for item in trend:
+            if item["count"] > max_count:
+                max_count = item["count"]
+                most_productive_day = item["day_name"]
+        
+        return {
+            "trend": trend,
+            "total_weekly": total_weekly,
+            "most_productive_day": most_productive_day
+        }
