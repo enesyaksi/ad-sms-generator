@@ -118,6 +118,11 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
         }
     };
 
+    const todayVal = getLocalDateString(0);
+    const originalStart = campaign?.start_date?.split('T')[0];
+    // If editing a campaign with a past start date, allow that date. Otherwise, min is Today.
+    const minStart = (originalStart && originalStart < todayVal) ? originalStart : todayVal;
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -177,7 +182,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900"
                                 value={formData.start_date}
                                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                min={getLocalDateString(0)}
+                                min={minStart}
                                 required
                             />
                         </div>
