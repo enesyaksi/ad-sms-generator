@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { campaignsApi, customersApi, generateSms } from '../services/api';
+import CampaignModal from '../components/CampaignModal';
 
 const CampaignDetails = () => {
     const { campaignId } = useParams();
@@ -20,6 +21,8 @@ const CampaignDetails = () => {
     const [editingDraftIdx, setEditingDraftIdx] = useState(null);
     const [editedContent, setEditedContent] = useState('');
     const [error, setError] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [customers, setCustomers] = useState([]);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -35,6 +38,10 @@ const CampaignDetails = () => {
 
                 const saved = await campaignsApi.getMessages(campaignId);
                 setSavedMessages(saved);
+
+                // Fetch customers for the edit modal
+                const customersList = await customersApi.getAll();
+                setCustomers(customersList);
             } catch (err) {
                 console.error("Error fetching campaign details:", err);
                 setError("Kampanya detayları yüklenirken bir hata oluştu.");
@@ -222,7 +229,7 @@ const CampaignDetails = () => {
                         </div>
                         <div className="flex items-center gap-3 w-full md:w-auto">
                             <button
-                                onClick={() => navigate('/campaigns')} // This should eventually open the edit modal
+                                onClick={() => setIsEditModalOpen(true)}
                                 className="flex-1 md:flex-none h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 shadow-sm"
                             >
                                 <span className="material-symbols-outlined text-[20px]">edit</span>
@@ -584,6 +591,19 @@ const CampaignDetails = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Edit Campaign Modal */}
+            <CampaignModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={async (data) => {
+                    const updated = await campaignsApi.update(campaignId, data);
+                    setCampaign(updated);
+                }}
+                campaign={campaign}
+                customers={customers}
+                lockedCustomerId={campaign?.customer_id}
+            />
         </div>
     );
 };
