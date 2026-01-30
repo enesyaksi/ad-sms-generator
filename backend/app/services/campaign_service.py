@@ -181,14 +181,15 @@ class CampaignService:
             6: "Pazar"
         }
         
-        # Calculate date range (last 7 days including today)
+        # Calculate date range (current week, Monday to Sunday)
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        week_ago = today - timedelta(days=6)
+        # Get Monday of the current week (weekday() returns 0 for Monday)
+        monday = today - timedelta(days=today.weekday())
         
-        # Initialize counts for each day
+        # Initialize counts for each day of the week (Mon-Sun)
         daily_counts: Dict[str, int] = {}
         for i in range(7):
-            date = week_ago + timedelta(days=i)
+            date = monday + timedelta(days=i)
             date_str = date.strftime("%Y-%m-%d")
             daily_counts[date_str] = 0
         
@@ -218,7 +219,7 @@ class CampaignService:
         # Build trend data
         trend = []
         for i in range(7):
-            date = week_ago + timedelta(days=i)
+            date = monday + timedelta(days=i)
             date_str = date.strftime("%Y-%m-%d")
             count = daily_counts.get(date_str, 0)
             trend.append({
