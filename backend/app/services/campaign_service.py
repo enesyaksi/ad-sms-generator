@@ -185,6 +185,10 @@ class CampaignService:
         for campaign in campaigns:
             created_at = campaign.created_at
             if created_at:
+                # Convert to naive datetime if timezone-aware (Firestore returns aware datetimes)
+                if hasattr(created_at, 'tzinfo') and created_at.tzinfo is not None:
+                    created_at = created_at.replace(tzinfo=None)
+                
                 if created_at >= first_of_this_month:
                     this_month_count += 1
                 elif created_at >= first_of_last_month and created_at < first_of_this_month:
