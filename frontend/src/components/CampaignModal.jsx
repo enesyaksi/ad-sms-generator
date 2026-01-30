@@ -240,19 +240,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">%</span>
                             </div>
                         </div>
-                        <div className="space-y-1.5 text-left">
-                            <label className="text-sm font-semibold text-slate-700 ml-1">Durum</label>
-                            <select
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 bg-white"
-                                value={formData.status}
-                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                            >
-                                <option value="Taslak">Taslak</option>
-                                <option value="Aktif">Aktif</option>
-                                <option value="Planlandı">Planlandı</option>
-                                <option value="Tamamlandı">Tamamlandı</option>
-                            </select>
-                        </div>
+
                     </div>
 
                     <div className="pt-4 flex items-center gap-3">
