@@ -95,6 +95,10 @@ export const analyticsApi = {
   getWeeklyTrend: async () => {
     const response = await api.get('/campaigns/analytics/weekly-trend');
     return response.data;
+  },
+  getCampaignStats: async () => {
+    const response = await api.get('/campaigns/analytics/campaign-stats');
+    return response.data;
   }
 };
 

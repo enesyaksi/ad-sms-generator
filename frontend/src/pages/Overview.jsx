@@ -17,6 +17,7 @@ const Overview = () => {
     const [loading, setLoading] = useState(true);
     const [weeklyTrend, setWeeklyTrend] = useState({ trend: [], total_weekly: 0, most_productive_day: '—' });
     const [trendLoading, setTrendLoading] = useState(true);
+    const [campaignStats, setCampaignStats] = useState({ trend: null, trend_label: null });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,8 +71,18 @@ const Overview = () => {
             }
         };
 
+        const fetchCampaignStats = async () => {
+            try {
+                const statsData = await analyticsApi.getCampaignStats();
+                setCampaignStats(statsData);
+            } catch (error) {
+                console.error("Error fetching campaign stats:", error);
+            }
+        };
+
         fetchData();
         fetchTrendData();
+        fetchCampaignStats();
     }, []);
 
     const handleCreateClick = () => {
@@ -159,6 +170,8 @@ const Overview = () => {
                     value={stats.totalCampaigns}
                     icon="campaign"
                     color="blue"
+                    trend={campaignStats.trend}
+                    trendLabel={campaignStats.trend_label}
                 />
                 <StatCard
                     title="Bu Ay Üretilen Mesaj"
