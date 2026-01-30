@@ -170,15 +170,15 @@ class CampaignService:
         Get weekly message production trend for the user.
         Aggregates saved messages by day for the last 7 days.
         """
-        # Turkish day names
+        # Turkish day names (short form)
         day_names = {
-            0: "Pazartesi",
-            1: "Salı",
-            2: "Çarşamba",
-            3: "Perşembe",
-            4: "Cuma",
-            5: "Cumartesi",
-            6: "Pazar"
+            0: "Pzt",
+            1: "Sal",
+            2: "Çar",
+            3: "Per",
+            4: "Cum",
+            5: "Cmt",
+            6: "Paz"
         }
         
         # Calculate date range (current week, Monday to Sunday)
