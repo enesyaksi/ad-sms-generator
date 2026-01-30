@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from app.models.campaign_models import (
     Campaign, CampaignCreate, CampaignUpdate, 
     SavedMessage, SavedMessageCreate
@@ -38,6 +38,16 @@ async def list_campaigns(
                 detail="This query requires a Firestore index. Check the server logs for the creation link."
             )
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/analytics/weekly-trend", response_model=Dict[str, Any])
+async def get_weekly_trend(
+    user: dict = Depends(get_current_user)
+):
+    """
+    Get weekly message production trend for the authenticated user.
+    Returns message counts aggregated by day for the last 7 days.
+    """
+    return campaign_service.get_weekly_trend(user["uid"])
 
 @router.get("/{campaign_id}", response_model=Campaign)
 async def get_campaign(

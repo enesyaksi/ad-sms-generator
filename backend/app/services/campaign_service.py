@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import List, Optional
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any
 from firebase_admin import firestore
 from app.models.campaign_models import (
     Campaign, CampaignCreate, CampaignUpdate, 
@@ -164,3 +164,82 @@ class CampaignService:
             msg_ref.delete()
             return True
         return False
+
+    def get_weekly_trend(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get weekly message production trend for the user.
+        Aggregates saved messages by day for the last 7 days.
+        """
+        # Turkish day names
+        day_names = {
+            0: "Pazartesi",
+            1: "Salı",
+            2: "Çarşamba",
+            3: "Perşembe",
+            4: "Cuma",
+            5: "Cumartesi",
+            6: "Pazar"
+        }
+        
+        # Calculate date range (last 7 days including today)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        week_ago = today - timedelta(days=6)
+        
+        # Initialize counts for each day
+        daily_counts: Dict[str, int] = {}
+        for i in range(7):
+            date = week_ago + timedelta(days=i)
+            date_str = date.strftime("%Y-%m-%d")
+            daily_counts[date_str] = 0
+        
+        # Get all campaigns for the user
+        campaigns = self.get_campaigns(user_id)
+        
+        # Aggregate message counts by day
+        for campaign in campaigns:
+            campaign_ref = self.collection.document(campaign.id)
+            messages = campaign_ref.collection("saved_messages").stream()
+            
+            for msg in messages:
+                msg_data = msg.to_dict()
+                created_at = msg_data.get("created_at")
+                if created_at:
+                    # Handle both datetime objects and Firestore timestamps
+                    if hasattr(created_at, 'date'):
+                        msg_date = created_at.date()
+                    else:
+                        msg_date = created_at
+                    
+                    msg_date_str = msg_date.strftime("%Y-%m-%d") if hasattr(msg_date, 'strftime') else str(msg_date)[:10]
+                    
+                    if msg_date_str in daily_counts:
+                        daily_counts[msg_date_str] += 1
+        
+        # Build trend data
+        trend = []
+        for i in range(7):
+            date = week_ago + timedelta(days=i)
+            date_str = date.strftime("%Y-%m-%d")
+            count = daily_counts.get(date_str, 0)
+            trend.append({
+                "date": date_str,
+                "day_name": day_names[date.weekday()],
+                "count": count
+            })
+        
+        # Calculate totals
+        total_weekly = sum(daily_counts.values())
+        
+        # Find most productive day
+        most_productive_day = "—"
+        max_count = 0
+        for item in trend:
+            if item["count"] > max_count:
+                max_count = item["count"]
+                most_productive_day = item["day_name"]
+        
+        return {
+            "trend": trend,
+            "total_weekly": total_weekly,
+            "most_productive_day": most_productive_day
+        }
