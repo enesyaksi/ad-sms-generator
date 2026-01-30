@@ -400,7 +400,7 @@ const CampaignDetails = () => {
                                                     <div className="flex items-center gap-3">
                                                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-blue-50 text-primary border border-primary/20 shadow-sm capitalize">
                                                             <span className="material-symbols-outlined text-[16px] mr-1.5">style</span>
-                                                            {draft.type} Mesajı
+                                                            {draft.type}
                                                         </span>
                                                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                             <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
