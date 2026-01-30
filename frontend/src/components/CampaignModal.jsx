@@ -14,6 +14,13 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Helper to get local date string YYYY-MM-DD
+    const getLocalDateString = (addDays = 0) => {
+        const date = new Date();
+        date.setDate(date.getDate() + addDays);
+        return date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+    };
+
     useEffect(() => {
         if (campaign) {
             setFormData({
@@ -29,8 +36,8 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
             setFormData({
                 name: '',
                 customer_id: lockedCustomerId || '',
-                start_date: new Date().toISOString().split('T')[0],
-                end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                start_date: getLocalDateString(0), // Today local
+                end_date: getLocalDateString(7),   // Next week local
                 products: [],
                 discount_rate: 0,
                 status: 'Taslak'
@@ -39,6 +46,26 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
         setProductInput('');
         setError('');
     }, [campaign, isOpen, lockedCustomerId]);
+
+    // Validation
+    const validateDates = (start, end) => {
+        const today = getLocalDateString(0);
+
+        // Rule 1: Start date must be today or future
+        // Note: For editing existing campaigns, allow past dates ONLY if it matches the original start date.
+        // (i.e. we can't change it to a DIFFERENT past date, but we can keep the existing one)
+        const originalStart = campaign?.start_date?.split('T')[0];
+
+        if (start < today && start !== originalStart) {
+            return "Başlangıç tarihi geçmişte olamaz.";
+        }
+
+        // Rule 2: End date must be after start date
+        if (end <= start) {
+            return "Bitiş tarihi başlangıç tarihinden sonra olmalıdır.";
+        }
+        return "";
+    };
 
     if (!isOpen) return null;
 
@@ -66,6 +93,12 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
 
         if (!formData.name || !formData.customer_id || !formData.start_date || !formData.end_date) {
             setError('Lütfen zorunlu alanları doldurun.');
+            return;
+        }
+
+        const dateError = validateDates(formData.start_date, formData.end_date);
+        if (dateError) {
+            setError(dateError);
             return;
         }
 
@@ -144,6 +177,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900"
                                 value={formData.start_date}
                                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                                min={getLocalDateString(0)}
                                 required
                             />
                         </div>
@@ -154,6 +188,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900"
                                 value={formData.end_date}
                                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                                min={formData.start_date}
                                 required
                             />
                         </div>
