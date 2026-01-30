@@ -51,10 +51,12 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
     const validateDates = (start, end) => {
         const today = getLocalDateString(0);
 
-        // Rule 1: Start date must be today or future (only for new campaigns or if date changed)
-        // Note: For editing existing campaigns, we might want to allow past dates if they were already set.
-        // But for "Yeni Kampanya", strictly >= today.
-        if (!campaign && start < today) {
+        // Rule 1: Start date must be today or future
+        // Note: For editing existing campaigns, allow past dates ONLY if it matches the original start date.
+        // (i.e. we can't change it to a DIFFERENT past date, but we can keep the existing one)
+        const originalStart = campaign?.start_date?.split('T')[0];
+
+        if (start < today && start !== originalStart) {
             return "Başlangıç tarihi geçmişte olamaz.";
         }
 
@@ -175,7 +177,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900"
                                 value={formData.start_date}
                                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                min={!campaign ? getLocalDateString(0) : undefined}
+                                min={getLocalDateString(0)}
                                 required
                             />
                         </div>
