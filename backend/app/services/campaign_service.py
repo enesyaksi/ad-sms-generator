@@ -50,6 +50,71 @@ class CampaignService:
         campaigns.sort(key=lambda x: x.created_at, reverse=True)
         return campaigns
 
+    def check_and_update_statuses(self):
+        """
+        Check all Planned and Active campaigns and update their status based on start/end dates.
+        Run this method via a background scheduler.
+        """
+        print(f"[{datetime.now()}] Checking campaign statuses...")
+        
+        # Fetch only relevant campaigns to minimize reads
+        # Note: 'in' query supports up to 10 values
+        statuses_to_check = [CampaignStatus.PLANLANDI.value, CampaignStatus.AKTIF.value]
+        docs = self.collection.where("status", "in", statuses_to_check).stream()
+        
+        today = datetime.now().date()
+        updates_count = 0
+        
+        for doc in docs:
+            data = doc.to_dict()
+            campaign_id = doc.id
+            status = data.get("status")
+            
+            # Handle start_date/end_date which might be datetime or string depending on ingestion
+            # Assuming they are stored as Firestore Timestamps or Datetime objects
+            # If stored as YYYY-MM-DD string, we parse.
+            start_date_raw = data.get("start_date")
+            end_date_raw = data.get("end_date")
+            
+            if not start_date_raw or not end_date_raw:
+                continue
+                
+            # Helper to convert to date
+            try:
+                if isinstance(start_date_raw, str):
+                    start_date = datetime.strptime(start_date_raw.split('T')[0], "%Y-%m-%d").date()
+                else:
+                    # Firestore Timestamp or datetime
+                    start_date = start_date_raw.date()
+                    
+                if isinstance(end_date_raw, str):
+                    end_date = datetime.strptime(end_date_raw.split('T')[0], "%Y-%m-%d").date()
+                else:
+                    end_date = end_date_raw.date()
+            except Exception as e:
+                print(f"Error parsing dates for campaign {campaign_id}: {e}")
+                continue
+
+            new_status = None
+            
+            # Logic:
+            # Planlandı -> Aktif (if Today >= Start Date)
+            if status == CampaignStatus.PLANLANDI.value:
+                if today >= start_date:
+                    new_status = CampaignStatus.AKTIF.value
+            
+            # Aktif -> Tamamlandı (if Today > End Date)
+            elif status == CampaignStatus.AKTIF.value:
+                if today > end_date:
+                    new_status = CampaignStatus.TAMAMLANDI.value
+            
+            if new_status:
+                print(f"Updating campaign {campaign_id}: {status} -> {new_status}")
+                self.collection.document(campaign_id).update({"status": new_status})
+                updates_count += 1
+                
+        print(f"[{datetime.now()}] Status check complete. Updated {updates_count} campaigns.")
+
     def get_campaign(self, campaign_id: str, user_id: str) -> Optional[Campaign]:
         """
         Get a specific campaign by ID, ensuring it belongs to the user.
