@@ -77,7 +77,7 @@ class CustomerService:
             customers.append(Customer(**data))
         
         # Sort in-memory instead
-        customers.sort(key=lambda x: x.created_at, reverse=True)
+        customers.sort(key=lambda x: x.created_at)
         return customers
 
     def get_customer(self, customer_id: str, user_id: str) -> Optional[Customer]:
