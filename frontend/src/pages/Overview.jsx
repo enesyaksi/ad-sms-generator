@@ -159,8 +159,6 @@ const Overview = () => {
                     value={stats.totalCampaigns}
                     icon="campaign"
                     color="blue"
-                    trend="+12%"
-                    trendLabel="Geçen aya göre"
                 />
                 <StatCard
                     title="Bu Ay Üretilen Mesaj"

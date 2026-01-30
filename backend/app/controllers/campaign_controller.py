@@ -49,6 +49,16 @@ async def get_weekly_trend(
     """
     return campaign_service.get_weekly_trend(user["uid"])
 
+@router.get("/analytics/campaign-stats", response_model=Dict[str, Any])
+async def get_campaign_stats(
+    user: dict = Depends(get_current_user)
+):
+    """
+    Get campaign statistics including growth trend.
+    Compares this month's campaign count vs last month's.
+    """
+    return campaign_service.get_campaign_stats(user["uid"])
+
 @router.get("/{campaign_id}", response_model=Campaign)
 async def get_campaign(
     campaign_id: str,

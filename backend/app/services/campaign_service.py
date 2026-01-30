@@ -165,6 +165,55 @@ class CampaignService:
             return True
         return False
 
+    def get_campaign_stats(self, user_id: str) -> Dict[str, Any]:
+        """
+        Get campaign statistics including growth trend.
+        Compares this month's campaign count vs last month's.
+        """
+        campaigns = self.get_campaigns(user_id)
+        total_campaigns = len(campaigns)
+        
+        # Get current month and last month boundaries
+        today = datetime.now()
+        first_of_this_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        first_of_last_month = (first_of_this_month - timedelta(days=1)).replace(day=1)
+        
+        # Count campaigns by month
+        this_month_count = 0
+        last_month_count = 0
+        
+        for campaign in campaigns:
+            created_at = campaign.created_at
+            if created_at:
+                if created_at >= first_of_this_month:
+                    this_month_count += 1
+                elif created_at >= first_of_last_month and created_at < first_of_this_month:
+                    last_month_count += 1
+        
+        # Calculate trend percentage
+        trend = None
+        trend_label = None
+        
+        if last_month_count > 0:
+            change = ((this_month_count - last_month_count) / last_month_count) * 100
+            if change >= 0:
+                trend = f"+{int(change)}%"
+            else:
+                trend = f"{int(change)}%"
+            trend_label = "Geçen aya göre"
+        elif this_month_count > 0:
+            trend = "+100%"
+            trend_label = "Bu ay oluşturuldu"
+        # If no campaigns this month or last month, trend stays None
+        
+        return {
+            "total_campaigns": total_campaigns,
+            "this_month_count": this_month_count,
+            "last_month_count": last_month_count,
+            "trend": trend,
+            "trend_label": trend_label
+        }
+
     def get_weekly_trend(self, user_id: str) -> Dict[str, Any]:
         """
         Get weekly message production trend for the user.
