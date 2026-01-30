@@ -40,7 +40,8 @@ const Overview = () => {
                     return {
                         ...c,
                         customerName: customer?.name || 'Bilinmeyen Müşteri',
-                        customerInitial: customer?.name ? customer.name[0].toUpperCase() : '?'
+                        customerInitial: customer?.name ? customer.name[0].toUpperCase() : '?',
+                        customerLogo: customer?.logo_url || null
                     };
                 });
 
@@ -230,8 +231,12 @@ const Overview = () => {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold">
-                                                            {activity.customerInitial}
+                                                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold ring-1 ring-white shadow-sm overflow-hidden">
+                                                            {activity.customerLogo ? (
+                                                                <img src={activity.customerLogo} alt={activity.customerName} className="w-full h-full object-contain" />
+                                                            ) : (
+                                                                activity.customerInitial
+                                                            )}
                                                         </div>
                                                         <span className="text-sm font-medium text-slate-700">{activity.customerName}</span>
                                                     </div>
@@ -270,11 +275,8 @@ const Overview = () => {
 
                 {/* Weekly Trend */}
                 <div className="xl:col-span-1 flex flex-col gap-4">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="px-1">
                         <h3 className="text-[#0e141b] text-xl font-bold">Haftalık Üretim Trendi</h3>
-                        <button className="text-slate-400 hover:text-slate-600">
-                            <span className="material-symbols-outlined">more_vert</span>
-                        </button>
                     </div>
                     <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 flex flex-col h-full min-h-[400px]">
                         <div className="mb-6">
