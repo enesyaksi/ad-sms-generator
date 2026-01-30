@@ -40,6 +40,7 @@ class Campaign(CampaignBase):
 class SavedMessageBase(BaseModel):
     content: str
     target_audience: str
+    type: Optional[str] = None
 
 class SavedMessageCreate(SavedMessageBase):
     pass
