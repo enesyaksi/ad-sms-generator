@@ -6,10 +6,11 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
         customer_id: '',
         start_date: '',
         end_date: '',
-        products: '',
+        products: [],
         discount_rate: 0,
         status: 'Taslak'
     });
+    const [productInput, setProductInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -20,7 +21,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                 customer_id: campaign.customer_id || '',
                 start_date: campaign.start_date ? campaign.start_date.split('T')[0] : '',
                 end_date: campaign.end_date ? campaign.end_date.split('T')[0] : '',
-                products: campaign.products ? campaign.products.join(', ') : '',
+                products: campaign.products || [],
                 discount_rate: campaign.discount_rate || 0,
                 status: campaign.status || 'Taslak'
             });
@@ -30,15 +31,34 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                 customer_id: lockedCustomerId || '',
                 start_date: new Date().toISOString().split('T')[0],
                 end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                products: '',
+                products: [],
                 discount_rate: 0,
                 status: 'Taslak'
             });
         }
+        setProductInput('');
         setError('');
     }, [campaign, isOpen, lockedCustomerId]);
 
     if (!isOpen) return null;
+
+    const handleProductKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const trimmedValue = productInput.trim();
+            if (trimmedValue && !formData.products.includes(trimmedValue)) {
+                setFormData({ ...formData, products: [...formData.products, trimmedValue] });
+                setProductInput('');
+            }
+        }
+    };
+
+    const removeProduct = (productToRemove) => {
+        setFormData({
+            ...formData,
+            products: formData.products.filter(p => p !== productToRemove)
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,7 +73,7 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
         try {
             const payload = {
                 ...formData,
-                products: formData.products.split(',').map(p => p.trim()).filter(p => p !== ''),
+                products: formData.products,
                 customer_id: formData.customer_id
             };
             await onSave(payload);
@@ -140,13 +160,34 @@ const CampaignModal = ({ isOpen, onClose, onSave, campaign, customers = [], lock
                     </div>
 
                     <div className="space-y-1.5 text-left">
-                        <label className="text-sm font-semibold text-slate-700 ml-1">Ürünler (Virgülle ayırın)</label>
-                        <textarea
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 placeholder:text-slate-400 min-h-[80px] resize-none"
-                            placeholder="Süt, Peynir, Yoğurt..."
-                            value={formData.products}
-                            onChange={(e) => setFormData({ ...formData, products: e.target.value })}
-                        />
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Ürünler</label>
+                        <div className="w-full px-3 py-2 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all min-h-[80px]">
+                            <div className="flex flex-wrap gap-2">
+                                {formData.products.map((product, index) => (
+                                    <span
+                                        key={index}
+                                        className="bg-slate-100 text-slate-700 rounded-lg px-2 py-1 flex items-center gap-1 text-sm"
+                                    >
+                                        {product}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeProduct(product)}
+                                            className="text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-[16px]">close</span>
+                                        </button>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    className="flex-1 min-w-[150px] outline-none text-slate-900 placeholder:text-slate-400 py-1"
+                                    placeholder="Ürün adı yazıp Enter'a basın..."
+                                    value={productInput}
+                                    onChange={(e) => setProductInput(e.target.value)}
+                                    onKeyDown={handleProductKeyDown}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-left">
