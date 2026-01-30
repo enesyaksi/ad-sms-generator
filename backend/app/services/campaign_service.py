@@ -146,6 +146,27 @@ class CampaignService:
         # If status is being updated, ensure it's a string
         if "status" in update_data and isinstance(update_data["status"], CampaignStatus):
             update_data["status"] = update_data["status"].value
+        
+        # Immediate Activation Check
+        # If user sets status to "Planlandı", check if it should already be "Aktif"
+        if update_data.get("status") == CampaignStatus.PLANLANDI.value:
+            current_data = doc.to_dict()
+            # Get start_date from update (if changed) or existing doc
+            start_date_raw = update_data.get("start_date") or current_data.get("start_date")
+            
+            if start_date_raw:
+                try:
+                    today = datetime.now().date()
+                    if isinstance(start_date_raw, str):
+                        start_date = datetime.strptime(start_date_raw.split('T')[0], "%Y-%m-%d").date()
+                    else:
+                        start_date = start_date_raw.date()
+                        
+                    if today >= start_date:
+                        print(f"Immediate activation triggered for campaign {campaign_id}")
+                        update_data["status"] = CampaignStatus.AKTIF.value
+                except Exception as e:
+                    print(f"Error checking date for immediate activation: {e}")
 
         doc_ref.update(update_data)
         updated_doc = doc_ref.get()
