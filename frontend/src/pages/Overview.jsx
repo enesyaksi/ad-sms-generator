@@ -113,7 +113,7 @@ const Overview = () => {
             {/* Header */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-[#0e141b] text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">İş Akışı Odaklı Genel Bakış</h2>
+                    <h2 className="text-[#0e141b] text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Genel Bakış</h2>
                     <p className="text-[#4e7397] text-base font-normal mt-1">Operasyonel süreçler ve üretim metriklerinin anlık takibi.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
