@@ -60,9 +60,13 @@ const CampaignDetails = () => {
                 target_audience: targetAudience.join(', '),
                 phone_number: customer?.phone_number || ''
             };
-
             const response = await generateSms(apiRequest);
-            setDrafts(response.drafts);
+            const audienceString = targetAudience.length > 0 ? targetAudience.join(', ') : 'Genel Kitle';
+            const draftsWithAudience = response.drafts.map(d => ({
+                ...d,
+                target_audience: audienceString
+            }));
+            setDrafts(draftsWithAudience);
             setActiveTab('drafts');
         } catch (err) {
             console.error(err);
@@ -76,7 +80,7 @@ const CampaignDetails = () => {
         try {
             const messageData = {
                 content: draft.content,
-                target_audience: targetAudience.join(', ')
+                target_audience: draft.target_audience
             };
             const saved = await campaignsApi.saveMessage(campaignId, messageData);
             setSavedMessages([saved, ...savedMessages]);
@@ -404,7 +408,7 @@ const CampaignDetails = () => {
                                                         </span>
                                                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                             <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
-                                                            {targetAudience.length > 0 ? targetAudience.join(', ') : 'Genel Kitle'}
+                                                            {draft.target_audience}
                                                         </span>
                                                     </div>
                                                     <p className="text-slate-800 text-[17px] font-medium leading-[1.6] bg-slate-50/80 p-6 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
