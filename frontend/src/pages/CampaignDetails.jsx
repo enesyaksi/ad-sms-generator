@@ -416,10 +416,6 @@ const CampaignDetails = () => {
                                                     </p>
                                                     <div className="flex flex-wrap items-center gap-5 text-[13px] font-bold text-slate-400">
                                                         <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span> {draft.content.length} Karakter</span>
-                                                        <span className="flex items-center gap-1.5 text-emerald-600 ml-auto bg-emerald-50 px-3 py-1 rounded-lg">
-                                                            <span className="material-symbols-outlined text-[18px]">verified</span>
-                                                            Yapay Zeka Onaylı
-                                                        </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-row md:flex-col items-center justify-center gap-4 md:border-l border-slate-100 md:pl-8 min-w-[160px]">
@@ -477,7 +473,6 @@ const CampaignDetails = () => {
                                                     </p>
                                                     <div className="flex flex-wrap items-center gap-5 text-[13px] font-bold text-slate-400">
                                                         <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span> {msg.content.length} Karakter</span>
-                                                        <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">sms</span> {Math.ceil(msg.content.length / 160)} SMS</span>
                                                         <span className="flex items-center gap-2 text-slate-700 bg-white border border-slate-100 shadow-sm px-4 py-1.5 rounded-xl ml-auto">
                                                             <div className="size-2 rounded-full bg-primary animate-pulse"></div>
                                                             Hedef: {msg.target_audience}
