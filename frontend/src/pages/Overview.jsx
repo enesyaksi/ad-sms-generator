@@ -278,7 +278,7 @@ const Overview = () => {
                                 Son 7 gün
                             </p>
                         </div>
-                        <div className="flex-1 flex items-end justify-between gap-2 h-48 mt-4 border-b border-slate-100 pb-2">
+                        <div className="flex items-end justify-between gap-2 h-48 mt-4 border-b border-slate-100 pb-2">
                             {trendLoading ? (
                                 <div className="w-full flex items-center justify-center text-slate-400">
                                     Yükleniyor...
@@ -287,15 +287,16 @@ const Overview = () => {
                                 (() => {
                                     const maxCount = Math.max(...weeklyTrend.trend.map(d => d.count), 1);
                                     const today = new Date().toISOString().split('T')[0];
+                                    const maxHeight = 160; // px - leaving room for labels
                                     return weeklyTrend.trend.map((d, i) => {
-                                        const heightPercent = maxCount > 0 ? Math.max((d.count / maxCount) * 100, 5) : 5;
+                                        const heightPx = maxCount > 0 ? Math.max((d.count / maxCount) * maxHeight, 8) : 8;
                                         const isToday = d.date === today;
                                         const dayAbbr = d.day_name.substring(0, 3);
                                         return (
-                                            <div key={i} className="flex flex-col items-center gap-2 group w-full">
+                                            <div key={i} className="flex flex-col items-center gap-2 group w-full h-full justify-end">
                                                 <div
                                                     className={`w-full ${isToday ? 'bg-primary' : 'bg-purple-100 group-hover:bg-purple-200'} rounded-t-sm relative transition-all shadow-sm`}
-                                                    style={{ height: `${heightPercent}%` }}
+                                                    style={{ height: `${heightPx}px` }}
                                                 >
                                                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                                         {d.count}
