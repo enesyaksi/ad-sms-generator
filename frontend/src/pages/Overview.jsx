@@ -291,7 +291,6 @@ const Overview = () => {
                                     return weeklyTrend.trend.map((d, i) => {
                                         const heightPx = maxCount > 0 ? Math.max((d.count / maxCount) * maxHeight, 8) : 8;
                                         const isToday = d.date === today;
-                                        const dayAbbr = d.day_name.substring(0, 3);
                                         return (
                                             <div key={i} className="flex flex-col items-center gap-2 group w-full h-full justify-end">
                                                 <div
@@ -302,7 +301,7 @@ const Overview = () => {
                                                         {d.count}
                                                     </div>
                                                 </div>
-                                                <span className={`text-xs ${isToday ? 'font-bold text-slate-700' : 'text-slate-400'}`}>{dayAbbr}</span>
+                                                <span className={`text-xs ${isToday ? 'font-bold text-slate-700' : 'text-slate-400'}`}>{d.day_name}</span>
                                             </div>
                                         );
                                     });
