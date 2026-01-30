@@ -130,6 +130,24 @@ const CampaignDetails = () => {
         alert("Mesaj kopyalandı!");
     };
 
+    const handleStatusUpdate = async (newStatus) => {
+        if (!campaign) return;
+
+        if (newStatus === 'Planlandı' && savedMessages.length === 0) {
+            alert("Planlamadan önce en az bir mesaj kaydetmelisiniz.");
+            return;
+        }
+
+        try {
+            const updated = await campaignsApi.update(campaignId, { status: newStatus });
+            setCampaign(updated);
+            alert(`Kampanya durumu güncellendi: ${newStatus}`);
+        } catch (err) {
+            console.error("Status update failed:", err);
+            setError("Durum güncellenemedi.");
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -228,6 +246,28 @@ const CampaignDetails = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 w-full md:w-auto">
+                            {campaign.status === 'Taslak' && (
+                                <button
+                                    onClick={() => handleStatusUpdate('Planlandı')}
+                                    disabled={savedMessages.length === 0}
+                                    className="flex-1 md:flex-none h-12 px-6 rounded-xl border border-primary bg-primary text-white font-bold hover:bg-blue-600 hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title={savedMessages.length === 0 ? "Mesaj kaydetmeden planlanamaz" : "Kampanyayı Planla"}
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">event_available</span>
+                                    Planla
+                                </button>
+                            )}
+
+                            {campaign.status === 'Planlandı' && (
+                                <button
+                                    onClick={() => handleStatusUpdate('Taslak')}
+                                    className="flex-1 md:flex-none h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">edit_document</span>
+                                    Taslağa Çek
+                                </button>
+                            )}
+
                             <button
                                 onClick={() => setIsEditModalOpen(true)}
                                 className="flex-1 md:flex-none h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2 shadow-sm"
