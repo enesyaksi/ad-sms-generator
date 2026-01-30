@@ -398,13 +398,13 @@ const CampaignDetails = () => {
                                             <div key={idx} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col md:flex-row gap-8 relative group">
                                                 <div className="flex-1 space-y-5">
                                                     <div className="flex items-center gap-3">
-                                                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-purple-100 text-purple-700 border border-purple-200 shadow-sm">
-                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">auto_sparkles</span>
-                                                            AI TASLAK {idx + 1}
+                                                        <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-blue-50 text-primary border border-primary/20 shadow-sm capitalize">
+                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">style</span>
+                                                            {draft.type} Mesajı
                                                         </span>
                                                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                             <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
-                                                            {targetAudience.join(', ')}
+                                                            {targetAudience.length > 0 ? targetAudience.join(', ') : 'Genel Kitle'}
                                                         </span>
                                                     </div>
                                                     <p className="text-slate-800 text-[17px] font-medium leading-[1.6] bg-slate-50/80 p-6 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
@@ -412,10 +412,9 @@ const CampaignDetails = () => {
                                                     </p>
                                                     <div className="flex flex-wrap items-center gap-5 text-[13px] font-bold text-slate-400">
                                                         <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">short_text</span> {draft.content.length} Karakter</span>
-                                                        <span className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg"><span className="material-symbols-outlined text-[18px] text-slate-300">sms</span> {Math.ceil(draft.content.length / 160)} SMS Boyutu</span>
                                                         <span className="flex items-center gap-1.5 text-emerald-600 ml-auto bg-emerald-50 px-3 py-1 rounded-lg">
                                                             <span className="material-symbols-outlined text-[18px]">verified</span>
-                                                            İndirim Odaklı
+                                                            Yapay Zeka Onaylı
                                                         </span>
                                                     </div>
                                                 </div>
