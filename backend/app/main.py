@@ -6,9 +6,33 @@ from slowapi.middleware import SlowAPIMiddleware
 import os
 from app.config.firebase_config import initialize_firebase
 from app.core.limiter import limiter
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.services.campaign_service import CampaignService
 
 # Initialize Firebase Admin SDK before importing controllers
 initialize_firebase()
+
+# Scheduler Setup
+scheduler = BackgroundScheduler()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Schedule the status check job
+    campaign_service = CampaignService()
+    
+    # Run immediately on startup
+    scheduler.add_job(campaign_service.check_and_update_statuses, 'date')
+    
+    # Run every hour
+    scheduler.add_job(campaign_service.check_and_update_statuses, 'interval', hours=1)
+    
+    scheduler.start()
+    print("Scheduler started: Campaign status automation active (Immediate check triggered).")
+    yield
+    # Shutdown
+    scheduler.shutdown()
+    print("Scheduler shut down.")
 
 from app.controllers.sms_controller import router as sms_router
 from app.controllers.auth_controller import router as auth_router
@@ -19,7 +43,8 @@ from app.exceptions.api_exceptions import register_exceptions
 app = FastAPI(
     title="AdManager SMS Generator",
     description="Generate SMS marketing drafts using Google Gemini AI",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Initialize Rate Limiter
