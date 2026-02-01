@@ -50,12 +50,13 @@ const Overview = () => {
                     };
                 });
 
-                setStats({
+                setStats(prev => ({
+                    ...prev,
                     totalCampaigns: totalCampaignsCount,
-                    messagesThisMonth: 0, // Will be updated from trend data
+                    // messagesThisMonth is managed by fetchTrendData, preserve it
                     activeCustomers: activeCustomersCount,
                     totalCustomers: customersData.length
-                });
+                }));
                 setRecentActivities(recent);
             } catch (error) {
                 console.error("Error fetching overview data:", error);
