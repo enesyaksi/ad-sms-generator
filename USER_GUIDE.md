@@ -8,9 +8,11 @@ AI SMS Ad Generator - Turkish UI User Guide
 
 - [Getting Started](#getting-started)
 - [Creating an Account](#creating-an-account)
+- [Email Verification](#email-verification)
 - [Logging In](#logging-in)
-- [Customer Dashboard](#customer-dashboard)
-- [Creating a Customer](#creating-a-customer)
+- [Overview Dashboard](#overview-dashboard)
+- [Customer Management](#customer-management)
+- [Campaign Management](#campaign-management)
 - [Generating SMS Campaigns](#generating-sms-campaigns)
 - [User Settings](#user-settings)
 - [FAQ](#faq)
@@ -22,9 +24,11 @@ AI SMS Ad Generator - Turkish UI User Guide
 The AI SMS Ad Generator helps you create professional SMS marketing campaigns using artificial intelligence. The system analyzes your customer's website to generate context-aware, engaging SMS drafts in Turkish.
 
 ### Main Features
-- 🏢 **Customer Management**: Save and organize your clients
+- 📊 **Overview Dashboard**: Quick stats and recent activities
+- 🏢 **Customer Management**: Save and organize your clients with sorting and filtering
+- 📋 **Campaign Management**: Create, track, and manage marketing campaigns
 - 📱 **AI SMS Generation**: Create multiple SMS draft variations
-- 🔒 **Secure Login**: Firebase authentication with email or Google
+- 🔒 **Secure Login**: Firebase authentication with email verification
 - ⚙️ **User Settings**: Customize your profile
 
 ---
@@ -34,18 +38,42 @@ The AI SMS Ad Generator helps you create professional SMS marketing campaigns us
 1. Open the application at `http://localhost:5173`
 2. On the login page, click **"Kayıt Ol"** (Sign Up)
 3. Fill in the registration form:
-   - **Görünen Ad**: Your display name
+   - **Ad Soyad**: Your full name
    - **E-posta**: Your email address
    - **Şifre**: Password (minimum 8 characters, must include uppercase, lowercase, and special character)
    - **Şifre Tekrar**: Confirm your password
 4. Click **"Kayıt Ol"** button
-5. You'll be redirected to the Dashboard
+5. You'll be redirected to the Email Verification page
 
 > **Password Requirements:**
 > - Minimum 8 characters
 > - At least 1 uppercase letter (A-Z)
 > - At least 1 lowercase letter (a-z)
 > - At least 1 special character (!@#$%^&*)
+
+---
+
+## Email Verification
+
+After registration, you must verify your email address before accessing the dashboard.
+
+### Verification Steps
+1. Check your email inbox for a verification link
+2. Also check your Spam/Junk folder
+3. Click the verification link in the email
+4. Return to the application - it will automatically detect verification
+5. You'll be redirected to the Overview Dashboard
+
+### Resend Verification Email
+If you didn't receive the email:
+1. Click **"Tekrar Gönder"** button on the verification page
+2. Wait 60 seconds before resending again
+3. Check your email (including spam folder)
+
+### Switch Account
+If you registered with the wrong email:
+1. Click **"Farklı bir hesapla giriş yap"**
+2. You'll be logged out and can register again
 
 ---
 
@@ -56,6 +84,8 @@ The AI SMS Ad Generator helps you create professional SMS marketing campaigns us
 2. Enter your **Şifre** (password)
 3. Click **"Giriş Yap"** (Login)
 
+> **Note**: You must have a verified email to access the dashboard.
+
 ### Google Login
 1. Click **"Google ile Giriş Yap"** button
 2. Select your Google account
@@ -63,99 +93,154 @@ The AI SMS Ad Generator helps you create professional SMS marketing campaigns us
 
 ### Forgot Password
 1. Click **"Şifremi Unuttum"**
-2. Enter your email address
-3. Check your email for reset instructions
+2. Enter your email address in the modal
+3. Click **"Bağlantı Gönder"**
+4. Check your email for reset instructions
+5. Click the reset link and create a new password
 
 ---
 
-## Customer Dashboard
+## Overview Dashboard
 
-The dashboard displays all your saved customers in a card grid layout.
+The Overview page is your home screen, showing a summary of all activities.
 
-![Dashboard Screenshot Placeholder](docs/screenshots/dashboard.png)
-> **TODO**: Add screenshot of Customer Dashboard here
+### Quick Stats Cards
+| Card | Description |
+|------|-------------|
+| **Aktif Kampanyalar** | Number of currently active campaigns |
+| **Toplam Müşteriler** | Total registered customers |
+| **Toplam Kampanyalar** | All campaigns (any status) |
+| **SMS Oluşturuldu** | Total SMS drafts generated |
 
-### Dashboard Features
+### Analytics Trend
+- Shows campaign growth trend compared to last period
+- **Green arrow**: Positive growth
+- **Red arrow**: Negative growth
 
-| Feature | Description |
-|---------|-------------|
-| **Müşteri Kartları** | View all customers with logo, name, and website |
-| **Yeni Müşteri Ekle** | Add a new customer |
-| **Ara...** | Search customers by name |
-| **Sayfalama** | Navigate between pages (8 customers per page) |
+### Recent Campaign Activities
+- Lists the 5 most recently operated campaigns
+- Shows campaign name, customer, status, and dates
+- Click any campaign to view details
 
-### Customer Card Actions
-
-Each customer card shows:
-- Company logo (auto-extracted from website)
-- Company name
-- Website URL
-- Phone number (if available)
-
-Hover over a card to see action buttons:
-- **Kampanya Başlat**: Start an SMS campaign for this customer
-- **Düzenle**: Edit customer information
-- **Sil**: Delete customer
+### Quick Actions
+- **Yeni Kampanya Oluştur**: Start creating a new campaign
+- **Müşteri Ekle**: Add a new customer
 
 ---
 
-## Creating a Customer
+## Customer Management
 
-1. Click the **"+ Yeni Müşteri Ekle"** card or button
-2. Fill in the customer form:
+### Customer List (Müşteriler)
+
+Navigate to **Müşteriler** page from the sidebar.
+
+#### Sorting Options
+| Option | Description |
+|--------|-------------|
+| **Alfabetik** | Sort by name A-Z (default) |
+| **En Son Eklenen** | Most recently added first |
+| **İlk Eklenen** | Oldest first |
+| **Son İşlem Yapılan** | Most recently operated |
+
+#### Filtering Options
+| Option | Description |
+|--------|-------------|
+| **Tüm Müşteriler** | Show all customers |
+| **Kampanyalı** | Customers with any campaign |
+| **Kampanyasız** | Customers without campaigns |
+| **Aktif Kampanyalı** | Customers with active campaigns |
+| **Planlanmış Kampanyalı** | Customers with planned campaigns |
+| **Taslak Kampanyalı** | Customers with draft campaigns |
+| **Tamamlanmış Kampanyalı** | Customers with completed campaigns |
+
+### Creating a Customer
+1. Click **"+ Yeni Müşteri Ekle"** button
+2. Fill in the form:
    - **Şirket Adı**: Company name (required)
    - **Web Sitesi**: Company website URL (required)
-   - **Telefon Numarası**: Contact phone number (optional)
+   - **Telefon Numarası**: Contact phone (optional)
 3. Click **"Kaydet"** (Save)
 
-The system will automatically:
-- Extract the company logo from the website
-- Save the customer to your account
+The system will automatically extract the company logo from the website.
 
-> **Note**: Logo extraction may not work for websites with bot protection (Cloudflare, etc.)
+### Customer Details
+Click on a customer card to view:
+- All campaigns associated with this customer
+- Customer information (name, website, phone)
+- Edit or delete options
+
+---
+
+## Campaign Management
+
+### Campaign List (Kampanyalar)
+
+Navigate to **Kampanyalar** page from the sidebar.
+
+#### Campaign Status Types
+| Status | Description | Badge Color |
+|--------|-------------|-------------|
+| **Taslak** | Draft campaign, not started | Gray |
+| **Planlandı** | Scheduled to start in future | Blue |
+| **Aktif** | Currently running campaign | Green |
+| **Tamamlandı** | Campaign has ended | Purple |
+
+> **Note**: Status updates automatically based on start/end dates!
+
+#### Sorting Options
+| Option | Description |
+|--------|-------------|
+| **En Son Eklenen** | Most recently added (default) |
+| **İlk Eklenen** | Oldest first |
+| **Alfabetik** | Sort by name A-Z |
+| **Son İşlem Yapılan** | Most recently modified |
+| **Başlangıç Tarihi** | By start date |
+| **Bitiş Tarihi** | By end date |
+
+### Creating a Campaign
+1. Click **"+ Yeni Kampanya"** button
+2. Fill in the form:
+   - **Müşteri**: Select a customer from dropdown
+   - **Kampanya Adı**: Name your campaign
+   - **Ürünler**: Add products (comma-separated or press Enter)
+   - **İndirim Oranı**: Discount percentage
+   - **Başlangıç Tarihi**: Campaign start date
+   - **Bitiş Tarihi**: Campaign end date
+3. Click **"Oluştur"** (Create)
+
+#### Date Validation Rules
+- End date must be after start date
+- Cannot set end date before today
+- Dates should be in reasonable range (not too far in future)
+
+### Campaign Details Page
+Click on any campaign to see:
+- **Müşteri Bilgisi**: Customer info card
+- **Kampanya Ürünleri**: Products being promoted (as tags)
+- **İndirim Oranı**: Discount rate in styled box
+- **Kampanya Tarihleri**: Start/end dates with countdown
+- **Generated SMS**: Previously created SMS drafts
 
 ---
 
 ## Generating SMS Campaigns
 
-### Starting a Campaign
-
-1. On the Dashboard, find the customer card
-2. Click **"Kampanya Başlat"** (Start Campaign)
-3. You'll be taken to the SMS Generator with customer data pre-filled
-
-### Campaign Configuration
-
-| Field | Description |
-|-------|-------------|
-| **Web Sitesi URL** | Pre-filled from customer (read-only) |
-| **Ürünler** | Products to promote (comma-separated) |
-| **İndirim Oranı** | Discount percentage (e.g., 20) |
-| **Hedef Kitle** | Target audience (e.g., "Gençler", "Aileler") |
-| **Başlangıç Tarihi** | Campaign start date |
-| **Bitiş Tarihi** | Campaign end date |
-| **Mesaj Sayısı** | Number of SMS drafts to generate (1-10) |
-
-### Generating Drafts
-
-1. Fill in all required fields
-2. Click **"Oluştur"** (Generate)
-3. Wait for AI to generate SMS drafts
-4. View generated drafts in the results panel
+### From Campaign Details
+1. Open a campaign detail page
+2. Scroll to SMS section
+3. Set **Mesaj Sayısı** (1-10 drafts)
+4. Click **"SMS Oluştur"** (Generate SMS)
+5. Wait for AI to generate drafts
 
 ### SMS Draft Types
-
-The AI generates different styles of SMS:
-
 | Type | Description |
 |------|-------------|
 | **Klasik** | Standard promotional message |
-| **Acil** | Urgency-focused message (e.g., "Son şans!") |
+| **Acil** | Urgency-focused (e.g., "Son şans!") |
 | **Dostça** | Friendly, casual tone with emojis |
 | **Bilgilendirici** | Informative, detailed message |
 
 ### Copying SMS Drafts
-
 Click on any generated draft to copy it to your clipboard.
 
 ---
@@ -194,13 +279,33 @@ A: You can generate between 1-10 SMS drafts per request.
 **Q: Are the SMS drafts in Turkish?**
 A: Yes, all generated content is in Turkish with proper date formatting.
 
+### Email Verification
+
+**Q: I didn't receive the verification email**
+A: Check your spam/junk folder. You can also click "Tekrar Gönder" to resend (wait 60 seconds between attempts).
+
+**Q: Can I use the app without verifying email?**
+A: No, email verification is required for security. You'll be redirected to verify-email page until verified.
+
 ### Customer Management
 
 **Q: Why doesn't my customer's logo appear?**
 A: Some websites have bot protection (Cloudflare) that prevents logo extraction. The customer will still be saved with a placeholder image.
 
 **Q: Can I edit a customer after creating?**
-A: Yes, hover over the customer card and click the edit (pencil) icon.
+A: Yes, go to customer details and click the edit icon.
+
+### Campaign Management
+
+**Q: How does automatic status work?**
+A: Campaigns automatically update:
+- **Taslak** → Initial draft status
+- **Planlandı** → When start date is in the future
+- **Aktif** → When current date is between start and end
+- **Tamamlandı** → When end date has passed
+
+**Q: Can I change campaign dates after creation?**
+A: Yes, edit the campaign and update the dates. Status will adjust automatically.
 
 ### Technical Issues
 

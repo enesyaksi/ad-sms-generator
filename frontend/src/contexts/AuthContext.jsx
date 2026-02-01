@@ -7,6 +7,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     sendPasswordResetEmail,
+    sendEmailVerification,
     updateProfile,
     updatePassword
 } from 'firebase/auth';
@@ -56,6 +57,13 @@ export const AuthProvider = ({ children }) => {
         return updatePassword(auth.currentUser, newPassword);
     };
 
+    const sendVerificationEmail = () => {
+        if (auth.currentUser) {
+            return sendEmailVerification(auth.currentUser);
+        }
+        return Promise.reject(new Error('No user logged in'));
+    };
+
     const value = {
         user,
         loading,
@@ -65,7 +73,8 @@ export const AuthProvider = ({ children }) => {
         signInWithGoogle,
         resetPassword,
         updateUserName,
-        changePassword
+        changePassword,
+        sendVerificationEmail
     };
 
     return (

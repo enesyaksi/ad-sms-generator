@@ -2,7 +2,10 @@ import React from 'react';
 
 const CustomerCard = ({ customer, onStartCampaign, onEdit, onDelete }) => {
     return (
-        <div className="group bg-surface-light rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full relative overflow-hidden text-left">
+        <div
+            onClick={() => onStartCampaign(customer)}
+            className="group bg-surface-light rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col justify-between h-full relative overflow-hidden text-left"
+        >
             {/* Quick Actions (Edit/Delete) - Visible on hover */}
             <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                 <button

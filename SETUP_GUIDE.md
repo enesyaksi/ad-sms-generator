@@ -1,6 +1,6 @@
 # 🚀 Setup Guide
 
-Complete setup guide for the AI SMS Ad Generator with Firebase integration.
+Complete setup guide for the AI SMS Ad Generator with Firebase integration and Campaign Management.
 
 ---
 
@@ -302,21 +302,37 @@ curl http://localhost:8000/health
    - Display Name
    - Email
    - Password (8+ chars, upper, lower, special)
-5. After registration, you'll be redirected to the Dashboard
+5. After registration, you'll be redirected to **Email Verification** page
+6. Check your email for verification link
+7. Click the link to verify your email
+8. Return to the app - you'll be redirected to the Overview Dashboard
 
 ### 6.3 Test Customer Creation
 
-1. On Dashboard, click **"Yeni Müşteri Ekle"**
-2. Enter company name and website URL
-3. Click **"Kaydet"**
-4. Customer card should appear with auto-extracted logo
+1. Navigate to **Müşteriler** (Customers) page
+2. Click **"+ Yeni Müşteri Ekle"**
+3. Enter company name and website URL
+4. Click **"Kaydet"**
+5. Customer card should appear with auto-extracted logo
 
-### 6.4 Test SMS Generation
+### 6.4 Test Campaign Creation
 
-1. Click **"Kampanya Başlat"** on a customer card
-2. Fill in campaign details (products, discount, dates)
-3. Click **"Oluştur"**
-4. SMS drafts should be generated
+1. Navigate to **Kampanyalar** (Campaigns) page
+2. Click **"+ Yeni Kampanya"**
+3. Fill in campaign details:
+   - Select a customer
+   - Add products (comma-separated or press Enter)
+   - Set discount rate
+   - Choose start and end dates
+4. Click **"Oluştur"**
+5. Campaign should appear with "Taslak" status
+
+### 6.5 Test SMS Generation
+
+1. Open a campaign detail page
+2. Click **"SMS Oluştur"** button
+3. SMS drafts should be generated based on campaign data
+4. Copy any draft to clipboard by clicking on it
 
 ---
 
