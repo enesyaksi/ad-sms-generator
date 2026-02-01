@@ -1,6 +1,6 @@
 # AI SMS Ad Generator
 
-A full-stack web application that leverages Google Gemini AI to generate high-quality, context-aware SMS ad drafts. Features a **Customer Dashboard** for managing clients, **Firebase Authentication** for secure access, and intelligent website scraping to understand product context.
+A full-stack web application that leverages Google Gemini AI to generate high-quality, context-aware SMS ad drafts. Features a **Campaign Management Dashboard** for managing clients and campaigns, **Firebase Authentication** with email verification, and intelligent website scraping to understand product context.
 
 ---
 
@@ -89,23 +89,40 @@ A full-stack web application that leverages Google Gemini AI to generate high-qu
 - **Website Scraping**: Automatically extracts product details and brand voice from target websites
 - **Phone Number Extraction**: Identifies primary contact numbers from websites
 
-### Customer Management (Dashboard)
-- **Customer Dashboard**: Visual overview of all saved customers with logo, name, and website
+### Dashboard & Analytics (Overview Page)
+- **Overview Dashboard**: Visual statistics with active campaigns, total customers, and SMS counts
+- **Dynamic Analytics**: Real-time trend indicators showing campaign growth
+- **Recent Activities**: Quick access to last 5 campaign activities
+- **Quick Actions**: Start new campaigns or add customers directly
+
+### Customer Management
+- **Customer List**: Organized display with search, sorting, and filtering
 - **Customer Cards**: Quick access to start campaigns for any customer
 - **Add/Edit Customers**: Create and manage customer profiles with automatic logo extraction
-- **Pagination**: Organized display with 8 customers per page
+- **Sorting Options**: Alphabetical, Recently Added, First Added, Recently Operated
+- **Filtering Options**: By campaign status (Active, Planned, Draft, Completed)
+
+### Campaign Management
+- **Campaign List**: View all campaigns with status badges and progress indicators
+- **Campaign Details**: Detailed view with products, discount, dates, and generated SMS
+- **Create Campaigns**: Associate campaigns with customers, set dates and products
+- **Automated Status**: Campaigns auto-update (Taslak → Planlandı → Aktif → Tamamlandı)
+- **Date Validation**: Smart validation preventing invalid date ranges
+- **Sorting & Filtering**: Multiple options to organize campaign list
 
 ### Authentication & Security
 - **Firebase Authentication**: Secure login with Email/Password
+- **Email Verification**: Required verification before accessing dashboard
+- **Forgot Password**: Password reset via email with modal dialog
 - **Google Sign-In**: One-click authentication with Google accounts
 - **User Settings**: Change display name and password
-- **Protected Routes**: All features require authentication
+- **Protected Routes**: All features require verified authentication
 
 ### SMS Generation Features
 - **Dynamic Draft Count**: Generate 1-10 distinct SMS drafts per request
 - **Audience Targeting**: Customize tone based on target audience tags
 - **Turkish Support**: Native support for Turkish language and date formatting
-- **Campaign Dates**: Configurable start and end dates with year enforcement
+- **Campaign Dates**: Configurable start and end dates with smart validation
 - **Rate-Limit Resilience**: Built-in retry logic for API quotas
 
 ---
@@ -127,7 +144,7 @@ graph LR
 ### Tech Stack
 | Layer | Technologies |
 |-------|-------------|
-| **Frontend** | React, Vite, Vanilla CSS |
+| **Frontend** | React, Vite, TailwindCSS |
 | **Backend** | FastAPI (Python), httpx |
 | **AI** | Google Generative AI (Gemini SDK) |
 | **Authentication** | Firebase Auth |
@@ -152,6 +169,15 @@ graph LR
 | `GET` | `/customers/{id}` | Get single customer |
 | `PUT` | `/customers/{id}` | Update customer |
 | `DELETE` | `/customers/{id}` | Delete customer |
+
+### Campaign Endpoints (Protected)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/campaigns` | List all campaigns |
+| `POST` | `/campaigns` | Create a new campaign |
+| `GET` | `/campaigns/{id}` | Get single campaign |
+| `PUT` | `/campaigns/{id}` | Update campaign |
+| `DELETE` | `/campaigns/{id}` | Delete campaign |
 
 ### SMS Generation
 | Method | Endpoint | Description |
@@ -198,8 +224,8 @@ graph LR
 .
 ├── backend/
 │   ├── app/
-│   │   ├── controllers/      # API Routers (auth, customer, sms)
-│   │   ├── services/         # Business logic (scraping, AI prompts, customer ops)
+│   │   ├── controllers/      # API Routers (auth, customer, campaign, sms)
+│   │   ├── services/         # Business logic (scraping, AI prompts, CRUD ops)
 │   │   ├── clients/          # Gemini API client
 │   │   ├── models/           # Pydantic request/response schemas
 │   │   ├── config/           # Environment settings, Firebase config
@@ -208,9 +234,9 @@ graph LR
 │   └── requirements.txt
 └── frontend/
     ├── src/
-    │   ├── pages/            # Login, Signup, Dashboard, Home, Settings
+    │   ├── pages/            # Overview, Customers, Campaigns, Login, etc.
     │   ├── contexts/         # AuthContext (Firebase auth state)
-    │   ├── components/       # CustomerCard, CustomerModal, Layout, etc.
+    │   ├── components/       # Layout, Modal, Cards, ForgotPasswordModal
     │   ├── services/         # API service layer
     │   └── config/           # Firebase SDK config
     └── package.json
@@ -239,9 +265,10 @@ International domain names are supported via automatic Punycode conversion.
 
 > **TODO**: Add screenshots of key features here:
 > 1. Login Page - `docs/screenshots/login.png`
-> 2. Customer Dashboard - `docs/screenshots/dashboard.png`
-> 3. SMS Generator - `docs/screenshots/sms-generator.png`
-> 4. User Settings - `docs/screenshots/settings.png`
+> 2. Overview Dashboard - `docs/screenshots/overview.png`
+> 3. Customer List - `docs/screenshots/customers.png`
+> 4. Campaign Details - `docs/screenshots/campaign-details.png`
+> 5. SMS Generator - `docs/screenshots/sms-generator.png`
 
 ---
 
