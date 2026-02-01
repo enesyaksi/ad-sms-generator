@@ -34,8 +34,13 @@ const Overview = () => {
                 const activeCustomersCount = customersData.length;
                 const totalCampaignsCount = campaignsData.length;
 
-                // Recent 5 activities
-                const recent = campaignsData.slice(0, 5).map(c => {
+                // Recent 5 activities - sorted by most recently operated
+                const sortedCampaigns = [...campaignsData].sort((a, b) => {
+                    const dateA = new Date(a.updated_at || a.created_at);
+                    const dateB = new Date(b.updated_at || b.created_at);
+                    return dateB - dateA;
+                });
+                const recent = sortedCampaigns.slice(0, 5).map(c => {
                     const customer = customersData.find(cust => cust.id === c.customer_id);
                     return {
                         ...c,
@@ -338,16 +343,9 @@ const Overview = () => {
 
             {/* Footer */}
             <footer className="mt-auto border-t border-slate-300 pt-8 pb-4">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-slate-400">verified</span>
-                        <p>© 2026 Reklam Yönetim Paneli A.Ş. Tüm hakları saklıdır.</p>
-                    </div>
-                    <div className="flex gap-6 font-medium">
-                        <a className="hover:text-primary transition-colors" href="#">Gizlilik Politikası</a>
-                        <a className="hover:text-primary transition-colors" href="#">Kullanım Şartları</a>
-                        <a className="hover:text-primary transition-colors" href="#">Yardım Merkezi</a>
-                    </div>
+                <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
+                    <span className="material-symbols-outlined text-slate-400">verified</span>
+                    <p>© 2026 Reklam Yönetim Paneli A.Ş. Tüm hakları saklıdır.</p>
                 </div>
             </footer>
 
