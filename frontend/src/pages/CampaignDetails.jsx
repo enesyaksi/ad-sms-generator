@@ -164,14 +164,68 @@ const CampaignDetails = () => {
         );
     }
 
-    const calculateDaysRemaining = (endDate) => {
-        if (!endDate) return 0;
-        const diff = new Date(endDate) - new Date();
-        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        return days;
+    const calculateDateDisplay = () => {
+        if (!campaign.start_date || !campaign.end_date) return null;
+
+        const today = new Date();
+        const start = new Date(campaign.start_date);
+        const end = new Date(campaign.end_date);
+
+        // Reset time parts for accurate day diff
+        today.setHours(0, 0, 0, 0);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+
+        const daysToStart = Math.ceil((start - today) / (1000 * 60 * 60 * 24));
+        const daysToEnd = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+        if (campaign.status === 'Tamamlandı') {
+            return {
+                text: 'Tamamlandı',
+                icon: 'check_circle',
+                style: 'text-slate-600 bg-slate-50 border-slate-200'
+            };
+        }
+
+        if (campaign.status === 'Taslak' || campaign.status === 'Planlandı') {
+            if (daysToStart > 0) {
+                return {
+                    text: `${daysToStart} gün sonra başlıyor`,
+                    icon: 'event_upcoming',
+                    style: 'text-blue-600 bg-blue-50 border-blue-100 shadow-sm shadow-blue-100/50'
+                };
+            } else if (daysToStart === 0) {
+                return {
+                    text: 'Bugün başlıyor',
+                    icon: 'today',
+                    style: 'text-emerald-600 bg-emerald-50 border-emerald-100 shadow-sm shadow-emerald-100/50'
+                };
+            } else {
+                return {
+                    text: 'Başlangıç tarihi geçti',
+                    icon: 'error_outline',
+                    style: 'text-amber-600 bg-amber-50 border-amber-100'
+                };
+            }
+        }
+
+        // Active Status
+        if (daysToEnd > 0) {
+            return {
+                text: `${daysToEnd} gün kaldı`,
+                icon: 'schedule',
+                style: 'text-orange-600 bg-orange-50 border-orange-100 shadow-sm shadow-orange-100/50'
+            };
+        } else {
+            return {
+                text: 'Süre doldu',
+                icon: 'history',
+                style: 'text-red-600 bg-red-50 border-red-100'
+            };
+        }
     };
 
-    const daysRemaining = calculateDaysRemaining(campaign.end_date);
+    const dateDisplay = calculateDateDisplay();
 
     return (
         <div className="flex-1 overflow-y-auto bg-background-light scroll-smooth h-full">
@@ -237,11 +291,12 @@ const CampaignDetails = () => {
                                         {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) : '-'} - {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
                                     </div>
                                     <span className="w-1.5 h-1.5 rounded-full bg-slate-200 hidden md:block"></span>
-                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[13px] font-bold ${daysRemaining > 0 ? 'text-orange-600 bg-orange-50 border-orange-100 shadow-sm shadow-orange-100/50' : 'text-red-600 bg-red-50 border-red-100'
-                                        }`}>
-                                        <span className="material-symbols-outlined text-[16px]">{daysRemaining > 0 ? 'schedule' : 'history'}</span>
-                                        {daysRemaining > 0 ? `${daysRemaining} gün kaldı` : 'Süre doldu'}
-                                    </div>
+                                    {dateDisplay && (
+                                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[13px] font-bold ${dateDisplay.style}`}>
+                                            <span className="material-symbols-outlined text-[16px]">{dateDisplay.icon}</span>
+                                            {dateDisplay.text}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -279,55 +334,57 @@ const CampaignDetails = () => {
                     </div>
                 </div>
 
-                {/* Products & Config Grid */}
+                {/* Products & Config Grid - Unified Design */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Products - Reduced size */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:shadow-md">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2">
-                                <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                                    <span className="material-symbols-outlined text-[18px] block font-bold">inventory_2</span>
-                                </div>
-                                ÜRÜNLER
-                            </span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-1.5 overflow-y-auto max-h-[72px] no-scrollbar">
-                            {campaign.products?.map((product, idx) => (
-                                <div key={idx} className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-1 hover:bg-slate-100/80 transition-colors">
-                                    <span className="text-[12px] font-bold text-slate-700">{product}</span>
-                                </div>
-                            ))}
-                            {(!campaign.products || campaign.products.length === 0) && (
-                                <span className="text-[11px] text-slate-400 italic font-medium">Yok</span>
-                            )}
+                    {/* Products */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                            <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                                <span className="material-symbols-outlined text-[18px] block font-bold">inventory_2</span>
+                            </div>
+                            ÜRÜNLER
+                        </span>
+                        <div className="flex-1 flex flex-col justify-end">
+                            <div className="flex flex-wrap items-center gap-1.5 w-full">
+                                {campaign.products?.map((product, idx) => (
+                                    <div key={idx} className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-1 hover:bg-slate-100/80 transition-colors">
+                                        <span className="text-xl font-bold text-slate-700">{product}</span>
+                                    </div>
+                                ))}
+                                {(!campaign.products || campaign.products.length === 0) && (
+                                    <span className="text-[11px] text-slate-400 italic font-medium">Ürün eklenmedi</span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* Discount */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-1 hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-emerald-100/50 rounded-lg text-emerald-600">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">percent</span>
                             </div>
                             İNDİRİM
                         </span>
-                        <div className="flex items-baseline gap-1 mt-auto">
-                            <span className="text-3xl font-black text-slate-900 leading-none">%{campaign.discount_rate || 0}</span>
+                        <div className="flex-1 flex items-end">
+                            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-lg px-2.5 py-1">
+                                <span className="text-xl font-bold text-slate-700">%{campaign.discount_rate || 0}</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Tag Based Audience - Inside Grid */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                    {/* Tag Based Audience */}
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-blue-100/50 rounded-lg text-primary">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">group_add</span>
                             </div>
                             HEDEF KİTLE
                         </span>
-                        <div className="flex-1 flex flex-col gap-2">
-                            <div className="flex flex-wrap gap-1.5 p-2 bg-slate-50 border border-slate-100 rounded-xl min-h-[44px] max-h-[84px] overflow-y-auto focus-within:bg-white focus-within:border-primary/30 transition-all items-center no-scrollbar group-focus-within:border-primary/30">
+                        <div className="flex-1 flex flex-col justify-end">
+                            <div className="flex flex-wrap gap-1.5 bg-slate-50 border border-slate-100 rounded-xl p-2 w-full overflow-y-auto max-h-[100px] no-scrollbar focus-within:bg-white focus-within:border-primary/30 transition-all">
                                 {targetAudience.map((token, idx) => (
-                                    <div key={idx} className="flex items-center gap-1 bg-white text-primary border border-primary/20 rounded-lg px-2 py-0.5 font-bold text-[10px] shadow-sm whitespace-nowrap">
+                                    <div key={idx} className="flex items-center gap-1 bg-white text-primary border border-primary/20 rounded-lg px-2.5 py-1 font-bold text-xl shadow-sm whitespace-nowrap">
                                         {token}
                                         <button
                                             onClick={() => removeAudienceToken(token)}
@@ -342,7 +399,7 @@ const CampaignDetails = () => {
                                     value={audienceInput}
                                     onChange={(e) => setAudienceInput(e.target.value)}
                                     onKeyDown={handleAddAudienceToken}
-                                    placeholder={targetAudience.length === 0 ? "Kitle yaz..." : ""}
+                                    placeholder={targetAudience.length === 0 ? "Kitle ekle..." : ""}
                                     className="flex-1 bg-transparent border-none outline-none text-[12px] font-medium text-slate-700 placeholder-slate-400 min-w-[60px]"
                                 />
                             </div>
@@ -350,35 +407,37 @@ const CampaignDetails = () => {
                     </div>
 
                     {/* Message Count */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-3">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
+                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-amber-100/50 rounded-lg text-amber-600">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">chat_bubble</span>
                             </div>
                             MESAJ SAYISI
                         </span>
-                        <div className="flex items-center gap-3 mt-auto">
-                            <input
-                                type="number"
-                                min="1"
-                                max="10"
-                                value={messageCount}
-                                onChange={(e) => setMessageCount(parseInt(e.target.value) || 1)}
-                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2 text-3xl font-black text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
-                            />
-                            <div className="flex flex-col gap-1">
-                                <button
-                                    onClick={() => setMessageCount(prev => Math.min(prev + 1, 10))}
-                                    className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
-                                >
-                                    <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_up</span>
-                                </button>
-                                <button
-                                    onClick={() => setMessageCount(prev => Math.max(prev - 1, 1))}
-                                    className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
-                                >
-                                    <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_down</span>
-                                </button>
+                        <div className="flex-1 flex items-end">
+                            <div className="flex items-center gap-3 w-full">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="10"
+                                    value={messageCount}
+                                    onChange={(e) => setMessageCount(parseInt(e.target.value) || 1)}
+                                    className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2 text-xl font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
+                                />
+                                <div className="flex flex-col gap-1">
+                                    <button
+                                        onClick={() => setMessageCount(prev => Math.min(prev + 1, 10))}
+                                        className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_up</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setMessageCount(prev => Math.max(prev - 1, 1))}
+                                        className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_down</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
