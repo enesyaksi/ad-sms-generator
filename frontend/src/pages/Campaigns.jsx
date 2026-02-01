@@ -11,6 +11,7 @@ const Campaigns = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [customerFilter, setCustomerFilter] = useState('Tüm Müşteriler');
     const [statusFilter, setStatusFilter] = useState('Tüm Durumlar');
+    const [sortOption, setSortOption] = useState('recently_added');
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState(null);
@@ -44,13 +45,34 @@ const Campaigns = () => {
         return matchesSearch && matchesCustomer && matchesStatus;
     });
 
-    const totalPages = Math.ceil(filteredCampaigns.length / itemsPerPage);
-    const paginatedCampaigns = filteredCampaigns.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    // Sort campaigns
+    const sortedCampaigns = [...filteredCampaigns].sort((a, b) => {
+        switch (sortOption) {
+            case 'alphabetical':
+                return (a.name || '').localeCompare(b.name || '', 'tr');
+            case 'recently_added':
+                return new Date(b.created_at) - new Date(a.created_at);
+            case 'first_added':
+                return new Date(a.created_at) - new Date(b.created_at);
+            case 'recently_operated':
+                return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
+            case 'start_date':
+                return new Date(a.start_date) - new Date(b.start_date);
+            case 'end_date':
+                return new Date(a.end_date) - new Date(b.end_date);
+            default:
+                return 0;
+        }
+    });
+
+    const totalPages = Math.ceil(sortedCampaigns.length / itemsPerPage);
+    const paginatedCampaigns = sortedCampaigns.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const clearFilters = () => {
         setSearchTerm('');
         setCustomerFilter('Tüm Müşteriler');
         setStatusFilter('Tüm Durumlar');
+        setSortOption('recently_added');
         setCurrentPage(1);
     };
 
@@ -145,6 +167,21 @@ const Campaigns = () => {
                             </select>
                             <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">keyboard_arrow_down</span>
                         </div>
+                        <div className="relative">
+                            <select
+                                className="appearance-none pl-3 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-600 focus:outline-none focus:border-primary bg-white cursor-pointer min-w-[180px] hover:border-slate-300 transition-colors"
+                                value={sortOption}
+                                onChange={(e) => { setSortOption(e.target.value); setCurrentPage(1); }}
+                            >
+                                <option value="recently_added">En Son Eklenen</option>
+                                <option value="first_added">İlk Eklenen</option>
+                                <option value="alphabetical">Alfabetik</option>
+                                <option value="recently_operated">Son İşlem Yapılan</option>
+                                <option value="start_date">Başlangıç Tarihi</option>
+                                <option value="end_date">Bitiş Tarihi</option>
+                            </select>
+                            <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">keyboard_arrow_down</span>
+                        </div>
                         <button
                             onClick={clearFilters}
                             className="p-2.5 text-slate-500 hover:text-primary border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
@@ -235,8 +272,8 @@ const Campaigns = () => {
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200">
                             <p className="text-sm text-slate-500 text-left">
-                                Toplam <span className="font-bold text-slate-700">{filteredCampaigns.length}</span> kampanya arasından <span className="font-bold text-slate-700">
-                                    {Math.min((currentPage - 1) * itemsPerPage + 1, filteredCampaigns.length)}-{Math.min(currentPage * itemsPerPage, filteredCampaigns.length)}
+                                Toplam <span className="font-bold text-slate-700">{sortedCampaigns.length}</span> kampanya arasından <span className="font-bold text-slate-700">
+                                    {Math.min((currentPage - 1) * itemsPerPage + 1, sortedCampaigns.length)}-{Math.min(currentPage * itemsPerPage, sortedCampaigns.length)}
                                 </span> arası gösteriliyor
                             </p>
                             <div className="flex items-center gap-2">

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { customersApi } from '../services/api';
+import { customersApi, campaignsApi } from '../services/api';
 import CustomerCard from '../components/CustomerCard';
 import CustomerModal from '../components/CustomerModal';
 
 const Customers = () => {
     const [customers, setCustomers] = useState([]);
+    const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortOption, setSortOption] = useState('alphabetical');
+    const [filterOption, setFilterOption] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -18,19 +21,41 @@ const Customers = () => {
     const ITEMS_PER_PAGE = 8;
 
     useEffect(() => {
-        fetchCustomers();
+        fetchData();
     }, []);
 
-    const fetchCustomers = async () => {
+    const fetchData = async () => {
         try {
             setLoading(true);
-            const data = await customersApi.getAll();
-            setCustomers(data);
+            const [customersData, campaignsData] = await Promise.all([
+                customersApi.getAll(),
+                campaignsApi.getAll()
+            ]);
+            setCustomers(customersData);
+            setCampaigns(campaignsData);
         } catch (error) {
-            console.error("Failed to fetch customers:", error);
+            console.error("Failed to fetch data:", error);
         } finally {
             setLoading(false);
         }
+    };
+
+    // Helper: Get campaigns for a customer
+    const getCustomerCampaigns = (customerId) => {
+        return campaigns.filter(c => c.customer_id === customerId);
+    };
+
+    // Helper: Check if customer has campaigns with specific status
+    const hasStatusCampaign = (customerId, status) => {
+        return campaigns.some(c => c.customer_id === customerId && c.status === status);
+    };
+
+    // Helper: Get most recent campaign activity date for a customer
+    const getLastActivityDate = (customerId) => {
+        const customerCampaigns = getCustomerCampaigns(customerId);
+        if (customerCampaigns.length === 0) return null;
+        const dates = customerCampaigns.map(c => new Date(c.updated_at || c.created_at));
+        return Math.max(...dates);
     };
 
     const handleStartCampaign = (customer) => {
@@ -58,7 +83,7 @@ const Customers = () => {
             }
         } catch (error) {
             console.error("Failed to save customer:", error);
-            throw error; // Let modal handle the error display
+            throw error;
         }
     };
 
@@ -73,26 +98,66 @@ const Customers = () => {
         }
     };
 
-    const filteredCustomers = customers.filter(customer =>
-        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.website_url?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter customers
+    const filteredCustomers = customers.filter(customer => {
+        // Search filter
+        const matchesSearch = customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customer.website_url?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        if (!matchesSearch) return false;
+
+        // Campaign status filter
+        const customerCampaigns = getCustomerCampaigns(customer.id);
+
+        switch (filterOption) {
+            case 'with_campaigns':
+                return customerCampaigns.length > 0;
+            case 'without_campaigns':
+                return customerCampaigns.length === 0;
+            case 'active':
+                return hasStatusCampaign(customer.id, 'Aktif');
+            case 'planned':
+                return hasStatusCampaign(customer.id, 'Planlandı');
+            case 'draft':
+                return hasStatusCampaign(customer.id, 'Taslak');
+            case 'completed':
+                return hasStatusCampaign(customer.id, 'Tamamlandı');
+            default:
+                return true;
+        }
+    });
+
+    // Sort customers
+    const sortedCustomers = [...filteredCustomers].sort((a, b) => {
+        switch (sortOption) {
+            case 'alphabetical':
+                return (a.name || '').localeCompare(b.name || '', 'tr');
+            case 'recently_added':
+                return new Date(b.created_at) - new Date(a.created_at);
+            case 'first_added':
+                return new Date(a.created_at) - new Date(b.created_at);
+            case 'recently_operated':
+                const dateA = getLastActivityDate(a.id) || new Date(a.created_at);
+                const dateB = getLastActivityDate(b.id) || new Date(b.created_at);
+                return dateB - dateA;
+            default:
+                return 0;
+        }
+    });
 
     // Pagination calculations
-    // Add 1 to total count for the "Add New" card
-    const totalItems = filteredCustomers.length + 1;
+    const totalItems = sortedCustomers.length + 1;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+    const paginatedCustomers = sortedCustomers.slice(startIndex, endIndex);
 
-    // Show "Add New" card if there's space on current page
     const showAddCard = paginatedCustomers.length < ITEMS_PER_PAGE && currentPage === totalPages;
 
-    // Reset to page 1 when search changes
+    // Reset to page 1 when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm, sortOption, filterOption]);
 
     return (
         <div className="h-full overflow-y-auto p-4 md:p-6">
@@ -132,14 +197,47 @@ const Customers = () => {
                     </div>
                     <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
                     <div className="flex items-center gap-2 w-full sm:w-auto px-2">
-                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">filter_list</span>
-                            Filtrele
-                        </button>
-                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                            <span className="material-symbols-outlined text-[18px]">sort</span>
-                            Sırala
-                        </button>
+                        {/* Filter Dropdown */}
+                        <div className="relative flex-1 sm:flex-none">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="material-symbols-outlined text-[18px] text-slate-400">filter_list</span>
+                            </div>
+                            <select
+                                value={filterOption}
+                                onChange={(e) => setFilterOption(e.target.value)}
+                                className="appearance-none w-full pl-10 pr-8 py-2 rounded-lg text-sm font-medium text-slate-600 bg-transparent hover:bg-slate-50 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer transition-colors"
+                            >
+                                <option value="all">Tüm Müşteriler</option>
+                                <option value="with_campaigns">Kampanyalı</option>
+                                <option value="without_campaigns">Kampanyasız</option>
+                                <option value="active">Aktif Kampanyalı</option>
+                                <option value="planned">Planlanmış Kampanyalı</option>
+                                <option value="draft">Taslak Kampanyalı</option>
+                                <option value="completed">Tamamlanmış Kampanyalı</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                <span className="material-symbols-outlined text-[16px] text-slate-400">expand_more</span>
+                            </div>
+                        </div>
+                        {/* Sort Dropdown */}
+                        <div className="relative flex-1 sm:flex-none">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span className="material-symbols-outlined text-[18px] text-slate-400">sort</span>
+                            </div>
+                            <select
+                                value={sortOption}
+                                onChange={(e) => setSortOption(e.target.value)}
+                                className="appearance-none w-full pl-10 pr-8 py-2 rounded-lg text-sm font-medium text-slate-600 bg-transparent hover:bg-slate-50 focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer transition-colors"
+                            >
+                                <option value="alphabetical">Alfabetik</option>
+                                <option value="recently_added">En Son Eklenen</option>
+                                <option value="first_added">İlk Eklenen</option>
+                                <option value="recently_operated">Son İşlem Yapılan</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                <span className="material-symbols-outlined text-[16px] text-slate-400">expand_more</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
