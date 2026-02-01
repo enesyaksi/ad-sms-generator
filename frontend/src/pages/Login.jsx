@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const { login, user } = useAuth();
     const navigate = useNavigate();
 
@@ -104,9 +106,13 @@ const Login = () => {
                                 </label>
                             </div>
                             <div className="text-sm">
-                                <a className="font-medium text-primary hover:text-primary/80 transition-colors" href="#">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForgotPassword(true)}
+                                    className="font-medium text-primary hover:text-primary/80 transition-colors"
+                                >
                                     Şifremi Unuttum
-                                </a>
+                                </button>
                             </div>
                         </div>
                         <div>
@@ -132,6 +138,11 @@ const Login = () => {
                     © 2026 Reklam Yöneticisi Admin Paneli
                 </p>
             </div>
+
+            <ForgotPasswordModal
+                isOpen={showForgotPassword}
+                onClose={() => setShowForgotPassword(false)}
+            />
         </div>
     );
 };

@@ -9,7 +9,7 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { register, updateUserName, user } = useAuth();
+    const { register, updateUserName, sendVerificationEmail, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,8 +54,11 @@ const Signup = () => {
             // 2. Update Display Name
             await updateUserName(name.trim());
 
-            // Navigate to Dashboard
-            navigate('/');
+            // 3. Send verification email
+            await sendVerificationEmail();
+
+            // Navigate to verify email page
+            navigate('/verify-email');
         } catch (err) {
             console.error("Signup error:", err);
             // Map Firebase error codes to Turkish messages
