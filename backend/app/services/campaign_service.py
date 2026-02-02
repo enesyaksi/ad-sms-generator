@@ -265,36 +265,35 @@ class CampaignService:
         first_of_last_month = (first_of_this_month - timedelta(days=1)).replace(day=1)
         
         # Count campaigns by month
+        # Count campaigns by month
         this_month_count = 0
-        last_month_count = 0
         
         for campaign in campaigns:
             created_at = campaign.created_at
             if created_at:
-                # Convert to naive datetime if timezone-aware (Firestore returns aware datetimes)
+                # Convert to naive datetime if timezone-aware
                 if hasattr(created_at, 'tzinfo') and created_at.tzinfo is not None:
                     created_at = created_at.replace(tzinfo=None)
                 
                 if created_at >= first_of_this_month:
                     this_month_count += 1
-                elif created_at >= first_of_last_month and created_at < first_of_this_month:
-                    last_month_count += 1
         
-        # Calculate trend percentage
+        # Calculate trend percentage (Growth relative to previous total)
+        # Previous Total = Total Now - Created This Month
+        previous_total = total_campaigns - this_month_count
+        
         trend = None
         trend_label = None
         
-        if last_month_count > 0:
-            change = ((this_month_count - last_month_count) / last_month_count) * 100
-            if change >= 0:
-                trend = f"+{int(change)}%"
-            else:
-                trend = f"{int(change)}%"
-            trend_label = "Geçen aya göre"
-        elif this_month_count > 0:
+        if previous_total > 0:
+            change = (this_month_count / previous_total) * 100
+            trend = f"+{int(change)}%"
+            trend_label = "Geçen aya göre artış"
+        elif total_campaigns > 0:
+             # All campaigns created this month
             trend = "+100%"
             trend_label = "Bu ay oluşturuldu"
-        # If no campaigns this month or last month, trend stays None
+        # If no campaigns at all, trend stays None
         
         return {
             "total_campaigns": total_campaigns,
