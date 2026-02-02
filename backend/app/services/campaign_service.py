@@ -298,7 +298,6 @@ class CampaignService:
         return {
             "total_campaigns": total_campaigns,
             "this_month_count": this_month_count,
-            "last_month_count": last_month_count,
             "trend": trend,
             "trend_label": trend_label
         }
