@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { campaignsApi, customersApi, generateSms, refineSms } from '../services/api';
+import { campaignsApi, customersApi, generateSms, refineSms, getToneRecommendations } from '../services/api';
 import CampaignModal from '../components/CampaignModal';
 
 const CampaignDetails = () => {
@@ -25,6 +25,9 @@ const CampaignDetails = () => {
     const [error, setError] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [customers, setCustomers] = useState([]);
+    const [recommendedTones, setRecommendedTones] = useState([]);
+    const [isRecsLoading, setIsRecsLoading] = useState(false);
+    const [aiFeedback, setAiFeedback] = useState(null); // { message: string, type: 'success' | 'info' }
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -54,6 +57,42 @@ const CampaignDetails = () => {
 
         fetchAllData();
     }, [campaignId]);
+
+    useEffect(() => {
+        const fetchRecs = async () => {
+            if (!campaign) return;
+
+            try {
+                setIsRecsLoading(true);
+                const discount = parseInt(campaign.discount_rate) || 0;
+
+                // Calculate duration
+                let duration = 0;
+                if (campaign.start_date && campaign.end_date) {
+                    const start = new Date(campaign.start_date);
+                    const end = new Date(campaign.end_date);
+                    duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                }
+
+                const data = await getToneRecommendations({
+                    discount_rate: discount,
+                    duration_days: duration
+                });
+                setRecommendedTones(data.recommendations || []);
+            } catch (err) {
+                console.error("Error fetching recommendations:", err);
+            } finally {
+                setIsRecsLoading(false);
+            }
+        };
+
+        fetchRecs();
+    }, [campaign]);
+
+    const showAiFeedback = (message, type = 'success') => {
+        setAiFeedback({ message, type });
+        setTimeout(() => setAiFeedback(null), 4000);
+    };
 
     const handleGenerate = async () => {
         if (!campaign) return;
@@ -118,7 +157,7 @@ const CampaignDetails = () => {
             };
             const saved = await campaignsApi.saveMessage(campaignId, messageData);
             setSavedMessages([saved, ...savedMessages]);
-            alert("Mesaj başarıyla kaydedildi!");
+            showAiFeedback("Mesaj kaydedildi. Yapay zeka tarzınızı öğrendi! ✨");
         } catch (err) {
             console.error("Failed to save message:", err);
             setError("Mesaj kaydedilemedi.");
@@ -140,7 +179,7 @@ const CampaignDetails = () => {
     };
 
     const handleDeleteSaved = async (messageId) => {
-        if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz?")) return;
+        if (!window.confirm("Bu mesajı sildiğinizde AI tercihlerinizden de çıkartılacaktır. Emin misiniz?")) return;
         try {
             await campaignsApi.deleteMessage(campaignId, messageId);
             setSavedMessages(savedMessages.filter(m => m.id !== messageId));
@@ -261,6 +300,18 @@ const CampaignDetails = () => {
 
     return (
         <div className="flex-1 overflow-y-auto bg-background-light scroll-smooth h-full">
+            {/* AI Feedback Toast */}
+            {aiFeedback && (
+                <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] animate-in slide-in-from-bottom-5 fade-in duration-300`}>
+                    <div className={`px-6 py-3 rounded-2xl shadow-2xl border flex items-center gap-3 ${aiFeedback.type === 'success'
+                            ? 'bg-slate-900 border-slate-800 text-white'
+                            : 'bg-white border-slate-200 text-slate-900'
+                        }`}>
+                        <span className="material-symbols-outlined text-indigo-400 text-[20px]">auto_awesome</span>
+                        <span className="text-[13px] font-bold">{aiFeedback.message}</span>
+                    </div>
+                </div>
+            )}
             <main className="max-w-7xl mx-auto p-6 md:p-8 flex flex-col gap-6">
                 {/* Breadcrumbs */}
                 <nav className="flex items-center text-sm text-slate-500">
@@ -495,6 +546,30 @@ const CampaignDetails = () => {
                                 {isGenerating ? 'Üretiliyor...' : 'Mesaj Üret'}
                             </button>
                         </div>
+
+                        {/* Tone Recommendations Strip */}
+                        {(recommendedTones.length > 0 || isRecsLoading) && (
+                            <div className="bg-indigo-50/50 border border-indigo-100/50 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-top-1">
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="text-indigo-600 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-[14px]">tips_and_updates</span>
+                                        AI STRATEJİSİ
+                                    </span>
+                                    <span className="text-slate-500 text-[11px] font-medium leading-tight">Bu kampanya için en etkili tonlar:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2 flex-1">
+                                    {isRecsLoading ? (
+                                        <div className="h-6 w-32 bg-indigo-100/50 animate-pulse rounded-lg"></div>
+                                    ) : (
+                                        recommendedTones.map((tone, i) => (
+                                            <span key={i} className="px-2.5 py-1 rounded-lg bg-white border border-indigo-100 text-indigo-600 text-[11px] font-bold shadow-sm">
+                                                {tone}
+                                            </span>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="space-y-6">
                             {isGenerating ? (
