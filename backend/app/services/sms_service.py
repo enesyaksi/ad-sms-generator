@@ -240,6 +240,34 @@ class SMSService:
         bias_text += "</personalization_hints>\n"
         return bias_text
 
+    def get_tone_recommendations(self, discount_rate: int, duration_days: int) -> list[str]:
+        """
+        Analyze campaign context and recommend 3-4 suitable tones.
+        """
+        recs = ["Klasik"] # Always include Klasik
+        
+        # 1. Discount based logic
+        if discount_rate >= 40:
+            recs.append("Acil")
+            recs.append("Vurucu")
+        elif discount_rate >= 20:
+            recs.append("Modern")
+        
+        # 2. Duration based logic
+        if duration_days <= 3:
+            if "Acil" not in recs: recs.append("Acil")
+            recs.append("Minimalist")
+        elif duration_days >= 14:
+            recs.append("Hikaye Odaklı")
+            recs.append("Samimi")
+            
+        # 3. Default fillers if too few
+        if len(recs) < 3:
+            if "Modern" not in recs: recs.append("Modern")
+            if "Minimalist" not in recs: recs.append("Minimalist")
+            
+        return list(set(recs))[:4] # Return unique top 4
+
     def _parse_generated_text(self, text: str) -> list[SMSDraft]:
         drafts = []
         try:
