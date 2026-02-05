@@ -74,7 +74,7 @@ const CampaignDetails = () => {
             const draftsWithAudience = response.drafts.map(d => ({
                 ...d,
                 target_audience: audienceString
-            }));
+            })).sort((a, b) => (b.is_recommended ? 1 : 0) - (a.is_recommended ? 1 : 0));
             setDrafts(draftsWithAudience);
             setActiveTab('drafts');
         } catch (err) {
@@ -509,12 +509,6 @@ const CampaignDetails = () => {
                                                         <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
                                                         {draft.target_audience}
                                                     </span>
-                                                    {draft.score > 0 && (
-                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black border shadow-sm ml-auto ${getScoreColor(draft.score)}`}>
-                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">data_usage</span>
-                                                            Puan: {draft.score}
-                                                        </span>
-                                                    )}
                                                 </div>
 
                                                 {draft.is_recommended && (
