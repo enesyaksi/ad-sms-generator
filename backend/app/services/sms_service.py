@@ -2,7 +2,7 @@ import httpx
 import re
 from bs4 import BeautifulSoup
 from app.clients.gemini_client import GeminiClient
-from app.models.request_models import SMSRequest
+from app.models.request_models import SMSRequest, RefineRequest, RefinementType
 from app.models.response_models import SMSResponse, SMSDraft
 import asyncio
 
@@ -140,6 +140,59 @@ class SMSService:
         
         # Ensure we return at most the requested count
         return SMSResponse(drafts=drafts[:data.message_count])
+
+    async def refine_sms_draft(self, request: RefineRequest) -> SMSDraft:
+        print(f"DEBUG: Refining SMS with action: {request.refinement_type}")
+        
+        instructions = {
+            RefinementType.SHORTEN: "Bu mesajı daha kısa ve net hale getir (max 160 karakter).",
+            RefinementType.CLARIFY: "Bu mesajı daha anlaşılır ve net bir dille yeniden yaz.",
+            RefinementType.MORE_EXCITING: "Bu mesajı daha heyecan verici, coşkulu ve harekete geçirici bir dille yaz.",
+            RefinementType.MORE_FORMAL: "Bu mesajı daha kurumsal, resmi ve profesyonel bir dille yaz."
+        }
+        
+        specific_instruction = instructions.get(request.refinement_type, "Bu mesajı yeniden yaz.")
+        
+        prompt = f"""
+        Profesyonel bir SMS metin yazarı olarak hareket et.
+        Aşağıdaki SMS taslağını belirtilen direktife göre yeniden yaz.
+        
+        <original_message>
+        {request.content}
+        </original_message>
+        
+        <instruction>
+        {specific_instruction}
+        Anlamı bozmadan, markanın ses tonunu koruyarak revize et.
+        </instruction>
+        
+        Çıktı Formatı (Sadece içerik ve puan):
+        [Puan: 85]
+        [Revize Edilmiş Mesaj]
+        """
+        
+        try:
+            generated_text = await self.client.generate_text(prompt)
+            print(f"DEBUG: Refined text: {generated_text}")
+            
+            # Simple parsing for single message
+            score = 0
+            content = generated_text.strip()
+            
+            score_match = re.search(r'\[Puan:\s*(\d+)\]', content)
+            if score_match:
+                score = int(score_match.group(1))
+                content = re.sub(r'\[Puan:\s*(\d+)\]', '', content).strip()
+            
+            return SMSDraft(
+                type="Revize", 
+                content=content,
+                score=score
+            )
+            
+        except Exception as e:
+            print(f"Refinement error: {e}")
+            raise e
 
     def _parse_generated_text(self, text: str) -> list[SMSDraft]:
         drafts = []

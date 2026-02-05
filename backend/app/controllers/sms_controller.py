@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from app.models.request_models import SMSRequest
-from app.models.response_models import SMSResponse
+from app.models.request_models import SMSRequest, RefineRequest
+from app.models.response_models import SMSResponse, SMSDraft
 from app.services.sms_service import SMSService
 
 router = APIRouter()
@@ -10,5 +10,12 @@ sms_service = SMSService()
 async def generate_sms(request: SMSRequest):
     try:
         return await sms_service.generate_campaign_drafts(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/refine-sms", response_model=SMSDraft)
+async def refine_sms(request: RefineRequest):
+    try:
+        return await sms_service.refine_sms_draft(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
