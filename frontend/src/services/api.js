@@ -27,6 +27,11 @@ export const generateSms = async (params) => {
   return response.data;
 };
 
+export const refineSms = async (data) => {
+  const response = await api.post('/refine-sms', data);
+  return response.data;
+};
+
 export const healthCheck = async () => {
   const response = await api.get('/health');
   return response.data;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { campaignsApi, customersApi, generateSms } from '../services/api';
+import { campaignsApi, customersApi, generateSms, refineSms } from '../services/api';
 import CampaignModal from '../components/CampaignModal';
 
 const CampaignDetails = () => {
@@ -18,8 +18,10 @@ const CampaignDetails = () => {
     const [drafts, setDrafts] = useState([]);
     const [savedMessages, setSavedMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isRefining, setIsRefining] = useState(false); // New state for refinement loading
     const [editingDraftIdx, setEditingDraftIdx] = useState(null);
     const [editedContent, setEditedContent] = useState('');
+    const [copiedIdx, setCopiedIdx] = useState(null);
     const [error, setError] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [customers, setCustomers] = useState([]);
@@ -82,6 +84,28 @@ const CampaignDetails = () => {
             setError("Mesajlar oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const handleRefine = async (refinementType) => {
+        if (!editedContent) return;
+        setIsRefining(true);
+        try {
+            const response = await refineSms({
+                content: editedContent,
+                refinement_type: refinementType
+            });
+
+            // Update the edited content with the refined version
+            if (response.content) {
+                setEditedContent(response.content);
+            }
+        } catch (err) {
+            console.error('Refinement error:', err);
+            // setError("Mesaj iyileştirilirken bir hata oluştu."); // Uncomment if error state exists and used
+            alert("Mesaj iyileştirilirken bir hata oluştu.");
+        } finally {
+            setIsRefining(false);
         }
     };
 
@@ -518,11 +542,51 @@ const CampaignDetails = () => {
                                                     </div>
                                                 )}
                                                 {editingDraftIdx === idx ? (
-                                                    <textarea
-                                                        value={editedContent}
-                                                        onChange={(e) => setEditedContent(e.target.value)}
-                                                        className="w-full text-slate-800 text-[16px] font-medium leading-[1.6] bg-white p-5 rounded-2xl border-2 border-primary/20 shadow-inner focus:border-primary outline-none min-h-[120px] transition-all"
-                                                    />
+                                                    <div className="flex flex-col gap-3">
+                                                        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                                                            <button
+                                                                onClick={() => handleRefine('SHORTEN')}
+                                                                disabled={isRefining}
+                                                                className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-[11px] font-bold border border-indigo-100 hover:bg-indigo-100 transition-colors flex items-center gap-1 disabled:opacity-50 whitespace-nowrap"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">compress</span>
+                                                                Kısalt
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleRefine('CLARIFY')}
+                                                                disabled={isRefining}
+                                                                className="px-3 py-1.5 rounded-lg bg-teal-50 text-teal-600 text-[11px] font-bold border border-teal-100 hover:bg-teal-100 transition-colors flex items-center gap-1 disabled:opacity-50 whitespace-nowrap"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                                                Netleştir
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleRefine('MORE_EXCITING')}
+                                                                disabled={isRefining}
+                                                                className="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-600 text-[11px] font-bold border border-amber-100 hover:bg-amber-100 transition-colors flex items-center gap-1 disabled:opacity-50 whitespace-nowrap"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">celebration</span>
+                                                                Heyecanlandır
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleRefine('MORE_FORMAL')}
+                                                                disabled={isRefining}
+                                                                className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-bold border border-slate-200 hover:bg-slate-200 transition-colors flex items-center gap-1 disabled:opacity-50 whitespace-nowrap"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[16px]">business_center</span>
+                                                                Resmileştir
+                                                            </button>
+                                                            {isRefining && (
+                                                                <span className="ml-2 w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></span>
+                                                            )}
+                                                        </div>
+                                                        <textarea
+                                                            value={editedContent}
+                                                            onChange={(e) => setEditedContent(e.target.value)}
+                                                            disabled={isRefining}
+                                                            className={`w-full text-slate-800 text-[16px] font-medium leading-[1.6] bg-white p-5 rounded-2xl border-2 ${isRefining ? 'opacity-50' : 'border-primary/20 focus:border-primary'} shadow-inner outline-none min-h-[120px] transition-all`}
+                                                        />
+                                                    </div>
                                                 ) : (
                                                     <p className="text-slate-800 text-[16px] font-medium leading-[1.6] bg-slate-50/80 p-5 rounded-2xl border border-slate-100/50 shadow-inner group-hover:bg-white transition-colors">
                                                         {draft.content}
@@ -563,6 +627,16 @@ const CampaignDetails = () => {
                                                     <span className="material-symbols-outlined text-[20px]">{editingDraftIdx === idx ? 'check' : 'edit_note'}</span>
                                                     {editingDraftIdx === idx && "Tamam"}
                                                 </button>
+                                                {editingDraftIdx === idx && (
+                                                    <button
+                                                        onClick={() => setEditingDraftIdx(null)}
+                                                        className="h-11 px-4 rounded-xl border-2 border-red-100 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-200 transition-all font-bold text-[13px] flex items-center gap-2"
+                                                        title="Vazgeç ve değişikliği iptal et"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[20px]">close</span>
+                                                        Vazgeç
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleCopy(editingDraftIdx === idx ? editedContent : draft.content)}
                                                     className="h-11 px-4 rounded-xl border-2 border-slate-100 bg-white text-slate-500 hover:text-primary hover:border-primary/20 hover:bg-slate-50 transition-all font-bold text-[13px]"
