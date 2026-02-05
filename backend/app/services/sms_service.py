@@ -7,11 +7,14 @@ from app.models.response_models import SMSResponse, SMSDraft
 import asyncio
 
 from app.services.website_scraper import WebsiteScraper
+from app.services.user_preferences_service import UserPreferencesService
+from app.models.user_preferences_models import UserPreferences
 
 class SMSService:
     def __init__(self):
         self.client = GeminiClient()
         self.scraper = WebsiteScraper()
+        self.prefs_service = UserPreferencesService()
         self.draft_types = [
             "Klasik", "Acil", "Samimi", "Minimalist", 
             "Hikaye Odaklı", "Soru & Cevap", "Modern", 
@@ -29,11 +32,13 @@ class SMSService:
         text = text.replace("<", "&lt;").replace(">", "&gt;")
         return text
 
-    def _construct_prompt(self, data: SMSRequest, scraped_info: str, phone_number: str) -> str:
+    def _construct_prompt(self, data: SMSRequest, scraped_info: str, phone_number: str, preferences: UserPreferences = None) -> str:
         products_str = self._sanitize_input(", ".join(data.products))
         scraped_info_safe = self._sanitize_input(scraped_info)
         website_url_safe = self._sanitize_input(data.website_url)
         target_audience_safe = self._sanitize_input(data.target_audience)
+        
+        preference_bias = self._apply_preference_bias(preferences) if preferences else ""
         
         count = min(max(data.message_count, 1), 10)
         selected_types = self.draft_types[:count]
@@ -78,6 +83,8 @@ class SMSService:
         {", ".join(selected_types)}
         </requested_types>
         
+        {preference_bias}
+        
         Çıktıyı TAM OLARAK aşağıdaki formatta ver (markdown yok, sadece ayırıcılarla ayrılmış içerik):
         ---TIP_ADI---
         [Puan: 85]
@@ -89,8 +96,17 @@ class SMSService:
             
         return prompt
 
-    async def generate_campaign_drafts(self, data: SMSRequest) -> SMSResponse:
+    async def generate_campaign_drafts(self, data: SMSRequest, user_id: str = None) -> SMSResponse:
         print(f"DEBUG: Generating drafts for {data.website_url}")
+        
+        # Get user preferences
+        preferences = None
+        if user_id:
+            try:
+                preferences = self.prefs_service.get_preferences(user_id)
+            except Exception as e:
+                print(f"Error fetching preferences: {e}")
+
         # Scrape website content
         scraped_data = await self.scraper.scrape_site_info(data.website_url)
         print(f"DEBUG: Scraped candidates: {scraped_data['candidates']}")
@@ -116,8 +132,8 @@ class SMSService:
         
         print(f"DEBUG: Final contact phone used for SMS: {best_phone}")
         
-        # Construct dynamic prompt
-        prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone)
+        # Prepare Gemini Prompt
+        prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone, preferences)
         
         # Call Gemini with retry for 429
         print("DEBUG: Calling Gemini for drafts...")
@@ -185,7 +201,7 @@ class SMSService:
                 content = re.sub(r'\[Puan:\s*(\d+)\]', '', content).strip()
             
             return SMSDraft(
-                type="Revize", 
+                type=request.refinement_type.value, 
                 content=content,
                 score=score
             )
@@ -193,6 +209,35 @@ class SMSService:
         except Exception as e:
             print(f"Refinement error: {e}")
             raise e
+
+    def _apply_preference_bias(self, preferences: UserPreferences) -> str:
+        """Inject user preferences into prompt as quality hints."""
+        if not preferences or preferences.total_saved_messages < 3:
+            return ""
+            
+        bias_text = "\n<personalization_hints>\n"
+        bias_text += "Kullanıcının geçmiş tercihleri doğrultusunda şunlara dikkat et:\n"
+        
+        # 1. Length Preference
+        if preferences.avg_message_length < 140:
+             bias_text += "- Kullanıcı genellikle kısa ve öz mesajları seviyor (140 karaktere yakın tut).\n"
+        elif preferences.avg_message_length > 200:
+             bias_text += "- Kullanıcı detaylı ve açıklayıcı mesajları seviyor.\n"
+             
+        # 2. Tone Preference
+        # Find tones with high affinity (>0.5)
+        fav_tones = [tone for tone, weight in preferences.preferred_tones.items() if weight > 0.4]
+        if fav_tones:
+            bias_text += f"- Kullanıcının favori tonları: {', '.join(fav_tones)}. Bu tonlardaki taslakları yazarken ekstra özen göster.\n"
+            
+        # 3. Emoji Preference
+        if preferences.emoji_usage_rate > 0.6:
+            bias_text += "- Mesajlarda emoji kullanmaktan çekinme, kullanıcı emojileri seviyor.\n"
+        elif preferences.emoji_usage_rate < 0.2:
+            bias_text += "- Emojileri minimal tut veya hiç kullanma.\n"
+            
+        bias_text += "</personalization_hints>\n"
+        return bias_text
 
     def _parse_generated_text(self, text: str) -> list[SMSDraft]:
         drafts = []
