@@ -184,7 +184,7 @@ class SMSService:
         
         Çıktı Formatı (Sadece içerik ve puan):
         [Puan: 85]
-        [Revize Edilmiş Mesaj]
+        <refined_message_content>
         """
         
         try:
