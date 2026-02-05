@@ -71,6 +71,7 @@ class SMSService:
         5. Tarih belirtirken MUTLAKA yılı da ekle (Örn: 29.01.2026 veya 29 Ocak 2026). Sadece gün/ay yazma.
         6. Hedef kitleye ({target_audience_safe}) uygun bir dil kullan.
         7. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
+        8. Her mesaja 0-100 arasında bir "Etki Puanı" ver. (Puan kriterleri: Netlik, Aciliyet, Marka Uyumu, Dönüşüm Olasılığı).
         </rules>
         
         <requested_types>
@@ -78,6 +79,9 @@ class SMSService:
         </requested_types>
         
         Çıktıyı TAM OLARAK aşağıdaki formatta ver (markdown yok, sadece ayırıcılarla ayrılmış içerik):
+        ---TIP_ADI---
+        [Puan: 85]
+        [İçerik Buraya]
         """
         
         for t in selected_types:
@@ -141,27 +145,75 @@ class SMSService:
         drafts = []
         try:
             parts = text.split("---")
+            type_map = {t.upper(): t for t in self.draft_types}
+            
             current_type = None
             
-            # Map of possible types in uppercase to their display versions
-            type_map = {t.upper(): t for t in self.draft_types}
-
             for part in parts:
                 clean_part = part.strip()
                 if not clean_part:
                     continue
                 
-                if clean_part in type_map:
-                    current_type = type_map[clean_part]
-                elif current_type:
-                    drafts.append(SMSDraft(type=current_type, content=clean_part))
-                    current_type = None
+                # Check line by line
+                lines = clean_part.split('\n')
+                if not lines:
+                    continue
+                    
+                # First line is usually the TYPE if split by ---
+                # But since we split by ---, the TYPE is actually implicit or part of the previous block
+                # Let's use flexible parsing:
+                # Format: ---TIP--- \n [Puan: 85] \n Content
+                
+                current_score = 0
+                current_content = ""
+                
+                # The split("---") removes the delimiters. 
+                # Gemini usually outputs: ---TIP1--- Content ---TIP2--- Content
+                # So part[0] is usually "TIP1\n[Puan: 85]\nContent"
+                
+                first_line = lines[0].strip()
+                
+                # Extract Type
+                if first_line in type_map:
+                    current_type = type_map[first_line]
+                
+                # Extract Score
+                # Look for [Puan: \d+]
+                score_match = re.search(r'\[Puan:\s*(\d+)\]', clean_part)
+                if score_match:
+                    current_score = int(score_match.group(1))
+                    # Remove the score line from content
+                    clean_part = re.sub(r'\[Puan:\s*(\d+)\]', '', clean_part)
+                
+                # Validate Type if strictly mapped
+                if not current_type:
+                    # Fallback: try to find any known type in the first line
+                    for t_upper, t_display in type_map.items():
+                        if t_upper in first_line:
+                            current_type = t_display
+                            break
+                            
+                # Cleanup content
+                # Remove the type line if it's there
+                if current_type and current_type.upper() in lines[0]:
+                    clean_part = "\n".join(lines[1:])
+                
+                current_content = clean_part.strip()
+                
+                if current_type and current_content:
+                    drafts.append(SMSDraft(
+                        type=current_type, 
+                        content=current_content, 
+                        score=current_score
+                    ))
             
-            if not drafts:
-                drafts.append(SMSDraft(type="Genel", content=text))
+            # Identify the recommended draft (highest score)
+            if drafts:
+                best_draft = max(drafts, key=lambda d: d.score)
+                best_draft.is_recommended = True
                 
         except Exception as e:
             print(f"Parsing error: {e}")
-            drafts.append(SMSDraft(type="Hata", content="AI yanıtı ayrıştırılamadı. Ham veri: " + text[:100]))
+            drafts.append(SMSDraft(type="Hata", content="AI yanıtı ayrıştırılamadı.", score=0))
 
         return drafts
