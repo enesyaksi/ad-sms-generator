@@ -20,3 +20,14 @@ async def refine_sms(request: RefineRequest, user: dict = Depends(get_current_us
         return await sms_service.refine_sms_draft(request)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/tone-recommendations")
+async def get_tone_recommendations(
+    discount_rate: int = 0,
+    duration_days: int = 0,
+    user: dict = Depends(get_current_user)
+):
+    try:
+        return {"recommendations": sms_service.get_tone_recommendations(discount_rate, duration_days)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

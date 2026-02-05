@@ -32,6 +32,11 @@ export const refineSms = async (data) => {
   return response.data;
 };
 
+export const getToneRecommendations = async (params) => {
+  const response = await api.get('/tone-recommendations', { params });
+  return response.data;
+};
+
 export const healthCheck = async () => {
   const response = await api.get('/health');
   return response.data;
