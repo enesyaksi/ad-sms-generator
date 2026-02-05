@@ -225,6 +225,14 @@ const CampaignDetails = () => {
         }
     };
 
+    const getScoreColor = (score) => {
+        if (!score) return 'bg-slate-100 text-slate-500 border-slate-200';
+        if (score >= 85) return 'bg-emerald-50 text-emerald-600 border-emerald-200 ring-2 ring-emerald-500/10';
+        if (score >= 70) return 'bg-blue-50 text-blue-600 border-blue-200';
+        if (score >= 50) return 'bg-orange-50 text-orange-600 border-orange-200';
+        return 'bg-red-50 text-red-600 border-red-200';
+    };
+
     const dateDisplay = calculateDateDisplay();
 
     return (
@@ -492,7 +500,7 @@ const CampaignDetails = () => {
                                     {drafts.map((draft, idx) => (
                                         <div key={idx} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col gap-5 relative group">
                                             <div className="flex-1 space-y-4">
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-3 w-full">
                                                     <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black bg-blue-50 text-primary border border-primary/20 shadow-sm capitalize">
                                                         <span className="material-symbols-outlined text-[16px] mr-1.5">style</span>
                                                         {draft.type}
@@ -501,7 +509,20 @@ const CampaignDetails = () => {
                                                         <span className="material-symbols-outlined text-[16px] mr-1.5">groups</span>
                                                         {draft.target_audience}
                                                     </span>
+                                                    {draft.score > 0 && (
+                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black border shadow-sm ml-auto ${getScoreColor(draft.score)}`}>
+                                                            <span className="material-symbols-outlined text-[16px] mr-1.5">data_usage</span>
+                                                            Puan: {draft.score}
+                                                        </span>
+                                                    )}
                                                 </div>
+
+                                                {draft.is_recommended && (
+                                                    <div className="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-md shadow-violet-500/20 mb-1">
+                                                        <span className="material-symbols-outlined text-[16px] animate-pulse">auto_awesome</span>
+                                                        YAPAY ZEKA ÖNERİSİ
+                                                    </div>
+                                                )}
                                                 {editingDraftIdx === idx ? (
                                                     <textarea
                                                         value={editedContent}
