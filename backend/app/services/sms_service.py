@@ -43,6 +43,12 @@ class SMSService:
         count = min(max(data.message_count, 1), 10)
         selected_types = self.draft_types[:count]
         
+        # Prepare dynamic discount text
+        discount_text = f"%{data.discount_rate}" if data.discount_rate > 0 else "İndirim Belirtilmedi (Fırsat/Hediye Odaklı)"
+        
+        # Check if it's a gift campaign
+        is_gift = any("hediye" in p.lower() or "gift" in p.lower() for p in data.products)
+        
         prompt = f"""
         Profesyonel bir SMS pazarlama metin yazarı olarak hareket et.
         Aşağıda belirtilen kampanya detaylarına ve kurallara göre TAM OLARAK {count} farklı Türkçe SMS taslağı oluştur.
@@ -56,7 +62,7 @@ class SMSService:
         <website>{website_url_safe}</website>
         <phone>{phone_number}</phone>
         <products>{products_str}</products>
-        <discount>%{data.discount_rate}</discount>
+        <discount>{discount_text}</discount>
         <dates>
             <start>{data.start_date or 'Belirtilmedi'}</start>
             <end>{data.end_date or 'Belirtilmedi'}</end>
@@ -77,6 +83,7 @@ class SMSService:
         6. Hedef kitleye ({target_audience_safe}) uygun bir dil kullan.
         7. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
         8. Her mesaja 0-100 arasında bir "Etki Puanı" ver. (Puan kriterleri: Netlik, Aciliyet, Marka Uyumu, Dönüşüm Olasılığı).
+        9. ÖNEMLİ: Eğer indirim oranı 0 ise veya ürün bir 'Hediye' ise, metinde asla '%0 indirim' ifadesini kullanma. Bunun yerine 'Hediye', 'Sürpriz', 'Armağan' veya 'Ücretsiz' gibi kelimelerle avantajı vurgula.
         </rules>
         
         <requested_types>
