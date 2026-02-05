@@ -6,10 +6,13 @@ from app.models.campaign_models import (
     SavedMessage, SavedMessageCreate, CampaignStatus
 )
 
+from app.services.user_preferences_service import UserPreferencesService
+
 class CampaignService:
     def __init__(self):
         self.db = firestore.client()
         self.collection = self.db.collection("campaigns")
+        self.prefs_service = UserPreferencesService()
 
     async def create_campaign(self, campaign_data: CampaignCreate, user_id: str) -> Campaign:
         """
@@ -215,7 +218,18 @@ class CampaignService:
         })
         
         message_ref.set(message_dict)
-        return SavedMessage(**message_dict)
+        saved_msg = SavedMessage(**message_dict)
+        
+        # Update User Preferences (Best Effort - Don't block if fails)
+        try:
+            # We need the tone of the message to update preferences.
+            # SavedMessage model has 'type' field which corresponds to tone.
+            if saved_msg.type:
+                self.prefs_service.update_from_saved_message(user_id, saved_msg, saved_msg.type)
+        except Exception as e:
+            print(f"Error updating user preferences: {e}")
+            
+        return saved_msg
 
     def get_saved_messages(self, campaign_id: str, user_id: str) -> List[SavedMessage]:
         """
