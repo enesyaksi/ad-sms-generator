@@ -215,6 +215,7 @@ class SMSService:
         if not preferences or preferences.total_saved_messages < 3:
             return ""
             
+        print(f"DEBUG: Applying personalization for user based on {preferences.total_saved_messages} saved messages.")            
         bias_text = "\n<personalization_hints>\n"
         bias_text += "Kullanıcının geçmiş tercihleri doğrultusunda şunlara dikkat et:\n"
         
