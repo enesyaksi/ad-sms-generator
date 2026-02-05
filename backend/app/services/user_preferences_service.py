@@ -74,6 +74,55 @@ class UserPreferencesService:
         self.collection.document(user_id).set(prefs.model_dump())
         print(f"DEBUG: Updated preferences for user {user_id}: {prefs.model_dump()}")
 
+    def unlearn_from_deleted_message(self, user_id: str, message: SavedMessage) -> None:
+        """
+        Reverse the preference update when a message is deleted. 
+        Helps correct accidental saves.
+        """
+        prefs = self.get_preferences(user_id)
+        if prefs.total_saved_messages <= 0:
+            return
+
+        # 1. Analyze Message
+        content_length = len(message.content)
+        has_emoji = self._contains_emoji(message.content)
+        tone = message.type
+        
+        # 2. Reverse Stats (De-incremental Average)
+        n = prefs.total_saved_messages
+        new_n = n - 1
+        
+        if new_n > 0:
+            # Reverse Average Length
+            new_avg_length = int(((prefs.avg_message_length * n) - content_length) / new_n)
+            # Reverse Emoji Usage Rate
+            emoji_score = 1.0 if has_emoji else 0.0
+            new_emoji_rate = ((prefs.emoji_usage_rate * n) - emoji_score) / new_n
+        else:
+            new_avg_length = 0
+            new_emoji_rate = 0.0
+
+        # Reverse Tone Preference
+        current_tones = prefs.preferred_tones.copy()
+        if tone in current_tones:
+            current_weight = current_tones.get(tone, 0.0)
+            new_weight = max(current_weight - 0.05, 0.0)
+            if new_weight == 0.0:
+                del current_tones[tone]
+            else:
+                current_tones[tone] = new_weight
+        
+        # Update Model
+        prefs.avg_message_length = max(0, new_avg_length)
+        prefs.emoji_usage_rate = max(0.0, min(1.0, new_emoji_rate))
+        prefs.preferred_tones = current_tones
+        prefs.total_saved_messages = new_n
+        prefs.updated_at = datetime.now()
+        
+        # 3. Save to Firestore
+        self.collection.document(user_id).set(prefs.model_dump())
+        print(f"DEBUG: 'Unlearned' preferences for user {user_id} (deleted {tone}): {prefs.model_dump()}")
+
     def _contains_emoji(self, text: str) -> bool:
         # Simple check for common emoji ranges or use a library if available.
         # For now, let's assume if it has non-ascii characters that are symbol-like?

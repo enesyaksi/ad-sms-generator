@@ -260,7 +260,17 @@ class CampaignService:
             return False
             
         msg_ref = campaign_ref.collection("saved_messages").document(message_id)
-        if msg_ref.get().exists:
+        msg_doc = msg_ref.get()
+        
+        if msg_doc.exists:
+            # Unlearn from preferences before actual delete
+            try:
+                msg_data = msg_doc.to_dict()
+                msg_obj = SavedMessage(**msg_data)
+                self.prefs_service.unlearn_from_deleted_message(user_id, msg_obj)
+            except Exception as e:
+                print(f"Warning: Failed to unlearn from deleted message: {e}")
+                
             msg_ref.delete()
             return True
         return False
