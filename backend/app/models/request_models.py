@@ -1,5 +1,12 @@
 from pydantic import BaseModel, HttpUrl
 from typing import List, Optional
+from enum import Enum
+
+class RefinementType(str, Enum):
+    SHORTEN = "SHORTEN"
+    CLARIFY = "CLARIFY"
+    MORE_EXCITING = "MORE_EXCITING"
+    MORE_FORMAL = "MORE_FORMAL"
 
 class SMSRequest(BaseModel):
     website_url: str
@@ -23,3 +30,7 @@ class SMSRequest(BaseModel):
                 "target_audience": "Gençler, Moda Severler"
             }
         }
+
+class RefineRequest(BaseModel):
+    content: str
+    refinement_type: RefinementType
