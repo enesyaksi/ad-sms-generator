@@ -484,7 +484,7 @@ const CampaignDetails = () => {
                                     value={audienceInput}
                                     onChange={(e) => setAudienceInput(e.target.value)}
                                     onKeyDown={handleAddAudienceToken}
-                                    placeholder={targetAudience.length === 0 ? "Kitle ekle..." : ""}
+                                    placeholder={targetAudience.length === 0 ? "Kitle ekle (Enter'a bas)..." : ""}
                                     className="flex-1 bg-transparent border-none outline-none text-[12px] font-medium text-slate-700 placeholder-slate-400 min-w-[60px]"
                                 />
                             </div>
