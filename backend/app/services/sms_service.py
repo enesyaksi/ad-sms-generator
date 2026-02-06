@@ -2,16 +2,19 @@ import httpx
 import re
 from bs4 import BeautifulSoup
 from app.clients.gemini_client import GeminiClient
-from app.models.request_models import SMSRequest
+from app.models.request_models import SMSRequest, RefineRequest, RefinementType
 from app.models.response_models import SMSResponse, SMSDraft
 import asyncio
 
 from app.services.website_scraper import WebsiteScraper
+from app.services.user_preferences_service import UserPreferencesService
+from app.models.user_preferences_models import UserPreferences
 
 class SMSService:
     def __init__(self):
         self.client = GeminiClient()
         self.scraper = WebsiteScraper()
+        self.prefs_service = UserPreferencesService()
         self.draft_types = [
             "Klasik", "Acil", "Samimi", "Minimalist", 
             "Hikaye Odaklı", "Soru & Cevap", "Modern", 
@@ -29,14 +32,22 @@ class SMSService:
         text = text.replace("<", "&lt;").replace(">", "&gt;")
         return text
 
-    def _construct_prompt(self, data: SMSRequest, scraped_info: str, phone_number: str) -> str:
+    def _construct_prompt(self, data: SMSRequest, scraped_info: str, phone_number: str, preferences: UserPreferences = None) -> str:
         products_str = self._sanitize_input(", ".join(data.products))
         scraped_info_safe = self._sanitize_input(scraped_info)
         website_url_safe = self._sanitize_input(data.website_url)
         target_audience_safe = self._sanitize_input(data.target_audience)
         
+        preference_bias = self._apply_preference_bias(preferences) if preferences else ""
+        
         count = min(max(data.message_count, 1), 10)
         selected_types = self.draft_types[:count]
+        
+        # Prepare dynamic discount text
+        discount_text = f"%{data.discount_rate}" if data.discount_rate > 0 else "İndirim Belirtilmedi (Fırsat/Hediye Odaklı)"
+        
+        # Check if it's a gift campaign
+        is_gift = any("hediye" in p.lower() or "gift" in p.lower() for p in data.products)
         
         prompt = f"""
         Profesyonel bir SMS pazarlama metin yazarı olarak hareket et.
@@ -51,7 +62,7 @@ class SMSService:
         <website>{website_url_safe}</website>
         <phone>{phone_number}</phone>
         <products>{products_str}</products>
-        <discount>%{data.discount_rate}</discount>
+        <discount>{discount_text}</discount>
         <dates>
             <start>{data.start_date or 'Belirtilmedi'}</start>
             <end>{data.end_date or 'Belirtilmedi'}</end>
@@ -71,13 +82,20 @@ class SMSService:
         5. Tarih belirtirken MUTLAKA yılı da ekle (Örn: 29.01.2026 veya 29 Ocak 2026). Sadece gün/ay yazma.
         6. Hedef kitleye ({target_audience_safe}) uygun bir dil kullan.
         7. Her mesaj yaklaşık 250 karakter (1.5 - 2 SMS boyutu) olmalı.
+        8. Her mesaja 0-100 arasında bir "Etki Puanı" ver. (Puan kriterleri: Netlik, Aciliyet, Marka Uyumu, Dönüşüm Olasılığı).
+        9. ÖNEMLİ: Eğer indirim oranı 0 ise veya ürün bir 'Hediye' ise, metinde asla '%0 indirim' ifadesini kullanma. Bunun yerine 'Hediye', 'Sürpriz', 'Armağan' veya 'Ücretsiz' gibi kelimelerle avantajı vurgula.
         </rules>
         
         <requested_types>
         {", ".join(selected_types)}
         </requested_types>
         
+        {preference_bias}
+        
         Çıktıyı TAM OLARAK aşağıdaki formatta ver (markdown yok, sadece ayırıcılarla ayrılmış içerik):
+        ---TIP_ADI---
+        [Puan: 85]
+        [İçerik Buraya]
         """
         
         for t in selected_types:
@@ -85,8 +103,17 @@ class SMSService:
             
         return prompt
 
-    async def generate_campaign_drafts(self, data: SMSRequest) -> SMSResponse:
+    async def generate_campaign_drafts(self, data: SMSRequest, user_id: str = None) -> SMSResponse:
         print(f"DEBUG: Generating drafts for {data.website_url}")
+        
+        # Get user preferences
+        preferences = None
+        if user_id:
+            try:
+                preferences = self.prefs_service.get_preferences(user_id)
+            except Exception as e:
+                print(f"Error fetching preferences: {e}")
+
         # Scrape website content
         scraped_data = await self.scraper.scrape_site_info(data.website_url)
         print(f"DEBUG: Scraped candidates: {scraped_data['candidates']}")
@@ -112,8 +139,8 @@ class SMSService:
         
         print(f"DEBUG: Final contact phone used for SMS: {best_phone}")
         
-        # Construct dynamic prompt
-        prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone)
+        # Prepare Gemini Prompt
+        prompt = self._construct_prompt(data, scraped_data["info_text"], best_phone, preferences)
         
         # Call Gemini with retry for 429
         print("DEBUG: Calling Gemini for drafts...")
@@ -137,31 +164,225 @@ class SMSService:
         # Ensure we return at most the requested count
         return SMSResponse(drafts=drafts[:data.message_count])
 
+    async def refine_sms_draft(self, request: RefineRequest) -> SMSDraft:
+        print(f"DEBUG: Refining SMS with action: {request.refinement_type}")
+        
+        instructions = {
+            RefinementType.SHORTEN: "Bu mesajı daha kısa ve net hale getir (max 160 karakter).",
+            RefinementType.CLARIFY: "Bu mesajı daha anlaşılır ve net bir dille yeniden yaz.",
+            RefinementType.MORE_EXCITING: "Bu mesajı daha heyecan verici, coşkulu ve harekete geçirici bir dille yaz.",
+            RefinementType.MORE_FORMAL: "Bu mesajı daha kurumsal, resmi ve profesyonel bir dille yaz."
+        }
+        
+        specific_instruction = instructions.get(request.refinement_type, "Bu mesajı yeniden yaz.")
+        
+        prompt = f"""
+        Profesyonel bir SMS metin yazarı olarak hareket et.
+        Aşağıdaki SMS taslağını belirtilen direktife göre yeniden yaz.
+        
+        <original_message>
+        {request.content}
+        </original_message>
+        
+        <instruction>
+        {specific_instruction}
+        Anlamı bozmadan, markanın ses tonunu koruyarak revize et.
+        </instruction>
+        
+        Çıktı Formatı (Sadece içerik ve puan):
+        [Puan: 85]
+        <refined_message_content>
+        """
+        
+        try:
+            generated_text = await self.client.generate_text(prompt)
+            print(f"DEBUG: Refined text: {generated_text}")
+            
+            # Simple parsing for single message
+            score = 0
+            content = generated_text.strip()
+            
+            score_match = re.search(r'\[Puan:\s*(\d+)\]', content)
+            if score_match:
+                score = int(score_match.group(1))
+                content = re.sub(r'\[Puan:\s*(\d+)\]', '', content).strip()
+            
+            return SMSDraft(
+                type=request.refinement_type.value, 
+                content=content,
+                score=score
+            )
+            
+        except Exception as e:
+            print(f"Refinement error: {e}")
+            raise e
+
+    def _apply_preference_bias(self, preferences: UserPreferences) -> str:
+        """Inject user preferences into prompt as quality hints."""
+        if not preferences or preferences.total_saved_messages < 3:
+            return ""
+            
+        print(f"DEBUG: Applying personalization for user based on {preferences.total_saved_messages} saved messages.")            
+        bias_text = "\n<personalization_hints>\n"
+        bias_text += "Kullanıcının geçmiş tercihleri doğrultusunda şunlara dikkat et:\n"
+        
+        # 1. Length Preference
+        if preferences.avg_message_length < 140:
+             bias_text += "- Kullanıcı genellikle kısa ve öz mesajları seviyor (140 karaktere yakın tut).\n"
+        elif preferences.avg_message_length > 200:
+             bias_text += "- Kullanıcı detaylı ve açıklayıcı mesajları seviyor.\n"
+             
+        # 2. Tone Preference
+        # Find tones with high affinity (>0.5)
+        fav_tones = [tone for tone, weight in preferences.preferred_tones.items() if weight > 0.4]
+        if fav_tones:
+            bias_text += f"- Kullanıcının favori tonları: {', '.join(fav_tones)}. Bu tonlardaki taslakları yazarken ekstra özen göster.\n"
+            
+        # 3. Emoji Preference
+        if preferences.emoji_usage_rate > 0.6:
+            bias_text += "- Mesajlarda emoji kullanmaktan çekinme, kullanıcı emojileri seviyor.\n"
+        elif preferences.emoji_usage_rate < 0.2:
+            bias_text += "- Emojileri minimal tut veya hiç kullanma.\n"
+            
+        bias_text += "</personalization_hints>\n"
+        return bias_text
+
+    def _construct_analysis_prompt(self, discount_rate: int, duration_days: int, products: list, audience: str) -> str:
+        return f"""
+        Profesyonel bir pazarlama stratejisti olarak hareket et.
+        Aşağıdaki kampanya detaylarını analiz et ve bu kampanya için en etkili 3 ses tonunu belirle.
+        
+        <campaign_details>
+        Ürünler: {', '.join(products) if products else 'Genel Ürünler'}
+        Hedef Kitle: {audience or 'Genel'}
+        İndirim Oranı: %{discount_rate}
+        Süre: {duration_days} gün
+        </campaign_details>
+        
+        <available_tones>
+        {', '.join(self.draft_types)}
+        </available_tones>
+        
+        Analiz Kriterleri:
+        1. Ürün-Ton Uyumu: Teknoloji ise modern, Giyim ise estetik, Gıda ise samimi vb.
+        2. Kitle-Ton Uyumu: Gençler için dinamik/vurucu, profesyoneller için kurumsal/klasik.
+        3. Kampanya Aciliyeti: Kısa süre ve yüksek indirim varsa 'Acil', uzun dönemse 'Hikaye Odaklı'.
+        
+        Sadece en uygun 3 tonu, virgülle ayırarak yaz. Açıklama yapma.
+        Örnek Çıktı: Modern, Vurucu, Klasik
+        """
+
+    async def get_tone_recommendations(self, discount_rate: int, duration_days: int, products: list = None, audience: str = None) -> list[str]:
+        """
+        Analyze campaign context using AI to recommend 3 suitable tones.
+        """
+        # Default fallback
+        fallback = ["Klasik", "Modern", "Minimalist"]
+        
+        try:
+            print(f"DEBUG: Analyzing tone for discount={discount_rate}, duration={duration_days}, products={products}")
+            prompt = self._construct_analysis_prompt(discount_rate, duration_days, products or [], audience)
+            
+            # Call Gemini
+            analysis = await self.client.generate_text(prompt)
+            print(f"DEBUG: AI Tone Analysis Result: {analysis}")
+            
+            if not analysis:
+                return fallback
+                
+            # Parse result (clean up and split)
+            suggested_tones = [t.strip() for t in analysis.split(',') if t.strip()]
+            
+            # Validate against allowed types
+            valid_suggestions = [t for t in suggested_tones if t in self.draft_types]
+            
+            # If we got at least 1 valid suggestion, fill the rest with fallback if needed
+            if valid_suggestions:
+                # Add fallbacks if less than 3, preserving uniqueness
+                for backup in fallback:
+                    if len(valid_suggestions) < 3 and backup not in valid_suggestions:
+                        valid_suggestions.append(backup)
+                return valid_suggestions[:3]
+            
+            return fallback
+
+        except Exception as e:
+            print(f"Tone analysis failed: {e}")
+            return fallback
+
     def _parse_generated_text(self, text: str) -> list[SMSDraft]:
         drafts = []
         try:
             parts = text.split("---")
+            type_map = {t.upper(): t for t in self.draft_types}
+            
             current_type = None
             
-            # Map of possible types in uppercase to their display versions
-            type_map = {t.upper(): t for t in self.draft_types}
-
             for part in parts:
                 clean_part = part.strip()
                 if not clean_part:
                     continue
                 
-                if clean_part in type_map:
-                    current_type = type_map[clean_part]
-                elif current_type:
-                    drafts.append(SMSDraft(type=current_type, content=clean_part))
-                    current_type = None
+                # Check line by line
+                lines = clean_part.split('\n')
+                if not lines:
+                    continue
+                    
+                # First line is usually the TYPE if split by ---
+                # But since we split by ---, the TYPE is actually implicit or part of the previous block
+                # Let's use flexible parsing:
+                # Format: ---TIP--- \n [Puan: 85] \n Content
+                
+                current_score = 0
+                current_content = ""
+                
+                # The split("---") removes the delimiters. 
+                # Gemini usually outputs: ---TIP1--- Content ---TIP2--- Content
+                # So part[0] is usually "TIP1\n[Puan: 85]\nContent"
+                
+                first_line = lines[0].strip()
+                
+                # Extract Type
+                if first_line in type_map:
+                    current_type = type_map[first_line]
+                
+                # Extract Score
+                # Look for [Puan: \d+]
+                score_match = re.search(r'\[Puan:\s*(\d+)\]', clean_part)
+                if score_match:
+                    current_score = int(score_match.group(1))
+                    # Remove the score line from content
+                    clean_part = re.sub(r'\[Puan:\s*(\d+)\]', '', clean_part)
+                
+                # Validate Type if strictly mapped
+                if not current_type:
+                    # Fallback: try to find any known type in the first line
+                    for t_upper, t_display in type_map.items():
+                        if t_upper in first_line:
+                            current_type = t_display
+                            break
+                            
+                # Cleanup content
+                # Remove the type line if it's there
+                if current_type and current_type.upper() in lines[0]:
+                    clean_part = "\n".join(lines[1:])
+                
+                current_content = clean_part.strip()
+                
+                if current_type and current_content:
+                    drafts.append(SMSDraft(
+                        type=current_type, 
+                        content=current_content, 
+                        score=current_score
+                    ))
             
-            if not drafts:
-                drafts.append(SMSDraft(type="Genel", content=text))
+            # Identify the recommended draft (highest score)
+            if drafts:
+                best_draft = max(drafts, key=lambda d: d.score)
+                best_draft.is_recommended = True
                 
         except Exception as e:
             print(f"Parsing error: {e}")
-            drafts.append(SMSDraft(type="Hata", content="AI yanıtı ayrıştırılamadı. Ham veri: " + text[:100]))
+            drafts.append(SMSDraft(type="Hata", content="AI yanıtı ayrıştırılamadı.", score=0))
 
         return drafts

@@ -6,10 +6,13 @@ from app.models.campaign_models import (
     SavedMessage, SavedMessageCreate, CampaignStatus
 )
 
+from app.services.user_preferences_service import UserPreferencesService
+
 class CampaignService:
     def __init__(self):
         self.db = firestore.client()
         self.collection = self.db.collection("campaigns")
+        self.prefs_service = UserPreferencesService()
 
     async def create_campaign(self, campaign_data: CampaignCreate, user_id: str) -> Campaign:
         """
@@ -215,7 +218,18 @@ class CampaignService:
         })
         
         message_ref.set(message_dict)
-        return SavedMessage(**message_dict)
+        saved_msg = SavedMessage(**message_dict)
+        
+        # Update User Preferences (Best Effort - Don't block if fails)
+        try:
+            # We need the tone of the message to update preferences.
+            # SavedMessage model has 'type' field which corresponds to tone.
+            if saved_msg.type:
+                self.prefs_service.update_from_saved_message(user_id, saved_msg, saved_msg.type)
+        except Exception as e:
+            print(f"Error updating user preferences: {e}")
+            
+        return saved_msg
 
     def get_saved_messages(self, campaign_id: str, user_id: str) -> List[SavedMessage]:
         """
@@ -246,7 +260,17 @@ class CampaignService:
             return False
             
         msg_ref = campaign_ref.collection("saved_messages").document(message_id)
-        if msg_ref.get().exists:
+        msg_doc = msg_ref.get()
+        
+        if msg_doc.exists:
+            # Unlearn from preferences before actual delete
+            try:
+                msg_data = msg_doc.to_dict()
+                msg_obj = SavedMessage(**msg_data)
+                self.prefs_service.unlearn_from_deleted_message(user_id, msg_obj)
+            except Exception as e:
+                print(f"Warning: Failed to unlearn from deleted message: {e}")
+                
             msg_ref.delete()
             return True
         return False
