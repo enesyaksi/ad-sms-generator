@@ -420,10 +420,10 @@ const CampaignDetails = () => {
                 </div>
 
                 {/* Products & Config Grid - Unified Design */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Products */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">inventory_2</span>
                             </div>
@@ -445,7 +445,7 @@ const CampaignDetails = () => {
 
                     {/* Discount */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-emerald-100/50 rounded-lg text-emerald-600">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">percent</span>
                             </div>
@@ -460,7 +460,7 @@ const CampaignDetails = () => {
 
                     {/* Tag Based Audience */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-blue-100/50 rounded-lg text-primary">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">group_add</span>
                             </div>
