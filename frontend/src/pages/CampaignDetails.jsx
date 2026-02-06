@@ -14,7 +14,7 @@ const CampaignDetails = () => {
     // SMS Generator State
     const [targetAudience, setTargetAudience] = useState([]);
     const [audienceInput, setAudienceInput] = useState('');
-    const [messageCount, setMessageCount] = useState(3);
+
     const [drafts, setDrafts] = useState([]);
     const [savedMessages, setSavedMessages] = useState([]);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -108,7 +108,7 @@ const CampaignDetails = () => {
                 start_date: campaign.start_date || null,
                 end_date: campaign.end_date || null,
                 discount_rate: campaign.discount_rate || 0,
-                message_count: messageCount,
+                message_count: 10,
                 target_audience: targetAudience.join(', '),
                 phone_number: customer?.phone_number || ''
             };
@@ -420,10 +420,10 @@ const CampaignDetails = () => {
                 </div>
 
                 {/* Products & Config Grid - Unified Design */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Products */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">inventory_2</span>
                             </div>
@@ -445,7 +445,7 @@ const CampaignDetails = () => {
 
                     {/* Discount */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-emerald-100/50 rounded-lg text-emerald-600">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">percent</span>
                             </div>
@@ -460,7 +460,7 @@ const CampaignDetails = () => {
 
                     {/* Tag Based Audience */}
                     <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
+                        <span className="text-slate-500 text-xs font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
                             <div className="p-1.5 bg-blue-100/50 rounded-lg text-primary">
                                 <span className="material-symbols-outlined text-[18px] block font-bold">group_add</span>
                             </div>
@@ -484,48 +484,14 @@ const CampaignDetails = () => {
                                     value={audienceInput}
                                     onChange={(e) => setAudienceInput(e.target.value)}
                                     onKeyDown={handleAddAudienceToken}
-                                    placeholder={targetAudience.length === 0 ? "Kitle ekle..." : ""}
+                                    placeholder={targetAudience.length === 0 ? "Kitle ekle (Enter'a bas)..." : ""}
                                     className="flex-1 bg-transparent border-none outline-none text-[12px] font-medium text-slate-700 placeholder-slate-400 min-w-[60px]"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    {/* Message Count */}
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:shadow-md min-h-[180px]">
-                        <span className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 mb-4 shrink-0">
-                            <div className="p-1.5 bg-amber-100/50 rounded-lg text-amber-600">
-                                <span className="material-symbols-outlined text-[18px] block font-bold">chat_bubble</span>
-                            </div>
-                            MESAJ SAYISI
-                        </span>
-                        <div className="flex-1 flex items-end">
-                            <div className="flex items-center gap-3 w-full">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    value={messageCount}
-                                    onChange={(e) => setMessageCount(parseInt(e.target.value) || 1)}
-                                    className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-2 text-xl font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all"
-                                />
-                                <div className="flex flex-col gap-1">
-                                    <button
-                                        onClick={() => setMessageCount(prev => Math.min(prev + 1, 10))}
-                                        className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_up</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setMessageCount(prev => Math.max(prev - 1, 1))}
-                                        className="p-1 bg-slate-50 border border-slate-100 rounded-md hover:bg-slate-100 text-slate-400 hover:text-primary transition-all"
-                                    >
-                                        <span className="material-symbols-outlined text-[18px] block">keyboard_arrow_down</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-4 animate-in fade-in duration-500 slide-in-from-bottom-2">
