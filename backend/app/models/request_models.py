@@ -14,7 +14,7 @@ class SMSRequest(BaseModel):
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     discount_rate: int
-    message_count: int
+    message_count: int = 10
     target_audience: str
     phone_number: Optional[str] = None
 
