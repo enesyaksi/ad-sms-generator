@@ -25,9 +25,20 @@ async def refine_sms(request: RefineRequest, user: dict = Depends(get_current_us
 async def get_tone_recommendations(
     discount_rate: int = 0,
     duration_days: int = 0,
+    products: str = "", # Comma separated list
+    audience: str = "",
     user: dict = Depends(get_current_user)
 ):
     try:
-        return {"recommendations": sms_service.get_tone_recommendations(discount_rate, duration_days)}
+        # Parse products from comma separated string
+        product_list = [p.strip() for p in products.split(',') if p.strip()]
+        
+        recs = await sms_service.get_tone_recommendations(
+            discount_rate, 
+            duration_days, 
+            product_list, 
+            audience
+        )
+        return {"recommendations": recs}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
