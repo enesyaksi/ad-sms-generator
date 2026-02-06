@@ -76,7 +76,9 @@ const CampaignDetails = () => {
 
                 const data = await getToneRecommendations({
                     discount_rate: discount,
-                    duration_days: duration
+                    duration_days: duration,
+                    products: Array.isArray(campaign.products) ? campaign.products.join(',') : (campaign.products || ""),
+                    audience: campaign.target_audience || ""
                 });
                 setRecommendedTones(data.recommendations || []);
             } catch (err) {
@@ -304,8 +306,8 @@ const CampaignDetails = () => {
             {aiFeedback && (
                 <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] animate-in slide-in-from-bottom-5 fade-in duration-300`}>
                     <div className={`px-6 py-3 rounded-2xl shadow-2xl border flex items-center gap-3 ${aiFeedback.type === 'success'
-                            ? 'bg-slate-900 border-slate-800 text-white'
-                            : 'bg-white border-slate-200 text-slate-900'
+                        ? 'bg-slate-900 border-slate-800 text-white'
+                        : 'bg-white border-slate-200 text-slate-900'
                         }`}>
                         <span className="material-symbols-outlined text-indigo-400 text-[20px]">auto_awesome</span>
                         <span className="text-[13px] font-bold">{aiFeedback.message}</span>

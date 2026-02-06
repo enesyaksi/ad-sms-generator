@@ -247,33 +247,68 @@ class SMSService:
         bias_text += "</personalization_hints>\n"
         return bias_text
 
-    def get_tone_recommendations(self, discount_rate: int, duration_days: int) -> list[str]:
-        """
-        Analyze campaign context and recommend 3-4 suitable tones.
-        """
-        recs = ["Klasik"] # Always include Klasik
+    def _construct_analysis_prompt(self, discount_rate: int, duration_days: int, products: list, audience: str) -> str:
+        return f"""
+        Profesyonel bir pazarlama stratejisti olarak hareket et.
+        Aşağıdaki kampanya detaylarını analiz et ve bu kampanya için en etkili 3 ses tonunu belirle.
         
-        # 1. Discount based logic
-        if discount_rate >= 40:
-            recs.append("Acil")
-            recs.append("Vurucu")
-        elif discount_rate >= 20:
-            recs.append("Modern")
+        <campaign_details>
+        Ürünler: {', '.join(products) if products else 'Genel Ürünler'}
+        Hedef Kitle: {audience or 'Genel'}
+        İndirim Oranı: %{discount_rate}
+        Süre: {duration_days} gün
+        </campaign_details>
         
-        # 2. Duration based logic
-        if duration_days <= 3:
-            if "Acil" not in recs: recs.append("Acil")
-            recs.append("Minimalist")
-        elif duration_days >= 14:
-            recs.append("Hikaye Odaklı")
-            recs.append("Samimi")
+        <available_tones>
+        {', '.join(self.draft_types)}
+        </available_tones>
+        
+        Analiz Kriterleri:
+        1. Ürün-Ton Uyumu: Teknoloji ise modern, Giyim ise estetik, Gıda ise samimi vb.
+        2. Kitle-Ton Uyumu: Gençler için dinamik/vurucu, profesyoneller için kurumsal/klasik.
+        3. Kampanya Aciliyeti: Kısa süre ve yüksek indirim varsa 'Acil', uzun dönemse 'Hikaye Odaklı'.
+        
+        Sadece en uygun 3 tonu, virgülle ayırarak yaz. Açıklama yapma.
+        Örnek Çıktı: Modern, Vurucu, Klasik
+        """
+
+    async def get_tone_recommendations(self, discount_rate: int, duration_days: int, products: list = None, audience: str = None) -> list[str]:
+        """
+        Analyze campaign context using AI to recommend 3 suitable tones.
+        """
+        # Default fallback
+        fallback = ["Klasik", "Modern", "Minimalist"]
+        
+        try:
+            print(f"DEBUG: Analyzing tone for discount={discount_rate}, duration={duration_days}, products={products}")
+            prompt = self._construct_analysis_prompt(discount_rate, duration_days, products or [], audience)
             
-        # 3. Default fillers if too few
-        if len(recs) < 3:
-            if "Modern" not in recs: recs.append("Modern")
-            if "Minimalist" not in recs: recs.append("Minimalist")
+            # Call Gemini
+            analysis = await self.client.generate_text(prompt)
+            print(f"DEBUG: AI Tone Analysis Result: {analysis}")
             
-        return list(set(recs))[:4] # Return unique top 4
+            if not analysis:
+                return fallback
+                
+            # Parse result (clean up and split)
+            suggested_tones = [t.strip() for t in analysis.split(',') if t.strip()]
+            
+            # Validate against allowed types
+            valid_suggestions = [t for t in suggested_tones if t in self.draft_types]
+            
+            # If we got at least 1 valid suggestion, fill the rest with fallback if needed
+            if valid_suggestions:
+                # Add fallbacks if less than 3, preserving uniqueness
+                for backup in fallback:
+                    if len(valid_suggestions) < 3 and backup not in valid_suggestions:
+                        valid_suggestions.append(backup)
+                return valid_suggestions[:3]
+            
+            return fallback
+
+        except Exception as e:
+            print(f"Tone analysis failed: {e}")
+            return fallback
 
     def _parse_generated_text(self, text: str) -> list[SMSDraft]:
         drafts = []
