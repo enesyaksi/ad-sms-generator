@@ -357,7 +357,11 @@ class CampaignService:
         # Get all campaigns for the user
         campaigns = self.get_campaigns(user_id)
         
-        # Aggregate message counts by day
+        # Calculate start of current month
+        first_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        total_monthly = 0
+
+        # Aggregate message counts by day and month
         for campaign in campaigns:
             campaign_ref = self.collection.document(campaign.id)
             messages = campaign_ref.collection("saved_messages").stream()
@@ -369,13 +373,23 @@ class CampaignService:
                     # Handle both datetime objects and Firestore timestamps
                     if hasattr(created_at, 'date'):
                         msg_date = created_at.date()
+                        msg_datetime = created_at
                     else:
                         msg_date = created_at
+                        msg_datetime = created_at
+                    
+                    # Ensure msg_datetime is naive if needed or consistent for comparison
+                    if hasattr(msg_datetime, 'tzinfo') and msg_datetime.tzinfo is not None:
+                         msg_datetime = msg_datetime.replace(tzinfo=None)
                     
                     msg_date_str = msg_date.strftime("%Y-%m-%d") if hasattr(msg_date, 'strftime') else str(msg_date)[:10]
                     
                     if msg_date_str in daily_counts:
                         daily_counts[msg_date_str] += 1
+                        
+                    # Check for monthly count
+                    if msg_datetime >= first_of_month:
+                        total_monthly += 1
         
         # Build trend data
         trend = []
@@ -403,5 +417,6 @@ class CampaignService:
         return {
             "trend": trend,
             "total_weekly": total_weekly,
+            "total_monthly": total_monthly,
             "most_productive_day": most_productive_day
         }
