@@ -70,7 +70,7 @@ const Overview = () => {
                 const trendData = await analyticsApi.getWeeklyTrend();
                 setWeeklyTrend(trendData);
                 // Update messagesThisMonth with real data
-                setStats(prev => ({ ...prev, messagesThisMonth: trendData.total_weekly }));
+                setStats(prev => ({ ...prev, messagesThisMonth: trendData.total_monthly }));
             } catch (error) {
                 console.error("Error fetching trend data:", error);
             } finally {
@@ -178,7 +178,7 @@ const Overview = () => {
                     icon="campaign"
                     color="blue"
                     trend={campaignStats.trend}
-                    trendLabel={campaignStats.trend_label}
+                    trendLabel={`${campaignStats.this_month_count || 0} bu ay, ${campaignStats.trend_label || 'artış'}`}
                 />
                 <StatCard
                     title="Bu Ay Üretilen Mesaj"
